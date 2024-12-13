@@ -4,11 +4,6 @@ import (
 	"time"
 )
 
-//	type Permission struct {
-//		ID          uint   `gorm:"primaryKey;autoIncrement"`
-//		Name        string `gorm:"unique"`
-//		Description string
-//	}
 type Permission struct {
 	ID          uint      `gorm:"primaryKey;autoIncrement" json:"id"`
 	Name        string    `gorm:"type:varchar(100);not null" json:"name"`
@@ -17,6 +12,6 @@ type Permission struct {
 	Active      bool      `gorm:"default:true" json:"active"`
 	CreatedAt   time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt   time.Time `gorm:"default:CURRENT_TIMESTAMP;autoUpdateTime" json:"updated_at"`
-	Module      Module    `gorm:"foreignKey:ModuleID;references:ID" json:"module"` // Define relationship with Module
-	Roles       []Role    `gorm:"many2many:role_permissions" json:"roles"`         // Relationship with Role
+	Module      Module    `gorm:"foreignKey:ModuleID;references:ID" json:"module"`
+	Roles       []Role    `gorm:"many2many:role_permissions" json:"roles"`
 }

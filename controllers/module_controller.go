@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Crear módulo
 func CreateModule(c *gin.Context) {
 	var input struct {
 		Name        string `json:"name" binding:"required"`
@@ -30,7 +29,6 @@ func CreateModule(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Module created successfully"})
 }
 
-// Obtener todos los módulos
 func GetModules(c *gin.Context) {
 	modules, err := services.GetAllModules()
 	if err != nil {
@@ -41,7 +39,6 @@ func GetModules(c *gin.Context) {
 	c.JSON(http.StatusOK, modules)
 }
 
-// Obtener un módulo por ID
 func GetModule(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 
@@ -54,7 +51,6 @@ func GetModule(c *gin.Context) {
 	c.JSON(http.StatusOK, module)
 }
 
-// Actualizar módulo parcialmente
 func UpdateModule(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 
@@ -69,7 +65,6 @@ func UpdateModule(c *gin.Context) {
 		return
 	}
 
-	// Llamar al servicio para actualizar el módulo
 	err := services.UpdateModule(uint(id), input.Name, input.Description, input.Active)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -79,11 +74,9 @@ func UpdateModule(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Module updated successfully"})
 }
 
-// Cambiar el estado de un módulo (activar/desactivar)
 func ToggleModuleActive(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	// Llamar al servicio para cambiar el estado de "active"
 	err := services.ToggleModuleActive(uint(id))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change module active state"})

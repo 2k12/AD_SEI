@@ -16,13 +16,11 @@ func CreateUser(c *gin.Context) {
 		Active bool `json:"active"`
 	}
 
-	// Validar los datos de entrada
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Llamar al servicio para crear el usuario
 	user, err := services.CreateUser(input.Name, input.Email, input.Password, input.Active)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al crear el usuario"})
@@ -42,30 +40,26 @@ func GetUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"users": users})
 }
 
-// Actualizar usuario
 func UpdateUser(c *gin.Context) {
-	id := c.Param("id") // Obtener el ID del usuario desde la URL
+	id := c.Param("id")
 
 	var userData struct {
-		Name   string `json:"name"`   // Campo opcional
-		Email  string `json:"email"`  // Campo opcional
-		Active *bool  `json:"active"` // Campo opcional
+		Name   string `json:"name"`
+		Email  string `json:"email"`
+		Active *bool  `json:"active"`
 	}
 
-	// Parsear el JSON del body
 	if err := c.ShouldBindJSON(&userData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos"})
 		return
 	}
 
-	// Llamar al servicio para actualizar el usuario
 	updatedUser, err := services.UpdateUser(id, userData.Name, userData.Email, userData.Active)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Responder con el usuario actualizado
 	c.JSON(http.StatusOK, updatedUser)
 }
 

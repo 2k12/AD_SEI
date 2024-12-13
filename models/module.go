@@ -11,5 +11,5 @@ type Module struct {
 	Active      bool         `gorm:"default:true" json:"active"`
 	CreatedAt   time.Time    `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt   time.Time    `gorm:"default:CURRENT_TIMESTAMP;autoUpdateTime" json:"updated_at"`
-	Permissions []Permission `gorm:"many2many:module_permissions" json:"permissions"` // Relationship with Permission
+	Permissions []Permission `gorm:"many2many:module_permissions" json:"permissions"`
 }

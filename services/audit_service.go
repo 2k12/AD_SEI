@@ -12,7 +12,7 @@ func RegisterAudit(event, description string, userID uint, originService string,
 		Description:   description,
 		UserID:        userID,
 		OriginService: originService,
-		Date:          date, // Aquí se pasa el parámetro date
+		Date:          date,
 	}
 
 	result := config.DB.Create(&audit)

@@ -18,7 +18,6 @@ func CreatePermission(c *gin.Context) {
 		return
 	}
 
-	// Llamar al servicio para crear el permiso
 	permission, err := services.CreatePermission(input.Name, input.Description)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al crear el permiso"})

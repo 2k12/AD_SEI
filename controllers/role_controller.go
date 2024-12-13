@@ -18,7 +18,6 @@ func CreateRole(c *gin.Context) {
 		return
 	}
 
-	// Llamar al servicio para crear el rol
 	role, err := services.CreateRole(input.Name, input.Description)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al crear el rol"})
