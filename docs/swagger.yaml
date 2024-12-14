@@ -1,0 +1,281 @@
+basePath: /api
+host: localhost:8080
+info:
+  contact:
+    email: jfpastillod@utn.edu.ec
+    name: Pastillo Joan
+    url: https://www.utn.edu.ec
+  description: Esta es la documentación de LA API DE SEGURIDAD hecha con Go.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: API SEGURIDAD con Swagger
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Autentica un usuario con email y contraseña, devolviendo un token
+        JWT
+      parameters:
+      - description: Datos de inicio de sesión
+        in: body
+        name: loginData
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Iniciar sesión
+      tags:
+      - Autenticación
+  /logout:
+    post:
+      description: Invalida la sesión actual del usuario. Requiere un Bearer Token.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Cerrar sesión
+      tags:
+      - Autenticación
+  /users:
+    get:
+      description: Devuelve una lista de todos los usuarios registrados. Requiere
+        un Bearer Token.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: users
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "401":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Obtener usuarios
+      tags:
+      - Usuarios
+    post:
+      consumes:
+      - application/json
+      description: Crea un nuevo usuario con nombre, email, contraseña y estado activo.
+        Requiere un Bearer Token.
+      parameters:
+      - description: Datos del usuario
+        in: body
+        name: input
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: user
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Crear usuario
+      tags:
+      - Usuarios
+  /users/{id}:
+    delete:
+      description: Cambia el estado de un usuario a inactivo. Requiere un Bearer Token.
+      parameters:
+      - description: ID del usuario
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Eliminar usuario
+      tags:
+      - Usuarios
+    put:
+      consumes:
+      - application/json
+      description: Actualiza los datos de un usuario existente. Requiere un Bearer
+        Token.
+      parameters:
+      - description: ID del usuario
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Datos a actualizar
+        in: body
+        name: userData
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: updatedUser
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Actualizar usuario
+      tags:
+      - Usuarios
+  /users/{id}/permissions:
+    get:
+      description: Devuelve la lista de permisos asignados a un usuario específico,
+        dado su ID. Requiere un Bearer Token.
+      parameters:
+      - description: ID del usuario
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: permissions
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "400":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Obtener permisos de un usuario
+      tags:
+      - Usuarios
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -71,6 +71,27 @@ func GetUsers() ([]models.User, error) {
 	return users, nil
 }
 
+func GetUserPermissions(userID uint) ([]models.Permission, error) {
+	var user models.User
+	var permissions []models.Permission
+
+	// Buscar al usuario por ID e incluir roles y permisos asociados
+	result := config.DB.Debug().Preload("Roles.Permissions").First(&user, userID)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	// Recopilar todos los permisos de todos los roles del usuario
+	for _, role := range user.Roles {
+		for _, permission := range role.Permissions {
+			permissions = append(permissions, permission)
+		}
+	}
+
+	return permissions, nil
+}
+
 func UpdateUser(id string, name, email string, active *bool) (models.User, error) {
 	var user models.User
 

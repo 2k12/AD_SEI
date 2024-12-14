@@ -9,24 +9,34 @@ import (
 )
 
 func SetupRoutes(router *gin.Engine) {
+
+	// Agrupamos las rutas bajo "/api"
 	api := router.Group("/api")
-
-	api.POST("/login", controllers.Login)
-	api.POST("/logout", middleware.AuthMiddleware(os.Getenv("JWT_SECRET_KEY")), controllers.Logout)
-	api.POST("/users", controllers.CreateUser)
-
-	api.Use(middleware.AuthMiddleware(os.Getenv("JWT_SECRET_KEY")))
 	{
-		api.GET("/users", controllers.GetUsers)
-		api.PUT("/users/:id", controllers.UpdateUser)
-		api.DELETE("/users/:id", controllers.DeleteUser)
+		// Rutas de autenticación
+		api.POST("/login", controllers.Login)
+		api.POST("/logout", middleware.AuthMiddleware(os.Getenv("JWT_SECRET_KEY")), controllers.Logout)
 
-		api.GET("/roles", controllers.GetRoles)
-		api.POST("/roles", controllers.CreateRole)
+		// Rutas de usuarios (requiere Bearer Token)
+		api.POST("/users", controllers.CreateUser)
 
-		api.GET("/permissions", controllers.GetPermissions)
-		api.POST("/permissions", controllers.CreatePermission)
+		// Usamos middleware de autenticación para el resto de rutas
+		api.Use(middleware.AuthMiddleware(os.Getenv("JWT_SECRET_KEY")))
+		{
+			api.GET("/users", controllers.GetUsers)
+			api.GET("/users/:id/permissions", controllers.GetUserPermissions)
+			api.PUT("/users/:id", controllers.UpdateUser)
+			api.DELETE("/users/:id", controllers.DeleteUser)
 
-		api.POST("/audit", controllers.RegisterAudit)
+			// Rutas de roles y permisos (requiere Bearer Token)
+			api.GET("/roles", controllers.GetRoles)
+			api.POST("/roles", controllers.CreateRole)
+
+			api.GET("/permissions", controllers.GetPermissions)
+			api.POST("/permissions", controllers.CreatePermission)
+
+			// Ruta para auditar
+			api.POST("/audit", controllers.RegisterAudit)
+		}
 	}
 }
