@@ -10,9 +10,10 @@ import (
 
 // CreateUser crea un nuevo usuario
 // @Summary Crear usuario
-// @Description Crea un nuevo usuario con nombre, email, contraseña y estado activo. Requiere un Bearer Token.
+// @Description Crea un nuevo usuario con nombre, email, contraseña y estado activo. Requiere un Bearer Token y PIN.
 // @Tags Usuarios
 // @Security BearerAuth
+// @Security XAPI-PIN
 // @Accept json
 // @Produce json
 // @Param input body object true "Datos del usuario"
@@ -45,9 +46,10 @@ func CreateUser(c *gin.Context) {
 
 // GetUsers obtiene todos los usuarios
 // @Summary Obtener usuarios
-// @Description Devuelve una lista de todos los usuarios registrados. Requiere un Bearer Token.
+// @Description Devuelve una lista de todos los usuarios registrados. Requiere un Bearer Token y PIN.
 // @Tags Usuarios
 // @Security BearerAuth
+// @Security XAPI-PIN
 // @Produce json
 // @Success 200 {array} map[string]interface{} "users"
 // @Failure 401 {object} map[string]string "error"
@@ -99,9 +101,10 @@ func GetUserPermissions(c *gin.Context) {
 
 // UpdateUser actualiza un usuario existente
 // @Summary Actualizar usuario
-// @Description Actualiza los datos de un usuario existente. Requiere un Bearer Token.
+// @Description Actualiza los datos de un usuario existente. Requiere un Bearer Token y PIN.
 // @Tags Usuarios
 // @Security BearerAuth
+// @Security XAPI-PIN
 // @Accept json
 // @Produce json
 // @Param id path string true "ID del usuario"
@@ -135,9 +138,10 @@ func UpdateUser(c *gin.Context) {
 
 // DeleteUser elimina un usuario
 // @Summary Eliminar usuario
-// @Description Cambia el estado de un usuario a inactivo. Requiere un Bearer Token.
+// @Description Cambia el estado de un usuario a inactivo. Requiere un Bearer Token y PIN.
 // @Tags Usuarios
 // @Security BearerAuth
+// @Security XAPI-PIN
 // @Produce json
 // @Param id path string true "ID del usuario"
 // @Success 200 {object} map[string]string "message"

@@ -9,7 +9,6 @@ import (
 )
 
 func SetupRoutes(router *gin.Engine) {
-
 	api := router.Group("/api")
 	{
 		api.POST("/login", controllers.Login)
@@ -19,18 +18,23 @@ func SetupRoutes(router *gin.Engine) {
 
 		api.Use(middleware.AuthMiddleware(os.Getenv("JWT_SECRET_KEY")))
 		{
-			api.GET("/users", controllers.GetUsers)
 			api.GET("/users/:id/permissions", controllers.GetUserPermissions)
-			api.PUT("/users/:id", controllers.UpdateUser)
-			api.DELETE("/users/:id", controllers.DeleteUser)
 
-			api.GET("/roles", controllers.GetRoles)
-			api.POST("/roles", controllers.CreateRole)
+			authenticated := api.Use(middleware.ValidatePIN())
+			{
+				authenticated.GET("/users", controllers.GetUsers)
+				authenticated.PUT("/users/:id", controllers.UpdateUser)
+				authenticated.DELETE("/users/:id", controllers.DeleteUser)
 
-			api.GET("/permissions", controllers.GetPermissions)
-			api.POST("/permissions", controllers.CreatePermission)
+				authenticated.GET("/roles", controllers.GetRoles)
+				authenticated.POST("/roles", controllers.CreateRole)
 
-			api.POST("/audit", controllers.RegisterAudit)
+				authenticated.GET("/permissions", controllers.GetPermissions)
+				authenticated.POST("/permissions", controllers.CreatePermission)
+
+				authenticated.POST("/audit", controllers.RegisterAudit)
+			}
+
 		}
 	}
 }

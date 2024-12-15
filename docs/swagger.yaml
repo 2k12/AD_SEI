@@ -1,4 +1,69 @@
 basePath: /api
+definitions:
+  controllers.ErrorResponse:
+    properties:
+      error:
+        example: Credenciales inválidas
+        type: string
+    type: object
+  controllers.ErrorResponseAudit:
+    properties:
+      error:
+        description: Mensaje de error
+        example: Error al realizar el registro
+        type: string
+    type: object
+  controllers.LoginData:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      password:
+        example: securePassword123
+        type: string
+    type: object
+  controllers.RegisterAuditInput:
+    properties:
+      date:
+        description: Fecha en formato RFC3339
+        example: "2024-12-14T15:04:05Z"
+        type: string
+      description:
+        description: Descripción del evento
+        example: Se creó un nuevo usuario con el email user@example.com.
+        type: string
+      event:
+        description: Evento realizado
+        example: INSERT
+        type: string
+      origin_service:
+        description: Servicio de origen
+        example: INVENTARIO
+        type: string
+      user_id:
+        description: ID del usuario que realizó la acción
+        example: "123"
+        type: string
+    required:
+    - date
+    - description
+    - event
+    - origin_service
+    - user_id
+    type: object
+  controllers.RegisterAuditResponse:
+    properties:
+      message:
+        description: Mensaje de éxito
+        example: Auditoría registrada exitosamente
+        type: string
+    type: object
+  controllers.TokenResponse:
+    properties:
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -13,6 +78,36 @@ info:
   title: API SEGURIDAD con Swagger
   version: "1.0"
 paths:
+  /audit:
+    post:
+      consumes:
+      - application/json
+      description: Registra un evento de auditoría en el sistema
+      parameters:
+      - description: Datos de auditoría a registrar
+        in: body
+        name: auditData
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.RegisterAuditInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Auditoría registrada exitosamente
+          schema:
+            $ref: '#/definitions/controllers.RegisterAuditResponse'
+        "400":
+          description: Datos inválidos o formato incorrecto
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponseAudit'
+        "500":
+          description: Error al registrar la auditoría
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponseAudit'
+      summary: Registrar auditoría
+      tags:
+      - Auditoría
   /login:
     post:
       consumes:
@@ -20,33 +115,27 @@ paths:
       description: Autentica un usuario con email y contraseña, devolviendo un token
         JWT
       parameters:
-      - description: Datos de inicio de sesión
+      - description: Datos de inicio de sesión (email y password)
         in: body
         name: loginData
         required: true
         schema:
-          type: object
+          $ref: '#/definitions/controllers.LoginData'
       produces:
       - application/json
       responses:
         "200":
           description: token
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/controllers.TokenResponse'
         "400":
-          description: error
+          description: Datos inválidos
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponse'
         "401":
-          description: error
+          description: Credenciales inválidas
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponse'
       summary: Iniciar sesión
       tags:
       - Autenticación
@@ -76,7 +165,7 @@ paths:
   /users:
     get:
       description: Devuelve una lista de todos los usuarios registrados. Requiere
-        un Bearer Token.
+        un Bearer Token y PIN.
       produces:
       - application/json
       responses:
@@ -101,6 +190,7 @@ paths:
             type: object
       security:
       - BearerAuth: []
+      - XAPI-PIN: []
       summary: Obtener usuarios
       tags:
       - Usuarios
@@ -108,7 +198,7 @@ paths:
       consumes:
       - application/json
       description: Crea un nuevo usuario con nombre, email, contraseña y estado activo.
-        Requiere un Bearer Token.
+        Requiere un Bearer Token y PIN.
       parameters:
       - description: Datos del usuario
         in: body
@@ -144,12 +234,14 @@ paths:
             type: object
       security:
       - BearerAuth: []
+      - XAPI-PIN: []
       summary: Crear usuario
       tags:
       - Usuarios
   /users/{id}:
     delete:
-      description: Cambia el estado de un usuario a inactivo. Requiere un Bearer Token.
+      description: Cambia el estado de un usuario a inactivo. Requiere un Bearer Token
+        y PIN.
       parameters:
       - description: ID del usuario
         in: path
@@ -179,6 +271,7 @@ paths:
             type: object
       security:
       - BearerAuth: []
+      - XAPI-PIN: []
       summary: Eliminar usuario
       tags:
       - Usuarios
@@ -186,7 +279,7 @@ paths:
       consumes:
       - application/json
       description: Actualiza los datos de un usuario existente. Requiere un Bearer
-        Token.
+        Token y PIN.
       parameters:
       - description: ID del usuario
         in: path
@@ -221,6 +314,7 @@ paths:
             type: object
       security:
       - BearerAuth: []
+      - XAPI-PIN: []
       summary: Actualizar usuario
       tags:
       - Usuarios
@@ -277,5 +371,9 @@ securityDefinitions:
   BearerAuth:
     in: header
     name: Authorization
+    type: apiKey
+  XAPI-PIN:
+    in: header
+    name: X-API-PIN
     type: apiKey
 swagger: "2.0"

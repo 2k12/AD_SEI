@@ -24,6 +24,52 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/audit": {
+            "post": {
+                "description": "Registra un evento de auditoría en el sistema",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auditoría"
+                ],
+                "summary": "Registrar auditoría",
+                "parameters": [
+                    {
+                        "description": "Datos de auditoría a registrar",
+                        "name": "auditData",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.RegisterAuditInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Auditoría registrada exitosamente",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.RegisterAuditResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Datos inválidos o formato incorrecto",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponseAudit"
+                        }
+                    },
+                    "500": {
+                        "description": "Error al registrar la auditoría",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponseAudit"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "description": "Autentica un usuario con email y contraseña, devolviendo un token JWT",
@@ -39,12 +85,12 @@ const docTemplate = `{
                 "summary": "Iniciar sesión",
                 "parameters": [
                     {
-                        "description": "Datos de inicio de sesión",
+                        "description": "Datos de inicio de sesión (email y password)",
                         "name": "loginData",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/controllers.LoginData"
                         }
                     }
                 ],
@@ -52,28 +98,19 @@ const docTemplate = `{
                     "200": {
                         "description": "token",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.TokenResponse"
                         }
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Datos inválidos",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     },
                     "401": {
-                        "description": "error",
+                        "description": "Credenciales inválidas",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     }
                 }
@@ -121,9 +158,12 @@ const docTemplate = `{
                 "security": [
                     {
                         "BearerAuth": []
+                    },
+                    {
+                        "XAPI-PIN": []
                     }
                 ],
-                "description": "Devuelve una lista de todos los usuarios registrados. Requiere un Bearer Token.",
+                "description": "Devuelve una lista de todos los usuarios registrados. Requiere un Bearer Token y PIN.",
                 "produces": [
                     "application/json"
                 ],
@@ -166,9 +206,12 @@ const docTemplate = `{
                 "security": [
                     {
                         "BearerAuth": []
+                    },
+                    {
+                        "XAPI-PIN": []
                     }
                 ],
-                "description": "Crea un nuevo usuario con nombre, email, contraseña y estado activo. Requiere un Bearer Token.",
+                "description": "Crea un nuevo usuario con nombre, email, contraseña y estado activo. Requiere un Bearer Token y PIN.",
                 "consumes": [
                     "application/json"
                 ],
@@ -233,9 +276,12 @@ const docTemplate = `{
                 "security": [
                     {
                         "BearerAuth": []
+                    },
+                    {
+                        "XAPI-PIN": []
                     }
                 ],
-                "description": "Actualiza los datos de un usuario existente. Requiere un Bearer Token.",
+                "description": "Actualiza los datos de un usuario existente. Requiere un Bearer Token y PIN.",
                 "consumes": [
                     "application/json"
                 ],
@@ -296,9 +342,12 @@ const docTemplate = `{
                 "security": [
                     {
                         "BearerAuth": []
+                    },
+                    {
+                        "XAPI-PIN": []
                     }
                 ],
-                "description": "Cambia el estado de un usuario a inactivo. Requiere un Bearer Token.",
+                "description": "Cambia el estado de un usuario a inactivo. Requiere un Bearer Token y PIN.",
                 "produces": [
                     "application/json"
                 ],
@@ -421,10 +470,105 @@ const docTemplate = `{
             }
         }
     },
+    "definitions": {
+        "controllers.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Credenciales inválidas"
+                }
+            }
+        },
+        "controllers.ErrorResponseAudit": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "description": "Mensaje de error",
+                    "type": "string",
+                    "example": "Error al realizar el registro"
+                }
+            }
+        },
+        "controllers.LoginData": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "securePassword123"
+                }
+            }
+        },
+        "controllers.RegisterAuditInput": {
+            "type": "object",
+            "required": [
+                "date",
+                "description",
+                "event",
+                "origin_service",
+                "user_id"
+            ],
+            "properties": {
+                "date": {
+                    "description": "Fecha en formato RFC3339",
+                    "type": "string",
+                    "example": "2024-12-14T15:04:05Z"
+                },
+                "description": {
+                    "description": "Descripción del evento",
+                    "type": "string",
+                    "example": "Se creó un nuevo usuario con el email user@example.com."
+                },
+                "event": {
+                    "description": "Evento realizado",
+                    "type": "string",
+                    "example": "INSERT"
+                },
+                "origin_service": {
+                    "description": "Servicio de origen",
+                    "type": "string",
+                    "example": "INVENTARIO"
+                },
+                "user_id": {
+                    "description": "ID del usuario que realizó la acción",
+                    "type": "string",
+                    "example": "123"
+                }
+            }
+        },
+        "controllers.RegisterAuditResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "description": "Mensaje de éxito",
+                    "type": "string",
+                    "example": "Auditoría registrada exitosamente"
+                }
+            }
+        },
+        "controllers.TokenResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                }
+            }
+        }
+    },
     "securityDefinitions": {
         "BearerAuth": {
             "type": "apiKey",
             "name": "Authorization",
+            "in": "header"
+        },
+        "XAPI-PIN": {
+            "type": "apiKey",
+            "name": "X-API-PIN",
             "in": "header"
         }
     }

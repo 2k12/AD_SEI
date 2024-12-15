@@ -7,16 +7,29 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type TokenResponse struct {
+	Token string `json:"token" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
+}
+
+type ErrorResponse struct {
+	Error string `json:"error" example:"Credenciales inválidas"`
+}
+
+type LoginData struct {
+	Email    string `json:"email" example:"user@example.com"`
+	Password string `json:"password" example:"securePassword123"`
+}
+
 // Login autentica al usuario y genera un token JWT
 // @Summary Iniciar sesión
 // @Description Autentica un usuario con email y contraseña, devolviendo un token JWT
 // @Tags Autenticación
 // @Accept json
 // @Produce json
-// @Param loginData body object true "Datos de inicio de sesión"
-// @Success 200 {object} map[string]string "token"
-// @Failure 400 {object}  map[string]string "error"
-// @Failure 401 {object}  map[string]string "error"
+// @Param loginData body LoginData true "Datos de inicio de sesión (email y password)"
+// @Success 200 {object} TokenResponse "token"
+// @Failure 400 {object} ErrorResponse "Datos inválidos"
+// @Failure 401 {object} ErrorResponse "Credenciales inválidas"
 // @Router /login [post]
 func Login(c *gin.Context) {
 	var loginData struct {
