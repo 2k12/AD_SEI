@@ -28,31 +28,41 @@ import (
 	"seguridad-api/config"
 	"seguridad-api/routes"
 
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+	"github.com/rs/cors" // Librería CORS
 	files "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
-	// Conexión a la base de datos
 	config.ConnectDB()
 
-	// Inicialización del router
 	router := gin.Default()
 
-	// Ruta para acceder a la documentación Swagger
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	})
+
+	router.Use(func(c *gin.Context) {
+		corsHandler.ServeHTTP(c.Writer, c.Request, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			c.Next()
+		}))
+	})
+
 	router.Static("/docs", "./docs")
 
-	// Configuración de las rutas de la API
 	routes.SetupRoutes(router)
 
-	// Ruta para cargar la documentación Swagger
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(files.Handler, ginSwagger.URL("http://localhost:8080/docs/swagger.json")))
 
 	log.Println("Servidor corriendo en el puerto 8080")
 	log.Println(`http://localhost:8080/swagger/index.html`)
 
-	// Iniciar el servidor
 	if err := router.Run(":8080"); err != nil {
 		log.Fatalf("Error al iniciar el servidor: %v", err)
 	}

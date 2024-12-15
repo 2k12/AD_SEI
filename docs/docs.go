@@ -484,7 +484,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "error": {
-                    "description": "Mensaje de error",
                     "type": "string",
                     "example": "Error al realizar el registro"
                 }
@@ -514,27 +513,22 @@ const docTemplate = `{
             ],
             "properties": {
                 "date": {
-                    "description": "Fecha en formato RFC3339",
                     "type": "string",
                     "example": "2024-12-14T15:04:05Z"
                 },
                 "description": {
-                    "description": "Descripción del evento",
                     "type": "string",
                     "example": "Se creó un nuevo usuario con el email user@example.com."
                 },
                 "event": {
-                    "description": "Evento realizado",
                     "type": "string",
                     "example": "INSERT"
                 },
                 "origin_service": {
-                    "description": "Servicio de origen",
                     "type": "string",
                     "example": "INVENTARIO"
                 },
                 "user_id": {
-                    "description": "ID del usuario que realizó la acción",
                     "type": "string",
                     "example": "123"
                 }
@@ -544,7 +538,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
-                    "description": "Mensaje de éxito",
                     "type": "string",
                     "example": "Auditoría registrada exitosamente"
                 }

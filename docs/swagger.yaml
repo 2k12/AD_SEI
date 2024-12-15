@@ -9,7 +9,6 @@ definitions:
   controllers.ErrorResponseAudit:
     properties:
       error:
-        description: Mensaje de error
         example: Error al realizar el registro
         type: string
     type: object
@@ -25,23 +24,18 @@ definitions:
   controllers.RegisterAuditInput:
     properties:
       date:
-        description: Fecha en formato RFC3339
         example: "2024-12-14T15:04:05Z"
         type: string
       description:
-        description: Descripción del evento
         example: Se creó un nuevo usuario con el email user@example.com.
         type: string
       event:
-        description: Evento realizado
         example: INSERT
         type: string
       origin_service:
-        description: Servicio de origen
         example: INVENTARIO
         type: string
       user_id:
-        description: ID del usuario que realizó la acción
         example: "123"
         type: string
     required:
@@ -54,7 +48,6 @@ definitions:
   controllers.RegisterAuditResponse:
     properties:
       message:
-        description: Mensaje de éxito
         example: Auditoría registrada exitosamente
         type: string
     type: object
