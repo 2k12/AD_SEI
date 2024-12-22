@@ -128,23 +128,20 @@ func GetUsers(c *gin.Context) {
 // @Failure 500 {object} map[string]string "error"
 // @Router /users/{id}/permissions [get]
 func GetUserPermissions(c *gin.Context) {
-	userID := c.Param("id") // Obtener el ID del usuario desde los parámetros de la ruta
+	userID := c.Param("id")
 
-	// Convertir el ID a uint
 	userIDInt, err := strconv.ParseUint(userID, 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de usuario no válido"})
 		return
 	}
 
-	// Obtener los permisos del usuario
 	permissions, err := services.GetUserPermissions(uint(userIDInt))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener los permisos"})
 		return
 	}
 
-	// Devolver la respuesta con los permisos
 	c.JSON(http.StatusOK, gin.H{"permissions": permissions})
 }
 
