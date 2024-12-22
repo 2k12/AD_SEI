@@ -52,26 +52,19 @@ func main() {
 		}))
 	})
 	// router.Static("/docs", "./docs")
-	router.Static("/docs", "/app/docs")
+	// router.Static("/docs", "/app/docs")
 
 	routes.SetupRoutes(router)
 
-	swaggerURL := "http://localhost:8080/docs/swagger.json" // local
+	swaggerURL := "http://localhost:8080/docs/swagger.json" // Valor para local
 	if os.Getenv("SWAGGER_HOST") != "" {
-		swaggerURL = "https://" + os.Getenv("SWAGGER_HOST") + "/docs/swagger.json" // producción
+		swaggerURL = "https://" + os.Getenv("SWAGGER_HOST") + "/docs/swagger.json" // Valor para producción
 	}
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(files.Handler, ginSwagger.URL(swaggerURL)))
 
-	// router.GET("/swagger/*any", ginSwagger.WrapHandler(files.Handler, ginSwagger.URL("https://seri-api-utn-2024.fly.dev/docs/swagger.json")))
-	// router.GET("/swagger/*any", ginSwagger.WrapHandler(files.Handler, ginSwagger.URL("/docs/swagger.json")))
+	log.Println("Servidor corriendo en el puerto " + getPort())
 
-	log.Println("Servidor corriendo en el puerto 8080")
-	log.Println(`http://localhost:8080/swagger/index.html`)
-
-	// if err := router.Run(":8080"); err != nil {
-	// 	log.Fatalf("Error al iniciar el servidor: %v", err)
-	// }
 	if err := router.Run(":" + getPort()); err != nil {
 		log.Fatalf("Error al iniciar el servidor: %v", err)
 	}
