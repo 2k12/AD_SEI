@@ -52,7 +52,7 @@ func main() {
 		}))
 	})
 	// router.Static("/docs", "./docs")
-	// router.Static("/docs", "/app/docs")
+	router.Static("/docs", "/app/docs")
 
 	routes.SetupRoutes(router)
 
