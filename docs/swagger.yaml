@@ -156,42 +156,11 @@ paths:
       tags:
       - Autenticación
   /users:
-    get:
-      description: Devuelve una lista de todos los usuarios registrados. Requiere
-        un Bearer Token y PIN.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: users
-          schema:
-            items:
-              additionalProperties: true
-              type: object
-            type: array
-        "401":
-          description: error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      - XAPI-PIN: []
-      summary: Obtener usuarios
-      tags:
-      - Usuarios
     post:
       consumes:
       - application/json
       description: Crea un nuevo usuario con nombre, email, contraseña y estado activo.
-        Requiere un Bearer Token y PIN.
+        Requiere un Bearer Token.
       parameters:
       - description: Datos del usuario
         in: body
@@ -227,14 +196,12 @@ paths:
             type: object
       security:
       - BearerAuth: []
-      - XAPI-PIN: []
       summary: Crear usuario
       tags:
       - Usuarios
   /users/{id}:
     delete:
-      description: Cambia el estado de un usuario a inactivo. Requiere un Bearer Token
-        y PIN.
+      description: Cambia el estado de un usuario a inactivo. Requiere un Bearer Token.
       parameters:
       - description: ID del usuario
         in: path
@@ -264,7 +231,6 @@ paths:
             type: object
       security:
       - BearerAuth: []
-      - XAPI-PIN: []
       summary: Eliminar usuario
       tags:
       - Usuarios
@@ -272,7 +238,7 @@ paths:
       consumes:
       - application/json
       description: Actualiza los datos de un usuario existente. Requiere un Bearer
-        Token y PIN.
+        Token.
       parameters:
       - description: ID del usuario
         in: path
@@ -307,7 +273,6 @@ paths:
             type: object
       security:
       - BearerAuth: []
-      - XAPI-PIN: []
       summary: Actualizar usuario
       tags:
       - Usuarios
@@ -364,9 +329,5 @@ securityDefinitions:
   BearerAuth:
     in: header
     name: Authorization
-    type: apiKey
-  XAPI-PIN:
-    in: header
-    name: X-API-PIN
     type: apiKey
 swagger: "2.0"

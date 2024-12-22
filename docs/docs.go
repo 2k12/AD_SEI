@@ -154,64 +154,13 @@ const docTemplate = `{
             }
         },
         "/users": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    },
-                    {
-                        "XAPI-PIN": []
-                    }
-                ],
-                "description": "Devuelve una lista de todos los usuarios registrados. Requiere un Bearer Token y PIN.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Usuarios"
-                ],
-                "summary": "Obtener usuarios",
-                "responses": {
-                    "200": {
-                        "description": "users",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "additionalProperties": true
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
             "post": {
                 "security": [
                     {
                         "BearerAuth": []
-                    },
-                    {
-                        "XAPI-PIN": []
                     }
                 ],
-                "description": "Crea un nuevo usuario con nombre, email, contraseña y estado activo. Requiere un Bearer Token y PIN.",
+                "description": "Crea un nuevo usuario con nombre, email, contraseña y estado activo. Requiere un Bearer Token.",
                 "consumes": [
                     "application/json"
                 ],
@@ -276,12 +225,9 @@ const docTemplate = `{
                 "security": [
                     {
                         "BearerAuth": []
-                    },
-                    {
-                        "XAPI-PIN": []
                     }
                 ],
-                "description": "Actualiza los datos de un usuario existente. Requiere un Bearer Token y PIN.",
+                "description": "Actualiza los datos de un usuario existente. Requiere un Bearer Token.",
                 "consumes": [
                     "application/json"
                 ],
@@ -342,12 +288,9 @@ const docTemplate = `{
                 "security": [
                     {
                         "BearerAuth": []
-                    },
-                    {
-                        "XAPI-PIN": []
                     }
                 ],
-                "description": "Cambia el estado de un usuario a inactivo. Requiere un Bearer Token y PIN.",
+                "description": "Cambia el estado de un usuario a inactivo. Requiere un Bearer Token.",
                 "produces": [
                     "application/json"
                 ],
@@ -557,11 +500,6 @@ const docTemplate = `{
         "BearerAuth": {
             "type": "apiKey",
             "name": "Authorization",
-            "in": "header"
-        },
-        "XAPI-PIN": {
-            "type": "apiKey",
-            "name": "X-API-PIN",
             "in": "header"
         }
     }

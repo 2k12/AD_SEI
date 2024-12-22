@@ -122,3 +122,36 @@ func DeleteUser(id string) error {
 	user.Active = !user.Active
 	return config.DB.Save(&user).Error
 }
+
+func GetPaginatedUsers(page, pageSize int, filters map[string]interface{}) ([]models.User, int64, error) {
+	var users []models.User
+	var total int64
+
+	query := config.DB.Model(&models.User{})
+
+	// Aplicar filtros
+	if name, ok := filters["name"]; ok {
+		query = query.Where("name ILIKE ?", "%"+name.(string)+"%")
+	}
+	if email, ok := filters["email"]; ok {
+		query = query.Where("email ILIKE ?", "%"+email.(string)+"%")
+	}
+	if active, ok := filters["active"]; ok {
+		query = query.Where("active = ?", active)
+	}
+
+	// Contar el total de registros
+	query.Count(&total)
+
+	// Aplicar paginación
+	offset := (page - 1) * pageSize
+	query = query.Offset(offset).Limit(pageSize)
+
+	// Obtener usuarios con relaciones
+	err := query.Preload("Roles.Permissions").Find(&users).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return users, total, nil
+}

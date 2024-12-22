@@ -10,10 +10,9 @@ import (
 
 // CreateUser crea un nuevo usuario
 // @Summary Crear usuario
-// @Description Crea un nuevo usuario con nombre, email, contraseña y estado activo. Requiere un Bearer Token y PIN.
+// @Description Crea un nuevo usuario con nombre, email, contraseña y estado activo. Requiere un Bearer Token.
 // @Tags Usuarios
 // @Security BearerAuth
-// @Security XAPI-PIN
 // @Accept json
 // @Produce json
 // @Param input body object true "Datos del usuario"
@@ -44,25 +43,75 @@ func CreateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"user": user})
 }
 
-// GetUsers obtiene todos los usuarios
+// // GetUsers obtiene todos los usuarios
+// // @Summary Obtener usuarios
+// // @Description Devuelve una lista de todos los usuarios registrados. Requiere un Bearer Token y PIN.
+// // @Tags Usuarios
+// // @Security BearerAuth
+// // @Security XAPI-PIN
+// // @Produce json
+// // @Success 200 {array} map[string]interface{} "users"
+// // @Failure 401 {object} map[string]string "error"
+// // @Failure 500 {object} map[string]string "error"
+// // @Router /users [get]
 // @Summary Obtener usuarios
-// @Description Devuelve una lista de todos los usuarios registrados. Requiere un Bearer Token y PIN.
+// @Description Devuelve una lista de usuarios paginada y filtrada.
 // @Tags Usuarios
 // @Security BearerAuth
-// @Security XAPI-PIN
 // @Produce json
-// @Success 200 {array} map[string]interface{} "users"
+// @Param page query int false "Número de página (por defecto: 1)"
+// @Param pageSize query int false "Tamaño de página (por defecto: 10)"
+// @Param name query string false "Filtrar por nombre"
+// @Param email query string false "Filtrar por email"
+// @Param active query bool false "Filtrar por estado activo"
+// @Success 200 {object} map[string]interface{} "users"
 // @Failure 401 {object} map[string]string "error"
 // @Failure 500 {object} map[string]string "error"
 // @Router /users [get]
+
+// func GetUsers(c *gin.Context) {
+// 	users, err := services.GetUsers()
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener los usuarios"})
+// 		return
+// 	}
+
+//		c.JSON(http.StatusOK, gin.H{"users": users})
+//	}
 func GetUsers(c *gin.Context) {
-	users, err := services.GetUsers()
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
+	name := c.Query("name")
+	email := c.Query("email")
+	active := c.Query("active")
+
+	// Construir filtros
+	filters := make(map[string]interface{})
+	if name != "" {
+		filters["name"] = name
+	}
+	if email != "" {
+		filters["email"] = email
+	}
+	if active != "" {
+		activeBool, _ := strconv.ParseBool(active)
+		filters["active"] = activeBool
+	}
+
+	users, total, err := services.GetPaginatedUsers(page, pageSize, filters)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener los usuarios"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"users": users})
+	// Respuesta con datos paginados
+	c.JSON(http.StatusOK, gin.H{
+		"users":      users,
+		"total":      total,
+		"page":       page,
+		"pageSize":   pageSize,
+		"totalPages": (total + int64(pageSize) - 1) / int64(pageSize),
+	})
 }
 
 // GetUserPermissions obtiene los permisos de un usuario específico
@@ -101,10 +150,9 @@ func GetUserPermissions(c *gin.Context) {
 
 // UpdateUser actualiza un usuario existente
 // @Summary Actualizar usuario
-// @Description Actualiza los datos de un usuario existente. Requiere un Bearer Token y PIN.
+// @Description Actualiza los datos de un usuario existente. Requiere un Bearer Token.
 // @Tags Usuarios
 // @Security BearerAuth
-// @Security XAPI-PIN
 // @Accept json
 // @Produce json
 // @Param id path string true "ID del usuario"
@@ -138,10 +186,9 @@ func UpdateUser(c *gin.Context) {
 
 // DeleteUser elimina un usuario
 // @Summary Eliminar usuario
-// @Description Cambia el estado de un usuario a inactivo. Requiere un Bearer Token y PIN.
+// @Description Cambia el estado de un usuario a inactivo. Requiere un Bearer Token.
 // @Tags Usuarios
 // @Security BearerAuth
-// @Security XAPI-PIN
 // @Produce json
 // @Param id path string true "ID del usuario"
 // @Success 200 {object} map[string]string "message"

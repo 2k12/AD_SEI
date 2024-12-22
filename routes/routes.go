@@ -20,20 +20,20 @@ func SetupRoutes(router *gin.Engine) {
 		{
 			api.GET("/users/:id/permissions", controllers.GetUserPermissions)
 
-			authenticated := api.Use(middleware.ValidatePIN())
-			{
-				authenticated.GET("/users", controllers.GetUsers)
-				authenticated.PUT("/users/:id", controllers.UpdateUser)
-				authenticated.DELETE("/users/:id", controllers.DeleteUser)
+			// authenticated := api.Use(middleware.ValidatePIN())
+			// {
+			api.GET("/users", controllers.GetUsers)
+			api.PUT("/users/:id", controllers.UpdateUser)
+			api.DELETE("/users/:id", controllers.DeleteUser)
 
-				authenticated.GET("/roles", controllers.GetRoles)
-				authenticated.POST("/roles", controllers.CreateRole)
+			api.GET("/roles", controllers.GetRoles)
+			api.POST("/roles", controllers.CreateRole)
 
-				authenticated.GET("/permissions", controllers.GetPermissions)
-				authenticated.POST("/permissions", controllers.CreatePermission)
+			api.GET("/permissions", controllers.GetPermissions)
+			api.POST("/permissions", controllers.CreatePermission)
 
-				authenticated.POST("/audit", controllers.RegisterAudit)
-			}
+			api.POST("/audit", controllers.RegisterAudit)
+			// }
 
 		}
 	}

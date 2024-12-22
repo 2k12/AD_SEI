@@ -17,10 +17,6 @@
 // @in header
 // @name Authorization
 
-// @securityDefinitions.apikey XAPI-PIN
-// @in header
-// @name X-API-PIN
-
 package main
 
 import (
@@ -29,6 +25,7 @@ import (
 	"seguridad-api/routes"
 
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/cors" // Librería CORS
@@ -42,7 +39,8 @@ func main() {
 	router := gin.Default()
 
 	corsHandler := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173"},
+		// AllowedOrigins: []string{"http://localhost:5173"},
+		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,
@@ -53,7 +51,6 @@ func main() {
 			c.Next()
 		}))
 	})
-
 	router.Static("/docs", "./docs")
 
 	routes.SetupRoutes(router)
@@ -63,7 +60,19 @@ func main() {
 	log.Println("Servidor corriendo en el puerto 8080")
 	log.Println(`http://localhost:8080/swagger/index.html`)
 
-	if err := router.Run(":8080"); err != nil {
+	// if err := router.Run(":8080"); err != nil {
+	// 	log.Fatalf("Error al iniciar el servidor: %v", err)
+	// }
+	if err := router.Run(":" + getPort()); err != nil {
 		log.Fatalf("Error al iniciar el servidor: %v", err)
 	}
+
+}
+
+func getPort() string {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // Valor por defecto para desarrollo local
+	}
+	return port
 }
