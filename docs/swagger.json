@@ -15,7 +15,7 @@
         },
         "version": "1.0"
     },
-    "host": "${SWAGGER_HOST}",
+    "host": "seri-api-utn-2024.fly.dev",
     "basePath": "/api",
     "paths": {
         "/audit": {
