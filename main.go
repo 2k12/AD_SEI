@@ -10,7 +10,7 @@
 // @license.name MIT
 // @license.url https://opensource.org/licenses/MIT
 
-// @host https://seri-api-utn-2024.fly.dev/
+// @host seri-api-utn-2024.fly.dev/
 // @BasePath /api
 
 // @securityDefinitions.apikey BearerAuth
