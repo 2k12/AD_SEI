@@ -61,7 +61,7 @@ host: https://seri-api-utn-2024.fly.dev/
 info:
   contact:
     email: jfpastillod@utn.edu.ec
-    name: Pastillo Joan
+    name: Pastillo D Joan
     url: https://www.utn.edu.ec
   description: Esta es la documentación de LA API DE SEGURIDAD hecha con Go.
   license:

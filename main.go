@@ -3,7 +3,7 @@
 // @description Esta es la documentación de LA API DE SEGURIDAD hecha con Go.
 // @termsOfService http://swagger.io/terms/
 
-// @contact.name Pastillo Joan
+// @contact.name Pastillo D Joan
 // @contact.url https://www.utn.edu.ec
 // @contact.email jfpastillod@utn.edu.ec
 

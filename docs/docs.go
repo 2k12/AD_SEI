@@ -11,7 +11,7 @@ const docTemplate = `{
         "title": "{{.Title}}",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
-            "name": "Pastillo Joan",
+            "name": "Pastillo D Joan",
             "url": "https://www.utn.edu.ec",
             "email": "jfpastillod@utn.edu.ec"
         },
