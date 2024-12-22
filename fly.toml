@@ -1,0 +1,27 @@
+# fly.toml app configuration file generated for seri-api-utn-2024 on 2024-12-22T09:42:28-05:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'seri-api-utn-2024'
+primary_region = 'atl'
+
+[build]
+  [build.args]
+    GO_VERSION = '1.23.2'
+
+[env]
+  PORT = '8080'
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1

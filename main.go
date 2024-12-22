@@ -10,7 +10,7 @@
 // @license.name MIT
 // @license.url https://opensource.org/licenses/MIT
 
-// @host localhost:8080
+// @host https://seri-api-utn-2024.fly.dev/
 // @BasePath /api
 
 // @securityDefinitions.apikey BearerAuth
@@ -55,7 +55,7 @@ func main() {
 
 	routes.SetupRoutes(router)
 
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(files.Handler, ginSwagger.URL("http://localhost:8080/docs/swagger.json")))
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(files.Handler, ginSwagger.URL("https://seri-api-utn-2024.fly.dev/docs/swagger.json")))
 
 	log.Println("Servidor corriendo en el puerto 8080")
 	log.Println(`http://localhost:8080/swagger/index.html`)
