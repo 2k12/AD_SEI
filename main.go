@@ -51,11 +51,13 @@ func main() {
 			c.Next()
 		}))
 	})
-	router.Static("/docs", "./docs")
+	// router.Static("/docs", "./docs")
+	router.Static("/docs", "/app/docs")
 
 	routes.SetupRoutes(router)
 
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(files.Handler, ginSwagger.URL("https://seri-api-utn-2024.fly.dev/docs/swagger.json")))
+	// router.GET("/swagger/*any", ginSwagger.WrapHandler(files.Handler, ginSwagger.URL("https://seri-api-utn-2024.fly.dev/docs/swagger.json")))
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(files.Handler, ginSwagger.URL("/docs/swagger.json")))
 
 	log.Println("Servidor corriendo en el puerto 8080")
 	log.Println(`http://localhost:8080/swagger/index.html`)
