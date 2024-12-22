@@ -9,13 +9,16 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func init() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error al cargar el archivo .env")
+	// if err := godotenv.Load(); err != nil {
+	// 	log.Fatal("Error al cargar el archivo .env")
+	// }
+	secretKey := os.Getenv("JWT_SECRET_KEY")
+	if secretKey == "" {
+		log.Println("JWT_SECRET_KEY no está configurada")
 	}
 }
 
