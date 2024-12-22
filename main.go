@@ -10,7 +10,7 @@
 // @license.name MIT
 // @license.url https://opensource.org/licenses/MIT
 
-// @host ${SWAGGER_HOST}
+// @host seri-api-utn-2024.fly.dev
 // @BasePath /api
 
 // @securityDefinitions.apikey BearerAuth
@@ -52,7 +52,7 @@ func main() {
 		}))
 	})
 	// router.Static("/docs", "./docs")
-	router.Static("/docs", "/app/docs")
+	// router.Static("/docs", "/app/docs")
 
 	routes.SetupRoutes(router)
 
