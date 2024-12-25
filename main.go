@@ -28,7 +28,7 @@ import (
 	// "os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rs/cors" // Librería CORS
+	"github.com/rs/cors"
 	files "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
