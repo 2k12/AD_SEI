@@ -57,7 +57,7 @@ definitions:
         example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
         type: string
     type: object
-host: seri-api-utn-2024.fly.dev
+host: localhost:8080
 info:
   contact:
     email: jfpastillod@utn.edu.ec
