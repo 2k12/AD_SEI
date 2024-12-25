@@ -28,7 +28,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rs/cors" // Librería CORS
+	"github.com/rs/cors"
 	files "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -56,9 +56,9 @@ func main() {
 
 	routes.SetupRoutes(router)
 
-	swaggerURL := "http://localhost:8080/docs/swagger.json" // Valor para local
+	swaggerURL := "http://localhost:8080/docs/swagger.json"
 	if os.Getenv("SWAGGER_HOST") != "" {
-		swaggerURL = "https://" + os.Getenv("SWAGGER_HOST") + "/docs/swagger.json" // Valor para producción
+		swaggerURL = "https://" + os.Getenv("SWAGGER_HOST") + "/docs/swagger.json"
 	}
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(files.Handler, ginSwagger.URL(swaggerURL)))
@@ -74,7 +74,7 @@ func main() {
 func getPort() string {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080" // Valor por defecto para desarrollo local
+		port = "8080"
 	}
 	return port
 }

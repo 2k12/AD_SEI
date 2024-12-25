@@ -49,6 +49,6 @@ func ConnectDB() {
 		log.Fatalf("Error conectando a la base de datos: %v", err)
 	}
 
-	db.AutoMigrate(&models.User{}, &models.Role{}, &models.Permission{}, &models.Audit{})
+	db.AutoMigrate(&models.User{}, &models.Role{}, &models.Permission{}, &models.Module{}, &models.Audit{})
 	DB = db
 }
