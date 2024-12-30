@@ -47,14 +47,22 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	userId := c.GetUint("userId")
+	// Obtener el userID del contexto
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener el ID del usuario desde el contexto"})
+		return
+	}
+
+	// Si el ID es de tipo float64, conviértelo a uint
+	userIDUint := uint(userID.(float64))
 
 	event := "INSERT"
 	description := "Se creó un usuario con el email: " + input.Email
 	originService := "SEGURIDAD"
 	// date := time.Now()
 
-	if auditErr := services.RegisterAudit(event, description, userId, originService, ecuadorTime); auditErr != nil {
+	if auditErr := services.RegisterAudit(event, description, userIDUint, originService, ecuadorTime); auditErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Usuario creado, pero no se pudo registrar la auditoría"})
 		return
 	}
@@ -201,14 +209,22 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	userId := c.GetUint("userId")
+	// Obtener el userID del contexto
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener el ID del usuario desde el contexto"})
+		return
+	}
+
+	// Si el ID es de tipo float64, conviértelo a uint
+	userIDUint := uint(userID.(float64))
 
 	event := "UPDATE"
 	description := "Se actualizó el usuario con ID: " + id
 	originService := "SEGURIDAD"
 	// date := time.Now()
 
-	if auditErr := services.RegisterAudit(event, description, userId, originService, ecuadorTime); auditErr != nil {
+	if auditErr := services.RegisterAudit(event, description, userIDUint, originService, ecuadorTime); auditErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Usuario actualizado, pero no se pudo registrar la auditoría"})
 		return
 	}
