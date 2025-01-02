@@ -13,3 +13,7 @@ type Audit struct {
 	Date          time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"date"`
 	User          User      `gorm:"foreignKey:UserID;references:ID" json:"user"`
 }
+
+func (Audit) TableName() string {
+	return "audit"
+}

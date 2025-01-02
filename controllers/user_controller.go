@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"net/http"
+	helpers "seguridad-api/helpers"
 	"seguridad-api/services"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,6 +24,11 @@ import (
 // @Failure 500 {object} map[string]string "error"
 // @Router /users [post]
 func CreateUser(c *gin.Context) {
+	currentTime := time.Now()
+
+	// Ajustar la hora al huso horario de Ecuador usando el helper
+	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
+
 	var input struct {
 		Name     string `json:"name" binding:"required"`
 		Email    string `json:"email" binding:"required"`
@@ -37,6 +44,26 @@ func CreateUser(c *gin.Context) {
 	user, err := services.CreateUser(input.Name, input.Email, input.Password, input.Active)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al crear el usuario"})
+		return
+	}
+
+	// Obtener el userID del contexto
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener el ID del usuario desde el contexto"})
+		return
+	}
+
+	// Si el ID es de tipo float64, conviértelo a uint
+	userIDUint := uint(userID.(float64))
+
+	event := "INSERT"
+	description := "Se creó un usuario con el email: " + input.Email
+	originService := "SEGURIDAD"
+	// date := time.Now()
+
+	if auditErr := services.RegisterAudit(event, description, userIDUint, originService, ecuadorTime); auditErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Usuario creado, pero no se pudo registrar la auditoría"})
 		return
 	}
 
@@ -160,6 +187,10 @@ func GetUserPermissions(c *gin.Context) {
 // @Router /users/{id} [put]
 func UpdateUser(c *gin.Context) {
 	id := c.Param("id")
+	currentTime := time.Now()
+
+	// Ajustar la hora al huso horario de Ecuador usando el helper
+	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
 
 	var userData struct {
 		Name   string `json:"name"`
@@ -178,6 +209,26 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
+	// Obtener el userID del contexto
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener el ID del usuario desde el contexto"})
+		return
+	}
+
+	// Si el ID es de tipo float64, conviértelo a uint
+	userIDUint := uint(userID.(float64))
+
+	event := "UPDATE"
+	description := "Se actualizó el usuario con ID: " + id
+	originService := "SEGURIDAD"
+	// date := time.Now()
+
+	if auditErr := services.RegisterAudit(event, description, userIDUint, originService, ecuadorTime); auditErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Usuario actualizado, pero no se pudo registrar la auditoría"})
+		return
+	}
+
 	c.JSON(http.StatusOK, updatedUser)
 }
 
@@ -193,10 +244,36 @@ func UpdateUser(c *gin.Context) {
 // @Failure 404 {object} map[string]string "error"
 // @Router /users/{id} [delete]
 func DeleteUser(c *gin.Context) {
+	authenticatedUserID, exists := c.Get("userID")
+	currentTime := time.Now()
+
+	// Ajustar la hora al huso horario de Ecuador usando el helper
+	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
+
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuario no autenticado"})
+		return
+	}
+
 	id := c.Param("id")
 
 	if err := services.DeleteUser(id); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	event := "DELETE"
+	description := "Se cambió el estado del usuario con ID: " + id
+	originService := "SEGURIDAD"
+	// date := time.Now()
+
+	authUserID, ok := authenticatedUserID.(uint)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener el ID del usuario autenticado"})
+		return
+	}
+	if auditErr := services.RegisterAudit(event, description, authUserID, originService, ecuadorTime); auditErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Usuario eliminado, pero no se pudo registrar la auditoría"})
 		return
 	}
 

@@ -28,7 +28,7 @@ import (
 	// "os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rs/cors" // Librería CORS
+	"github.com/rs/cors"
 	files "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -57,8 +57,7 @@ func main() {
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(files.Handler, ginSwagger.URL("http://localhost:8080/docs/swagger.json")))
 
-	log.Println("Servidor corriendo en el puerto 8080")
-	log.Println("http://localhost:8080/swagger/index.html")
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(files.Handler, ginSwagger.URL(swaggerURL)))
 
 	if err := router.Run(":8080"); err != nil {
 		log.Fatalf("Error al iniciar el servidor: %v", err)

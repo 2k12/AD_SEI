@@ -59,10 +59,24 @@ func CreateUser(name, email, password string, active bool) (models.User, error) 
 //		// Devolvemos los usuarios con las relaciones cargadas
 //		return users, nil
 //	}
+// func GetUsers() ([]models.User, error) {
+// 	var users []models.User
+
+// 	result := config.DB.Debug().Preload("Roles.Permissions").Find(&users)
+
+// 	if result.Error != nil {
+// 		return nil, result.Error
+// 	}
+
+//		return users, nil
+//	}
 func GetUsers() ([]models.User, error) {
 	var users []models.User
 
-	result := config.DB.Debug().Preload("Roles.Permissions").Find(&users)
+	// Preload Roles, Permissions, and Modules
+	result := config.DB.Debug().
+		Preload("Roles.Permissions.Module").
+		Find(&users)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -148,7 +162,7 @@ func GetPaginatedUsers(page, pageSize int, filters map[string]interface{}) ([]mo
 	query = query.Offset(offset).Limit(pageSize)
 
 	// Obtener usuarios con relaciones
-	err := query.Preload("Roles.Permissions").Find(&users).Error
+	err := query.Preload("Roles.Permissions.Module").Find(&users).Error
 	if err != nil {
 		return nil, 0, err
 	}
