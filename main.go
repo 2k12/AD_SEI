@@ -57,11 +57,13 @@ func main() {
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(files.Handler, ginSwagger.URL("http://localhost:8080/docs/swagger.json")))
 
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(files.Handler, ginSwagger.URL(swaggerURL)))
+	log.Println("Servidor corriendo en el puerto 8080")
+	log.Println(`http://localhost:8080/swagger/index.html`)
 
 	if err := router.Run(":8080"); err != nil {
 		log.Fatalf("Error al iniciar el servidor: %v", err)
 	}
+
 }
 
 // func getPort() string {
