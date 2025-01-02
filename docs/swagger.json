@@ -15,7 +15,7 @@
         },
         "version": "1.0"
     },
-    "host": "seri-api-utn-2024.fly.dev",
+    "host": "localhost:8080",
     "basePath": "/api",
     "paths": {
         "/audit": {
