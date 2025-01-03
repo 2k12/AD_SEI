@@ -8,6 +8,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// CreateRole crea un nuevo rol
+// @Summary Crear rol
+// @Description Crea un nuevo rol con nombre, descripción y estado activo. Requiere un Bearer Token.
+// @Tags Roles
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param input body object true "Datos del rol"
+// @Success 200 {object} map[string]interface{} "role"
+// @Failure 400 {object} map[string]string "error"
+// @Failure 401 {object} map[string]string "error"
+// @Failure 500 {object} map[string]string "error"
+// @Router /roles [post]
 func CreateRole(c *gin.Context) {
 	var input struct {
 		Name        string `json:"name" binding:"required"`
@@ -29,6 +42,22 @@ func CreateRole(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"role": role})
 }
 
+// GetRoles obtiene la lista de roles con paginación y filtros opcionales
+// @Summary Obtener roles
+// @Description Devuelve una lista paginada de roles, permitiendo filtrar por nombre y estado activo.
+// @Tags Roles
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param page query int false "Número de página (por defecto 1)"
+// @Param pageSize query int false "Tamaño de página (por defecto 10)"
+// @Param name query string false "Filtrar por nombre"
+// @Param active query boolean false "Filtrar por estado activo"
+// @Success 200 {object} map[string]interface{} "roles"
+// @Failure 400 {object} map[string]string "error"
+// @Failure 401 {object} map[string]string "error"
+// @Failure 500 {object} map[string]string "error"
+// @Router /roles [get]
 func GetRoles(c *gin.Context) {
 	// Obtener parámetros de consulta para paginación y filtros
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -63,6 +92,21 @@ func GetRoles(c *gin.Context) {
 	})
 }
 
+// UpdateRole actualiza la información de un rol existente
+// @Summary Actualizar rol
+// @Description Actualiza los datos de un rol existente identificándolo por su ID. Requiere un Bearer Token.
+// @Tags Roles
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path int true "ID del rol"
+// @Param input body object true "Datos actualizados del rol"
+// @Success 200 {object} map[string]interface{} "role"
+// @Failure 400 {object} map[string]string "error"
+// @Failure 401 {object} map[string]string "error"
+// @Failure 404 {object} map[string]string "error"
+// @Failure 500 {object} map[string]string "error"
+// @Router /roles/{id} [put]
 func UpdateRole(c *gin.Context) {
 	// Obtener el ID del rol desde los parámetros de la URL
 	id, err := strconv.Atoi(c.Param("id"))
@@ -92,6 +136,22 @@ func UpdateRole(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"role": role})
 }
+
+// UpdateRoleState actualiza el estado a activo-inactivo de un rol
+// @Summary Actualizar estado del rol
+// @Description Cambia únicamente el estado activo de un rol identificado por su ID. Requiere un Bearer Token.
+// @Tags Roles
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path int true "ID del rol"
+// @Param input body object true "Estado del rol"
+// @Success 200 {object} map[string]string "message"
+// @Failure 400 {object} map[string]string "error"
+// @Failure 401 {object} map[string]string "error"
+// @Failure 404 {object} map[string]string "error"
+// @Failure 500 {object} map[string]string "error"
+// @Router /roles/{id}/state [patch]
 func UpdateRoleState(c *gin.Context) {
 	// Obtener el ID del rol desde los parámetros de la URL
 	id, err := strconv.Atoi(c.Param("id"))
