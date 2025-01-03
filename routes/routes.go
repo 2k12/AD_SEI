@@ -25,6 +25,7 @@ func SetupRoutes(router *gin.Engine) {
 
 			api.GET("/roles", controllers.GetRoles)
 			api.POST("/roles", controllers.CreateRole)
+			api.PUT("/roles/:id", controllers.UpdateRole)
 
 			api.GET("/permissions", controllers.GetPermissions)
 			api.POST("/permissions", controllers.CreatePermission)
