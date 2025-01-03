@@ -41,3 +41,50 @@ func UpdateRole(id int, name string, description string, active bool) (models.Ro
 
 	return role, nil
 }
+func GetPaginatedRoles(page, pageSize int, filters map[string]interface{}) ([]models.Role, int64, error) {
+	var roles []models.Role
+	var total int64
+
+	query := config.DB.Model(&models.Role{})
+
+	// Aplicar filtros
+	if name, ok := filters["name"]; ok {
+		query = query.Where("name ILIKE ?", "%"+name.(string)+"%")
+	}
+	if active, ok := filters["active"]; ok {
+		query = query.Where("active = ?", active)
+	}
+
+	// Contar el total de registros
+	query.Count(&total)
+
+	// Aplicar paginación
+	offset := (page - 1) * pageSize
+	query = query.Offset(offset).Limit(pageSize)
+
+	// Obtener roles
+	err := query.Preload("Permissions.Module").Find(&roles).Error // Preload para relaciones si aplica
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return roles, total, nil
+}
+func UpdateRoleState(id int, active bool) error {
+	var role models.Role
+
+	// Buscar el rol por ID
+	if err := config.DB.First(&role, id).Error; err != nil {
+		return errors.New("rol no encontrado")
+	}
+
+	// Actualizar el estado del rol
+	role.Active = active
+
+	// Guardar los cambios
+	if err := config.DB.Save(&role).Error; err != nil {
+		return errors.New("error al actualizar el estado del rol")
+	}
+
+	return nil
+}
