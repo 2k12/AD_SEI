@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"net/http"
+	helpers "seguridad-api/helpers"
 	"seguridad-api/services"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,6 +24,10 @@ import (
 // @Failure 500 {object} map[string]string "error"
 // @Router /roles [post]
 func CreateRole(c *gin.Context) {
+
+	currentTime := time.Now()
+	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
+
 	var input struct {
 		Name        string `json:"name" binding:"required"`
 		Description string `json:"description"`
@@ -36,6 +42,26 @@ func CreateRole(c *gin.Context) {
 	role, err := services.CreateRole(input.Name, input.Description)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al crear el rol"})
+		return
+	}
+
+	// Obtener el userID del contexto
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener el ID del usuario desde el contexto"})
+		return
+	}
+
+	// Si el ID es de tipo float64, conviértelo a uint
+	userIDUint := uint(userID.(float64))
+
+	event := "INSERT"
+	description := "Se creó un rol con el nombre: " + input.Name
+	originService := "SEGURIDAD"
+	// date := time.Now()
+
+	if auditErr := services.RegisterAudit(event, description, userIDUint, originService, ecuadorTime); auditErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Rol creado, pero no se pudo registrar la auditoría"})
 		return
 	}
 
@@ -108,6 +134,8 @@ func GetRoles(c *gin.Context) {
 // @Failure 500 {object} map[string]string "error"
 // @Router /roles/{id} [put]
 func UpdateRole(c *gin.Context) {
+	currentTime := time.Now()
+	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
 	// Obtener el ID del rol desde los parámetros de la URL
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -134,6 +162,26 @@ func UpdateRole(c *gin.Context) {
 		return
 	}
 
+	// Obtener el userID del contexto
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener el ID del usuario desde el contexto"})
+		return
+	}
+
+	// Si el ID es de tipo float64, conviértelo a uint
+	userIDUint := uint(userID.(float64))
+
+	event := "UPDATE"
+	description := "Se actualizó el rol con ID: " + c.Param("id")
+	originService := "SEGURIDAD"
+	// date := time.Now()
+
+	if auditErr := services.RegisterAudit(event, description, userIDUint, originService, ecuadorTime); auditErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Rol actualizado, pero no se pudo registrar la auditoría"})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{"role": role})
 }
 
@@ -153,6 +201,9 @@ func UpdateRole(c *gin.Context) {
 // @Failure 500 {object} map[string]string "error"
 // @Router /roles/{id}/state [patch]
 func UpdateRoleState(c *gin.Context) {
+	currentTime := time.Now()
+	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
+
 	// Obtener el ID del rol desde los parámetros de la URL
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -174,6 +225,26 @@ func UpdateRoleState(c *gin.Context) {
 	err = services.UpdateRoleState(id, input.Active)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Obtener el userID del contexto
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener el ID del usuario desde el contexto"})
+		return
+	}
+
+	// Si el ID es de tipo float64, conviértelo a uint
+	userIDUint := uint(userID.(float64))
+
+	event := "UPDATE"
+	description := "Se actualizó el estado del rol con ID: " + c.Param("id")
+	originService := "SEGURIDAD"
+	// date := time.Now()
+
+	if auditErr := services.RegisterAudit(event, description, userIDUint, originService, ecuadorTime); auditErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Estadi del rol actualizado, pero no se pudo registrar la auditoría"})
 		return
 	}
 
