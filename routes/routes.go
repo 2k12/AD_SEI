@@ -31,6 +31,10 @@ func SetupRoutes(router *gin.Engine) {
 
 			api.POST("/audit", controllers.RegisterAudit)
 
+			api.POST("/users/:id/roles", controllers.AssignRoleToUser)              // Asignar rol
+			api.DELETE("/users/:id/roles/:role_id", controllers.RemoveRoleFromUser) // Eliminar rol
+			api.GET("/users/:id/roles", controllers.GetUserRoles)
+
 		}
 	}
 }
