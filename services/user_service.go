@@ -110,11 +110,11 @@ func GetPaginatedUsers(page, pageSize int, filters map[string]interface{}) ([]mo
 	query := config.DB.Model(&models.User{})
 
 	// Aplicar filtros
-	if name, ok := filters["name"]; ok {
-		query = query.Where("name ILIKE ?", "%"+name.(string)+"%")
-	}
+	// if email, ok := filters["email"]; ok {
+	// 	query = query.Where("email = ?", email)
+	// }
 	if email, ok := filters["email"]; ok {
-		query = query.Where("email ILIKE ?", "%"+email.(string)+"%")
+		query = query.Where("email LIKE ?", "%"+email.(string)+"%")
 	}
 	if active, ok := filters["active"]; ok {
 		query = query.Where("active = ?", active)

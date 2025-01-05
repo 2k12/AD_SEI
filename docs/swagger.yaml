@@ -75,6 +75,26 @@ definitions:
         example: Auditoría registrada exitosamente
         type: string
     type: object
+  controllers.RegisterUserInput:
+    properties:
+      active:
+        example: true
+        type: boolean
+      email:
+        example: nuevousuario@gmail.com
+        type: string
+      name:
+        example: John Doe
+        type: string
+      password:
+        example: 12345abcd
+        type: string
+    required:
+    - active
+    - email
+    - name
+    - password
+    type: object
   controllers.TokenResponse:
     properties:
       token:
@@ -516,6 +536,50 @@ paths:
       tags:
       - Rol_Permisos
   /users:
+    get:
+      description: Devuelve una lista de usuarios paginada y filtrada.
+      parameters:
+      - description: 'Número de página (por defecto: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Tamaño de página (por defecto: 10)'
+        in: query
+        name: pageSize
+        type: integer
+      - description: Filtrar por email
+        in: query
+        name: email
+        type: string
+      - description: Filtrar por estado
+        in: query
+        name: active
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: users
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Obtener usuarios
+      tags:
+      - Usuarios
     post:
       consumes:
       - application/json
@@ -527,7 +591,7 @@ paths:
         name: input
         required: true
         schema:
-          type: object
+          $ref: '#/definitions/controllers.RegisterUserInput'
       produces:
       - application/json
       responses:
@@ -591,7 +655,7 @@ paths:
             type: object
       security:
       - BearerAuth: []
-      summary: Eliminar usuario
+      summary: Cambiar el estado del usuario
       tags:
       - Usuarios
     put:

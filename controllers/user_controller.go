@@ -10,6 +10,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type RegisterUserInput struct {
+	Name     string `json:"name" binding:"required" example:"John Doe"`
+	Email    string `json:"email" binding:"required" example:"nuevousuario@gmail.com"`
+	Password string `json:"password" binding:"required" example:"12345abcd"`
+	Active   bool   `json:"active" binding:"required" example:"true"`
+}
+
 // CreateUser crea un nuevo usuario
 // @Summary Crear usuario
 // @Description Crea un nuevo usuario con nombre, email, contraseña y estado activo. Requiere un Bearer Token.
@@ -17,7 +24,7 @@ import (
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param input body object true "Datos del usuario"
+// @Param input body RegisterUserInput true "Datos del usuario"
 // @Success 200 {object} map[string]interface{} "user"
 // @Failure 400 {object} map[string]string "error"
 // @Failure 401 {object} map[string]string "error"
@@ -68,17 +75,6 @@ func CreateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"user": user})
 }
 
-// // GetUsers obtiene todos los usuarios
-// // @Summary Obtener usuarios
-// // @Description Devuelve una lista de todos los usuarios registrados. Requiere un Bearer Token y PIN.
-// // @Tags Usuarios
-// // @Security BearerAuth
-// // @Security XAPI-PIN
-// // @Produce json
-// // @Success 200 {array} map[string]interface{} "users"
-// // @Failure 401 {object} map[string]string "error"
-// // @Failure 500 {object} map[string]string "error"
-// // @Router /users [get]
 // @Summary Obtener usuarios
 // @Description Devuelve una lista de usuarios paginada y filtrada.
 // @Tags Usuarios
@@ -86,35 +82,20 @@ func CreateUser(c *gin.Context) {
 // @Produce json
 // @Param page query int false "Número de página (por defecto: 1)"
 // @Param pageSize query int false "Tamaño de página (por defecto: 10)"
-// @Param name query string false "Filtrar por nombre"
 // @Param email query string false "Filtrar por email"
-// @Param active query bool false "Filtrar por estado activo"
+// @Param active query bool false "Filtrar por estado"
 // @Success 200 {object} map[string]interface{} "users"
 // @Failure 401 {object} map[string]string "error"
 // @Failure 500 {object} map[string]string "error"
 // @Router /users [get]
-
-// func GetUsers(c *gin.Context) {
-// 	users, err := services.GetUsers()
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener los usuarios"})
-// 		return
-// 	}
-
-//		c.JSON(http.StatusOK, gin.H{"users": users})
-//	}
 func GetUsers(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
-	name := c.Query("name")
 	email := c.Query("email")
 	active := c.Query("active")
 
 	// Construir filtros
 	filters := make(map[string]interface{})
-	if name != "" {
-		filters["name"] = name
-	}
 	if email != "" {
 		filters["email"] = email
 	}
@@ -228,7 +209,7 @@ func UpdateUser(c *gin.Context) {
 }
 
 // DeleteUser elimina un usuario
-// @Summary Eliminar usuario
+// @Summary Cambiar el estado del usuario
 // @Description Cambia el estado de un usuario a inactivo. Requiere un Bearer Token.
 // @Tags Usuarios
 // @Security BearerAuth

@@ -660,6 +660,74 @@ const docTemplate = `{
             }
         },
         "/users": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Devuelve una lista de usuarios paginada y filtrada.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Usuarios"
+                ],
+                "summary": "Obtener usuarios",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Número de página (por defecto: 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Tamaño de página (por defecto: 10)",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filtrar por email",
+                        "name": "email",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filtrar por estado",
+                        "name": "active",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "users",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -684,7 +752,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/controllers.RegisterUserInput"
                         }
                     }
                 ],
@@ -803,7 +871,7 @@ const docTemplate = `{
                 "tags": [
                     "Usuarios"
                 ],
-                "summary": "Eliminar usuario",
+                "summary": "Cambiar el estado del usuario",
                 "parameters": [
                     {
                         "type": "string",
@@ -1023,6 +1091,33 @@ const docTemplate = `{
                 "message": {
                     "type": "string",
                     "example": "Auditoría registrada exitosamente"
+                }
+            }
+        },
+        "controllers.RegisterUserInput": {
+            "type": "object",
+            "required": [
+                "active",
+                "email",
+                "name",
+                "password"
+            ],
+            "properties": {
+                "active": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "email": {
+                    "type": "string",
+                    "example": "nuevousuario@gmail.com"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "12345abcd"
                 }
             }
         },
