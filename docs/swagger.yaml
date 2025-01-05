@@ -307,6 +307,214 @@ paths:
       summary: Asignar permiso a rol
       tags:
       - Permisos
+  /roles:
+    get:
+      consumes:
+      - application/json
+      description: Devuelve una lista paginada de roles, permitiendo filtrar por nombre
+        y estado activo.
+      parameters:
+      - description: Número de página (por defecto 1)
+        in: query
+        name: page
+        type: integer
+      - description: Tamaño de página (por defecto 10)
+        in: query
+        name: pageSize
+        type: integer
+      - description: Filtrar por nombre
+        in: query
+        name: name
+        type: string
+      - description: Filtrar por estado activo
+        in: query
+        name: active
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: roles
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Obtener roles
+      tags:
+      - Roles
+    post:
+      consumes:
+      - application/json
+      description: Crea un nuevo rol con nombre, descripción y estado activo. Requiere
+        un Bearer Token.
+      parameters:
+      - description: Datos del rol
+        in: body
+        name: input
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: role
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Crear rol
+      tags:
+      - Roles
+  /roles/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Actualiza los datos de un rol existente identificándolo por su
+        ID. Requiere un Bearer Token.
+      parameters:
+      - description: ID del rol
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Datos actualizados del rol
+        in: body
+        name: input
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: role
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Actualizar rol
+      tags:
+      - Roles
+  /roles/{id}/state:
+    patch:
+      consumes:
+      - application/json
+      description: Cambia únicamente el estado activo de un rol identificado por su
+        ID. Requiere un Bearer Token.
+      parameters:
+      - description: ID del rol
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Estado del rol
+        in: body
+        name: input
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Actualizar estado del rol
+      tags:
+      - Roles
   /users:
     post:
       consumes:
