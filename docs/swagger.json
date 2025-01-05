@@ -154,7 +154,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Permisos"
+                    "Rol_Permisos"
                 ],
                 "summary": "Obtener todos los permisos",
                 "responses": {
@@ -164,165 +164,6 @@
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/controllers.PermissionResponse"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/roles/{role_id}/permissions": {
-            "get": {
-                "description": "Lista todos los permisos asignados a un rol específico",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Permisos"
-                ],
-                "summary": "Obtener permisos de un rol",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID del rol",
-                        "name": "role_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Lista de permisos",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/controllers.PermissionResponse"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Asocia un permiso existente a un rol específico",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Permisos"
-                ],
-                "summary": "Asignar permiso a rol",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID del rol",
-                        "name": "role_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Datos del permiso a asignar",
-                        "name": "permissionData",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controllers.PermissionDataRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "role_permission",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Elimina la asociación de un permiso específico con un rol",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Permisos"
-                ],
-                "summary": "Eliminar permiso de rol",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID del rol",
-                        "name": "role_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Datos del permiso a eliminar",
-                        "name": "permissionData",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controllers.PermissionDataRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "message",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
                             }
                         }
                     },
@@ -633,6 +474,165 @@
                         }
                     },
                     "404": {
+                        "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/roles/{role_id}/permissions": {
+            "get": {
+                "description": "Lista todos los permisos asignados a un rol específico",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rol_Permisos"
+                ],
+                "summary": "Obtener permisos de un rol",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID del rol",
+                        "name": "role_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de permisos",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/controllers.PermissionResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Asocia un permiso existente a un rol específico",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rol_Permisos"
+                ],
+                "summary": "Asignar permiso a rol",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID del rol",
+                        "name": "role_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Datos del permiso a asignar",
+                        "name": "permissionData",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.PermissionDataRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "role_permission",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Elimina la asociación de un permiso específico con un rol",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Rol_Permisos"
+                ],
+                "summary": "Eliminar permiso de rol",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID del rol",
+                        "name": "role_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Datos del permiso a eliminar",
+                        "name": "permissionData",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.PermissionDataRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
                         "description": "error",
                         "schema": {
                             "type": "object",

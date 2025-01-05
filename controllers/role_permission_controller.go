@@ -28,7 +28,7 @@ type PermissionResponse struct {
 // AssignPermission asigna un permiso a un rol y registra auditoría
 // @Summary Asignar permiso a rol
 // @Description Asocia un permiso existente a un rol específico
-// @Tags Permisos
+// @Tags Rol_Permisos
 // @Accept json
 // @Produce json
 // @Param role_id path int true "ID del rol"
@@ -68,7 +68,7 @@ func AssignPermission(c *gin.Context) {
 	currentTime := time.Now()
 	ecuadorTime := currentTime.Add(-5 * time.Hour)
 
-	event := "ASIGNAR"
+	event := "INSERT"
 	description := "Se asignó el permiso con ID " + strconv.Itoa(int(input.PermissionID)) + " al rol con ID " + strconv.Itoa(int(roleID))
 	originService := "role_permission_service"
 
@@ -83,7 +83,7 @@ func AssignPermission(c *gin.Context) {
 // RemovePermission elimina un permiso de un rol y registra auditoría
 // @Summary Eliminar permiso de rol
 // @Description Elimina la asociación de un permiso específico con un rol
-// @Tags Permisos
+// @Tags Rol_Permisos
 // @Accept json
 // @Produce json
 // @Param role_id path int true "ID del rol"
@@ -119,10 +119,10 @@ func RemovePermission(c *gin.Context) {
 	}
 
 	audit := models.Audit{
-		Event:         "REMOVE_PERMISSION",
+		Event:         "DELETE",
 		Description:   "Eliminación del permiso ID: " + strconv.Itoa(int(input.PermissionID)) + " del rol ID: " + strconv.Itoa(int(roleID)),
 		UserID:        uint(userID.(float64)),
-		OriginService: "ROLE_PERMISSION",
+		OriginService: "role_permission_service",
 		Date:          time.Now(),
 	}
 
@@ -137,7 +137,7 @@ func RemovePermission(c *gin.Context) {
 // GetAllPermissions obtiene todos los permisos con módulos asociados
 // @Summary Obtener todos los permisos
 // @Description Lista todos los permisos disponibles, incluyendo los módulos a los que pertenecen
-// @Tags Permisos
+// @Tags Rol_Permisos
 // @Produce json
 // @Success 200 {array} PermissionResponse "Lista de permisos"
 // @Failure 500 {object} map[string]string "error"
@@ -154,7 +154,7 @@ func GetAllPermissions(c *gin.Context) {
 // GetRolePermissions obtiene los permisos de un rol
 // @Summary Obtener permisos de un rol
 // @Description Lista todos los permisos asignados a un rol específico
-// @Tags Permisos
+// @Tags Rol_Permisos
 // @Produce json
 // @Param role_id path int true "ID del rol"
 // @Success 200 {array} PermissionResponse "Lista de permisos"
