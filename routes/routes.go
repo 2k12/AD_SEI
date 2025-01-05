@@ -32,6 +32,8 @@ func SetupRoutes(router *gin.Engine) {
 			api.DELETE("/permissions/:id", controllers.DeletePermission)
 			api.GET("/permissions/:id", controllers.GetPermissionByID)
 
+			api.GET("/modules", controllers.GetModules)
+
 			api.POST("/audit", controllers.RegisterAudit)
 
 		}
