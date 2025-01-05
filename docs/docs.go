@@ -160,7 +160,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Devuelve una lista paginada de roles, permitiendo filtrar por nombre y estado activo.",
+                "description": "Devuelve una lista paginada de roles, permitiendo filtrar por nombre y estado activo. Los resultados pueden ser paginados utilizando los parámetros ` + "`" + `page` + "`" + ` y ` + "`" + `pageSize` + "`" + `.",
                 "consumes": [
                     "application/json"
                 ],
@@ -186,50 +186,40 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Filtrar por nombre",
+                        "description": "Filtrar por nombre del rol",
                         "name": "name",
                         "in": "query"
                     },
                     {
-                        "type": "boolean",
-                        "description": "Filtrar por estado activo",
+                        "type": "string",
+                        "description": "Filtrar por estado activo (true/false)",
                         "name": "active",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "roles",
+                        "description": "Roles obtenidos exitosamente",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.GetRolesResponse"
                         }
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Datos inválidos o formato incorrecto",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.ErrorResponseGetRoles"
                         }
                     },
                     "401": {
-                        "description": "error",
+                        "description": "No autorizado, se requiere autenticación",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.ErrorResponseGetRoles"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Error interno del servidor al intentar obtener los roles",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.ErrorResponseGetRoles"
                         }
                     }
                 }
@@ -258,43 +248,27 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/controllers.CreateRoleInput"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "role",
+                        "description": "Rol registrado exitosamente",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.CreateRoleResponse"
                         }
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Datos inválidos o formato incorrecto",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.ErrorResponseRole"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Error al registrar el Rol",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.ErrorResponseRole"
                         }
                     }
                 }
@@ -307,7 +281,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Actualiza los datos de un rol existente identificándolo por su ID. Requiere un Bearer Token.",
+                "description": "Permite actualizar los datos de un rol existente, como el nombre, descripción y estado activo. Se requiere un Bearer Token para la autenticación.",
                 "consumes": [
                     "application/json"
                 ],
@@ -321,63 +295,50 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "ID del rol",
+                        "description": "ID del rol a actualizar",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Datos actualizados del rol",
+                        "description": "Estructura que contiene los datos actualizados del rol",
                         "name": "input",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/controllers.UpdateRoleInput"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "role",
+                        "description": "Rol actualizado exitosamente",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.UpdateRoleResponse"
                         }
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Datos inválidos o formato incorrecto",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.ErrorResponseUpdateRole"
                         }
                     },
                     "401": {
-                        "description": "error",
+                        "description": "No autorizado, falta el token de autenticación",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.ErrorResponseUpdateRole"
                         }
                     },
                     "404": {
-                        "description": "error",
+                        "description": "Rol no encontrado",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.ErrorResponseUpdateRole"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Error interno del servidor al intentar actualizar el rol",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.ErrorResponseUpdateRole"
                         }
                     }
                 }
@@ -385,12 +346,7 @@ const docTemplate = `{
         },
         "/roles/{id}/state": {
             "patch": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Cambia únicamente el estado activo de un rol identificado por su ID. Requiere un Bearer Token.",
+                "description": "Actualiza el estado de un rol existente (activo/inactivo)",
                 "consumes": [
                     "application/json"
                 ],
@@ -404,65 +360,44 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "ID del rol",
+                        "description": "ID del rol a actualizar",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Estado del rol",
-                        "name": "input",
+                        "description": "Estado del rol a actualizar",
+                        "name": "roleState",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/controllers.UpdateRoleStateInput"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "message",
+                        "description": "Estado del rol actualizado exitosamente",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.UpdateRoleStateResponse"
                         }
                     },
                     "400": {
-                        "description": "error",
+                        "description": "Datos inválidos o ID incorrecto",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.ErrorResponseUpdateRoleState"
                         }
                     },
                     "401": {
-                        "description": "error",
+                        "description": "No se pudo obtener el ID del usuario desde el contexto",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.ErrorResponseUpdateRoleState"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Error interno al actualizar el estado del rol o registrar la auditoría",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.ErrorResponseUpdateRoleState"
                         }
                     }
                 }
@@ -729,6 +664,40 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "controllers.CreateRoleInput": {
+            "type": "object",
+            "required": [
+                "event",
+                "name"
+            ],
+            "properties": {
+                "active": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "description": {
+                    "type": "string",
+                    "example": "Rol con permisos de administración"
+                },
+                "event": {
+                    "type": "string",
+                    "example": "INSERT"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Administrador"
+                }
+            }
+        },
+        "controllers.CreateRoleResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Rol creado exitosamente"
+                }
+            }
+        },
         "controllers.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -744,6 +713,69 @@ const docTemplate = `{
                 "error": {
                     "type": "string",
                     "example": "Error al realizar el registro"
+                }
+            }
+        },
+        "controllers.ErrorResponseGetRoles": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Error al obtener los roles"
+                }
+            }
+        },
+        "controllers.ErrorResponseRole": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Error al crear el rol"
+                }
+            }
+        },
+        "controllers.ErrorResponseUpdateRole": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Error al actualizar el rol"
+                }
+            }
+        },
+        "controllers.ErrorResponseUpdateRoleState": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Error al actualizar el estado del rol"
+                }
+            }
+        },
+        "controllers.GetRolesResponse": {
+            "type": "object",
+            "properties": {
+                "page": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "pageSize": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.Role"
+                    }
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 15
+                },
+                "totalPages": {
+                    "type": "integer",
+                    "example": 2
                 }
             }
         },
@@ -801,12 +833,96 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.Role": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "description": {
+                    "type": "string",
+                    "example": "Gestión de usuarios"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Administrador"
+                }
+            }
+        },
         "controllers.TokenResponse": {
             "type": "object",
             "properties": {
                 "token": {
                     "type": "string",
                     "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                }
+            }
+        },
+        "controllers.UpdateRoleInput": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "active": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "description": {
+                    "type": "string",
+                    "example": "Rol para gestionar usuarios y permisos"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Administrador"
+                }
+            }
+        },
+        "controllers.UpdateRoleResponse": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "description": {
+                    "type": "string",
+                    "example": "Rol para gestionar usuarios y permisos"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Administrador"
+                },
+                "role_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "status": {
+                    "type": "string",
+                    "example": "updated"
+                }
+            }
+        },
+        "controllers.UpdateRoleStateInput": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
+        "controllers.UpdateRoleStateResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Estado del rol actualizado exitosamente"
                 }
             }
         }

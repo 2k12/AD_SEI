@@ -1,5 +1,29 @@
 basePath: /api
 definitions:
+  controllers.CreateRoleInput:
+    properties:
+      active:
+        example: true
+        type: boolean
+      description:
+        example: Rol con permisos de administración
+        type: string
+      event:
+        example: INSERT
+        type: string
+      name:
+        example: Administrador
+        type: string
+    required:
+    - event
+    - name
+    type: object
+  controllers.CreateRoleResponse:
+    properties:
+      message:
+        example: Rol creado exitosamente
+        type: string
+    type: object
   controllers.ErrorResponse:
     properties:
       error:
@@ -11,6 +35,49 @@ definitions:
       error:
         example: Error al realizar el registro
         type: string
+    type: object
+  controllers.ErrorResponseGetRoles:
+    properties:
+      error:
+        example: Error al obtener los roles
+        type: string
+    type: object
+  controllers.ErrorResponseRole:
+    properties:
+      error:
+        example: Error al crear el rol
+        type: string
+    type: object
+  controllers.ErrorResponseUpdateRole:
+    properties:
+      error:
+        example: Error al actualizar el rol
+        type: string
+    type: object
+  controllers.ErrorResponseUpdateRoleState:
+    properties:
+      error:
+        example: Error al actualizar el estado del rol
+        type: string
+    type: object
+  controllers.GetRolesResponse:
+    properties:
+      page:
+        example: 1
+        type: integer
+      pageSize:
+        example: 10
+        type: integer
+      roles:
+        items:
+          $ref: '#/definitions/controllers.Role'
+        type: array
+      total:
+        example: 15
+        type: integer
+      totalPages:
+        example: 2
+        type: integer
     type: object
   controllers.LoginData:
     properties:
@@ -51,10 +118,69 @@ definitions:
         example: Auditoría registrada exitosamente
         type: string
     type: object
+  controllers.Role:
+    properties:
+      active:
+        example: true
+        type: boolean
+      description:
+        example: Gestión de usuarios
+        type: string
+      id:
+        example: 1
+        type: integer
+      name:
+        example: Administrador
+        type: string
+    type: object
   controllers.TokenResponse:
     properties:
       token:
         example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+    type: object
+  controllers.UpdateRoleInput:
+    properties:
+      active:
+        example: true
+        type: boolean
+      description:
+        example: Rol para gestionar usuarios y permisos
+        type: string
+      name:
+        example: Administrador
+        type: string
+    required:
+    - name
+    type: object
+  controllers.UpdateRoleResponse:
+    properties:
+      active:
+        example: true
+        type: boolean
+      description:
+        example: Rol para gestionar usuarios y permisos
+        type: string
+      name:
+        example: Administrador
+        type: string
+      role_id:
+        example: 1
+        type: integer
+      status:
+        example: updated
+        type: string
+    type: object
+  controllers.UpdateRoleStateInput:
+    properties:
+      active:
+        example: true
+        type: boolean
+    type: object
+  controllers.UpdateRoleStateResponse:
+    properties:
+      message:
+        example: Estado del rol actualizado exitosamente
         type: string
     type: object
 host: localhost:8080
@@ -160,7 +286,8 @@ paths:
       consumes:
       - application/json
       description: Devuelve una lista paginada de roles, permitiendo filtrar por nombre
-        y estado activo.
+        y estado activo. Los resultados pueden ser paginados utilizando los parámetros
+        `page` y `pageSize`.
       parameters:
       - description: Número de página (por defecto 1)
         in: query
@@ -170,40 +297,33 @@ paths:
         in: query
         name: pageSize
         type: integer
-      - description: Filtrar por nombre
+      - description: Filtrar por nombre del rol
         in: query
         name: name
         type: string
-      - description: Filtrar por estado activo
+      - description: Filtrar por estado activo (true/false)
         in: query
         name: active
-        type: boolean
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: roles
+          description: Roles obtenidos exitosamente
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.GetRolesResponse'
         "400":
-          description: error
+          description: Datos inválidos o formato incorrecto
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponseGetRoles'
         "401":
-          description: error
+          description: No autorizado, se requiere autenticación
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponseGetRoles'
         "500":
-          description: error
+          description: Error interno del servidor al intentar obtener los roles
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponseGetRoles'
       security:
       - BearerAuth: []
       summary: Obtener roles
@@ -220,33 +340,22 @@ paths:
         name: input
         required: true
         schema:
-          type: object
+          $ref: '#/definitions/controllers.CreateRoleInput'
       produces:
       - application/json
       responses:
         "200":
-          description: role
+          description: Rol registrado exitosamente
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.CreateRoleResponse'
         "400":
-          description: error
+          description: Datos inválidos o formato incorrecto
           schema:
-            additionalProperties:
-              type: string
-            type: object
-        "401":
-          description: error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponseRole'
         "500":
-          description: error
+          description: Error al registrar el Rol
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponseRole'
       security:
       - BearerAuth: []
       summary: Crear rol
@@ -256,52 +365,43 @@ paths:
     put:
       consumes:
       - application/json
-      description: Actualiza los datos de un rol existente identificándolo por su
-        ID. Requiere un Bearer Token.
+      description: Permite actualizar los datos de un rol existente, como el nombre,
+        descripción y estado activo. Se requiere un Bearer Token para la autenticación.
       parameters:
-      - description: ID del rol
+      - description: ID del rol a actualizar
         in: path
         name: id
         required: true
         type: integer
-      - description: Datos actualizados del rol
+      - description: Estructura que contiene los datos actualizados del rol
         in: body
         name: input
         required: true
         schema:
-          type: object
+          $ref: '#/definitions/controllers.UpdateRoleInput'
       produces:
       - application/json
       responses:
         "200":
-          description: role
+          description: Rol actualizado exitosamente
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.UpdateRoleResponse'
         "400":
-          description: error
+          description: Datos inválidos o formato incorrecto
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponseUpdateRole'
         "401":
-          description: error
+          description: No autorizado, falta el token de autenticación
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponseUpdateRole'
         "404":
-          description: error
+          description: Rol no encontrado
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponseUpdateRole'
         "500":
-          description: error
+          description: Error interno del servidor al intentar actualizar el rol
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponseUpdateRole'
       security:
       - BearerAuth: []
       summary: Actualizar rol
@@ -311,55 +411,39 @@ paths:
     patch:
       consumes:
       - application/json
-      description: Cambia únicamente el estado activo de un rol identificado por su
-        ID. Requiere un Bearer Token.
+      description: Actualiza el estado de un rol existente (activo/inactivo)
       parameters:
-      - description: ID del rol
+      - description: ID del rol a actualizar
         in: path
         name: id
         required: true
         type: integer
-      - description: Estado del rol
+      - description: Estado del rol a actualizar
         in: body
-        name: input
+        name: roleState
         required: true
         schema:
-          type: object
+          $ref: '#/definitions/controllers.UpdateRoleStateInput'
       produces:
       - application/json
       responses:
         "200":
-          description: message
+          description: Estado del rol actualizado exitosamente
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/controllers.UpdateRoleStateResponse'
         "400":
-          description: error
+          description: Datos inválidos o ID incorrecto
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponseUpdateRoleState'
         "401":
-          description: error
+          description: No se pudo obtener el ID del usuario desde el contexto
           schema:
-            additionalProperties:
-              type: string
-            type: object
-        "404":
-          description: error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponseUpdateRoleState'
         "500":
-          description: error
+          description: Error interno al actualizar el estado del rol o registrar la
+            auditoría
           schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
+            $ref: '#/definitions/controllers.ErrorResponseUpdateRoleState'
       summary: Actualizar estado del rol
       tags:
       - Roles
