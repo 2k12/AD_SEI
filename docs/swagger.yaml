@@ -21,6 +21,30 @@ definitions:
         example: securePassword123
         type: string
     type: object
+  controllers.PermissionDataRequest:
+    properties:
+      permission_id:
+        example: 1
+        type: integer
+    type: object
+  controllers.PermissionResponse:
+    properties:
+      active:
+        example: true
+        type: boolean
+      description:
+        example: Permiso de Crud Usuarios
+        type: string
+      id:
+        example: 1
+        type: integer
+      module_id:
+        example: 1
+        type: integer
+      name:
+        example: Gestion Usuarios
+        type: string
+    type: object
   controllers.RegisterAuditInput:
     properties:
       date:
@@ -155,6 +179,134 @@ paths:
       summary: Cerrar sesión
       tags:
       - Autenticación
+  /permissions/all:
+    get:
+      description: Lista todos los permisos disponibles, incluyendo los módulos a
+        los que pertenecen
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lista de permisos
+          schema:
+            items:
+              $ref: '#/definitions/controllers.PermissionResponse'
+            type: array
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Obtener todos los permisos
+      tags:
+      - Permisos
+  /roles/{role_id}/permissions:
+    delete:
+      consumes:
+      - application/json
+      description: Elimina la asociación de un permiso específico con un rol
+      parameters:
+      - description: ID del rol
+        in: path
+        name: role_id
+        required: true
+        type: integer
+      - description: Datos del permiso a eliminar
+        in: body
+        name: permissionData
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.PermissionDataRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Eliminar permiso de rol
+      tags:
+      - Permisos
+    get:
+      description: Lista todos los permisos asignados a un rol específico
+      parameters:
+      - description: ID del rol
+        in: path
+        name: role_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lista de permisos
+          schema:
+            items:
+              $ref: '#/definitions/controllers.PermissionResponse'
+            type: array
+        "400":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Obtener permisos de un rol
+      tags:
+      - Permisos
+    post:
+      consumes:
+      - application/json
+      description: Asocia un permiso existente a un rol específico
+      parameters:
+      - description: ID del rol
+        in: path
+        name: role_id
+        required: true
+        type: integer
+      - description: Datos del permiso a asignar
+        in: body
+        name: permissionData
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.PermissionDataRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: role_permission
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Asignar permiso a rol
+      tags:
+      - Permisos
   /users:
     post:
       consumes:
