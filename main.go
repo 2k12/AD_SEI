@@ -21,10 +21,10 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"seguridad-api/config"
 	"seguridad-api/routes"
 
-	"net/http"
 	// "os"
 
 	"github.com/gin-gonic/gin"

@@ -30,8 +30,16 @@ func SetupRoutes(router *gin.Engine) {
 
 			api.GET("/permissions", controllers.GetPermissions)
 			api.POST("/permissions", controllers.CreatePermission)
+			api.PUT("/permissions/:id", controllers.UpdatePermission)
+			api.DELETE("/permissions/:id", controllers.DeletePermission)
+			api.GET("/permissions/:id", controllers.GetPermissionByID)
 
 			api.POST("/audit", controllers.RegisterAudit)
+
+			api.POST("/roles/:role_id/permissions", controllers.AssignPermission)
+			api.DELETE("/roles/:role_id/permissions", controllers.RemovePermission)
+			api.GET("/roles/:role_id/permissions", controllers.GetRolePermissions)
+			api.GET("/permissions/all", controllers.GetAllPermissions)
 
 		}
 	}

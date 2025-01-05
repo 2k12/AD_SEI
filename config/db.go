@@ -11,13 +11,13 @@ import (
 var DB *gorm.DB
 
 func ConnectDB() {
-	dsn := "root:pan2@tcp(127.0.0.1:3306)/bd_seguridad?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:mysql@tcp(localhost:3306)/bdd_ads?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Error conectando a la base de datos: %v", err)
 	}
 
-	db.AutoMigrate(&models.User{}, &models.Role{}, &models.Permission{}, &models.Audit{})
+	db.AutoMigrate(&models.User{}, &models.Role{}, &models.Permission{}, &models.Module{}, &models.Audit{}, models.RolePermission{})
 	DB = db
 }
 
