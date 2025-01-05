@@ -10,6 +10,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type CreateRoleInput struct {
+	Name        string `json:"name" binding:"required" example:"Administrador"`
+	Description string `json:"description" example:"Rol con permisos de administración"`
+	Active      bool   `json:"active" example:"true"`
+}
+
+type CreateRoleResponse struct {
+	RoleID      uint   `json:"role_id" example:"1"`
+	Name        string `json:"name" example:"Administrador"`
+	Description string `json:"description" example:"Rol con permisos de administración"`
+	Active      bool   `json:"active" example:"true"`
+}
+
+type ErrorResponseRole struct {
+	Error string `json:"error" example:"Error al crear el rol"`
+}
+
 // CreateRole crea un nuevo rol
 // @Summary Crear rol
 // @Description Crea un nuevo rol con nombre, descripción y estado activo. Requiere un Bearer Token.
@@ -68,6 +85,32 @@ func CreateRole(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"role": role})
 }
 
+type GetRolesQueryParams struct {
+	Page     int    `json:"page" example:"1"`
+	PageSize int    `json:"pageSize" example:"10"`
+	Name     string `json:"name" example:"Admin"`
+	Active   string `json:"active" example:"true"`
+}
+
+type Role struct {
+	ID          uint   `json:"id" example:"1"`
+	Name        string `json:"name" example:"Administrador"`
+	Description string `json:"description" example:"Gestión de usuarios"`
+	Active      bool   `json:"active" example:"true"`
+}
+
+type GetRolesResponse struct {
+	Roles      []Role `json:"roles"`
+	Total      int64  `json:"total" example:"15"`
+	Page       int    `json:"page" example:"1"`
+	PageSize   int    `json:"pageSize" example:"10"`
+	TotalPages int64  `json:"totalPages" example:"2"`
+}
+
+type ErrorResponseGetRoles struct {
+	Error string `json:"error" example:"Error al obtener los roles"`
+}
+
 // GetRoles obtiene la lista de roles con paginación y filtros opcionales
 // @Summary Obtener roles
 // @Description Devuelve una lista paginada de roles, permitiendo filtrar por nombre y estado activo.
@@ -116,6 +159,24 @@ func GetRoles(c *gin.Context) {
 		"pageSize":   pageSize,
 		"totalPages": (total + int64(pageSize) - 1) / int64(pageSize),
 	})
+}
+
+type UpdateRoleInput struct {
+	Name        string `json:"name" binding:"required" example:"Administrador"`
+	Description string `json:"description" example:"Rol para gestionar usuarios y permisos"`
+	Active      bool   `json:"active" example:"true"`
+}
+
+type UpdateRoleResponse struct {
+	RoleID      uint   `json:"role_id" example:"1"`
+	Name        string `json:"name" example:"Administrador"`
+	Description string `json:"description" example:"Rol para gestionar usuarios y permisos"`
+	Active      bool   `json:"active" example:"true"`
+	Status      string `json:"status" example:"updated"`
+}
+
+type ErrorResponseUpdateRole struct {
+	Error string `json:"error" example:"Error al actualizar el rol"`
 }
 
 // UpdateRole actualiza la información de un rol existente
@@ -183,6 +244,18 @@ func UpdateRole(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"role": role})
+}
+
+type UpdateRoleStateInput struct {
+	Active bool `json:"active" example:"true"`
+}
+
+type UpdateRoleStateResponse struct {
+	Message string `json:"message" example:"Estado del rol actualizado exitosamente"`
+}
+
+type ErrorResponseUpdateRoleState struct {
+	Error string `json:"error" example:"Error al actualizar el estado del rol"`
 }
 
 // UpdateRoleState actualiza el estado a activo-inactivo de un rol
