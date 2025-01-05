@@ -3,8 +3,10 @@ package controllers
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"seguridad-api/config"
+	helpers "seguridad-api/helpers"
 	"seguridad-api/models"
 	"seguridad-api/services"
 
@@ -62,6 +64,26 @@ func AssignRoleToUser(c *gin.Context) {
 		return
 	}
 
+	// Auditoría
+	currentTime := time.Now()
+	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
+
+	authenticatedUserID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuario no autenticado"})
+		return
+	}
+
+	userIDUint := uint(authenticatedUserID.(float64))
+	event := "ASSIGN_ROLE"
+	description := "Se asignó el rol " + strconv.Itoa(int(payload.RoleID)) + " al usuario " + strconv.Itoa(userID)
+	originService := "SEGURIDAD"
+
+	if auditErr := services.RegisterAudit(event, description, userIDUint, originService, ecuadorTime); auditErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Rol asignado, pero no se pudo registrar la auditoría"})
+		return
+	}
+
 	c.JSON(http.StatusCreated, userRole)
 }
 
@@ -77,9 +99,7 @@ func AssignRoleToUser(c *gin.Context) {
 // @Failure 400 {object} map[string]string "ID de usuario o rol inválido"
 // @Failure 500 {object} map[string]string "Error interno del servidor"
 // @Router /users/{id}/roles/{role_id} [delete]
-
 func RemoveRoleFromUser(c *gin.Context) {
-	// Convertir los parámetros a enteros
 	userID, err := strconv.Atoi(c.Param("id"))
 	if err != nil || userID <= 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de usuario inválido"})
@@ -92,28 +112,44 @@ func RemoveRoleFromUser(c *gin.Context) {
 		return
 	}
 
-	// Validar si el usuario existe
 	var user models.User
 	if err := config.DB.First(&user, "id = ?", userID).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "El usuario no existe"})
 		return
 	}
 
-	// Validar si el rol existe
 	var role models.Role
 	if err := config.DB.First(&role, "id = ?", roleID).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "El rol no existe"})
 		return
 	}
 
-	// Llamar al servicio para eliminar el rol
 	err = services.RemoveRoleFromUser(uint(userID), uint(roleID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al eliminar el rol: " + err.Error()})
 		return
 	}
 
-	// Respuesta exitosa
+	// Auditoría
+	currentTime := time.Now()
+	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
+
+	authenticatedUserID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuario no autenticado"})
+		return
+	}
+
+	userIDUint := uint(authenticatedUserID.(float64))
+	event := "REMOVE_ROLE"
+	description := "Se eliminó el rol " + strconv.Itoa(roleID) + " del usuario " + strconv.Itoa(userID)
+	originService := "SEGURIDAD"
+
+	if auditErr := services.RegisterAudit(event, description, userIDUint, originService, ecuadorTime); auditErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Rol eliminado, pero no se pudo registrar la auditoría"})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{"message": "Rol eliminado correctamente"})
 }
 
@@ -127,7 +163,6 @@ func RemoveRoleFromUser(c *gin.Context) {
 // @Failure 400 {object} map[string]string "ID de usuario inválido"
 // @Failure 500 {object} map[string]string "Error interno del servidor"
 // @Router /users/{id}/roles [get]
-
 func GetUserRoles(c *gin.Context) {
 	userID, err := strconv.Atoi(c.Param("id"))
 	if err != nil || userID <= 0 {
@@ -139,6 +174,20 @@ func GetUserRoles(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudieron obtener los roles"})
 		return
+	}
+
+	// Auditoría
+	currentTime := time.Now()
+	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
+
+	authenticatedUserID, exists := c.Get("userID")
+	if exists {
+		userIDUint := uint(authenticatedUserID.(float64))
+		event := "GET_USER_ROLES"
+		description := "Se consultaron los roles del usuario " + strconv.Itoa(userID)
+		originService := "SEGURIDAD"
+
+		_ = services.RegisterAudit(event, description, userIDUint, originService, ecuadorTime)
 	}
 
 	c.JSON(http.StatusOK, roles)
