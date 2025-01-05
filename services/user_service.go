@@ -37,43 +37,9 @@ func CreateUser(name, email, password string, active bool) (models.User, error) 
 	return user, nil
 }
 
-// Obtener usuarios
-//
-//	func GetUsers() ([]models.User, error) {
-//		var users []models.User
-//		result := config.DB.Find(&users)
-//		return users, result.Error
-//	}
-// func GetUsers() ([]models.User, error) {
-// 	var users []models.User
-
-// 	// Usamos Preload para cargar roles y permisos asociados a los roles
-// 	result := config.DB.Debug().Preload("Role.Permissions").Find(&users)
-// 	// result := config.DB.Debug().Preload("Roles.Permissions").Find(&users)
-
-// 	if result.Error != nil {
-// 		// Si hay algún error, lo devolvemos
-// 		return nil, result.Error
-// 	}
-
-//		// Devolvemos los usuarios con las relaciones cargadas
-//		return users, nil
-//	}
-// func GetUsers() ([]models.User, error) {
-// 	var users []models.User
-
-// 	result := config.DB.Debug().Preload("Roles.Permissions").Find(&users)
-
-// 	if result.Error != nil {
-// 		return nil, result.Error
-// 	}
-
-//		return users, nil
-//	}
 func GetUsers() ([]models.User, error) {
 	var users []models.User
 
-	// Preload Roles, Permissions, and Modules
 	result := config.DB.Debug().
 		Preload("Roles.Permissions.Module").
 		Find(&users)
@@ -154,14 +120,11 @@ func GetPaginatedUsers(page, pageSize int, filters map[string]interface{}) ([]mo
 		query = query.Where("active = ?", active)
 	}
 
-	// Contar el total de registros
 	query.Count(&total)
 
-	// Aplicar paginación
 	offset := (page - 1) * pageSize
 	query = query.Offset(offset).Limit(pageSize)
 
-	// Obtener usuarios con relaciones
 	err := query.Preload("Roles.Permissions.Module").Find(&users).Error
 	if err != nil {
 		return nil, 0, err

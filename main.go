@@ -1,5 +1,5 @@
-// @title API SEGURIDAD con Swagger
-// @version 1.0
+// @title API SEGURIDAD
+// @version 1.1
 // @description Esta es la documentación de LA API DE SEGURIDAD hecha con Go.
 // @termsOfService http://swagger.io/terms/
 

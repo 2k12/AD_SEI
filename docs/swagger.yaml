@@ -68,8 +68,8 @@ info:
     name: MIT
     url: https://opensource.org/licenses/MIT
   termsOfService: http://swagger.io/terms/
-  title: API SEGURIDAD con Swagger
-  version: "1.0"
+  title: API SEGURIDAD
+  version: "1.1"
 paths:
   /audit:
     post:
