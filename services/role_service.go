@@ -49,7 +49,7 @@ func GetPaginatedRoles(page, pageSize int, filters map[string]interface{}) ([]mo
 
 	// Aplicar filtros
 	if name, ok := filters["name"]; ok {
-		query = query.Where("name ILIKE ?", "%"+name.(string)+"%")
+		query = query.Where("name LIKE ? COLLATE utf8_general_ci", "%"+name.(string)+"%")
 	}
 	if active, ok := filters["active"]; ok {
 		query = query.Where("active = ?", active)
