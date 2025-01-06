@@ -170,9 +170,11 @@ func DeletePermission(c *gin.Context) {
 func GetPermissionByID(c *gin.Context) {
 	id := c.Param("id")
 	var permission models.Permission
-	if err := config.DB.Preload("Module").First(&permission, "id = ?", id).Error; err != nil {
+
+	if err := config.DB.Preload("Module").Where("id = ?", id).First(&permission).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Permiso no encontrado"})
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{"permission": permission})
 }
