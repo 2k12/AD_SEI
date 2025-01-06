@@ -99,7 +99,7 @@ func AssignRoleToUser(c *gin.Context) {
 	}
 
 	userIDUint := uint(authenticatedUserID.(float64))
-	event := "ASSIGN_ROLE"
+	event := "CREATE"
 	description := "Se asignó el rol " + strconv.Itoa(int(payload.RoleID)) + " al usuario " + strconv.Itoa(userID)
 	originService := "SEGURIDAD"
 
@@ -166,7 +166,7 @@ func RemoveRoleFromUser(c *gin.Context) {
 	}
 
 	userIDUint := uint(authenticatedUserID.(float64))
-	event := "REMOVE_ROLE"
+	event := "DELETE"
 	description := "Se eliminó el rol " + strconv.Itoa(roleID) + " del usuario " + strconv.Itoa(userID)
 	originService := "SEGURIDAD"
 
@@ -202,19 +202,19 @@ func GetUserRoles(c *gin.Context) {
 		return
 	}
 
-	// Auditoría
-	currentTime := time.Now()
-	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
+	// // Auditoría
+	// currentTime := time.Now()
+	// ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
 
-	authenticatedUserID, exists := c.Get("userID")
-	if exists {
-		userIDUint := uint(authenticatedUserID.(float64))
-		event := "GET_USER_ROLES"
-		description := "Se consultaron los roles del usuario " + strconv.Itoa(userID)
-		originService := "SEGURIDAD"
+	// authenticatedUserID, exists := c.Get("userID")
+	// if exists {
+	// 	userIDUint := uint(authenticatedUserID.(float64))
+	// 	event := "GET_USER_ROLES"
+	// 	description := "Se consultaron los roles del usuario " + strconv.Itoa(userID)
+	// 	originService := "SEGURIDAD"
 
-		_ = services.RegisterAudit(event, description, userIDUint, originService, ecuadorTime)
-	}
+	// 	_ = services.RegisterAudit(event, description, userIDUint, originService, ecuadorTime)
+	// }
 
 	c.JSON(http.StatusOK, roles)
 }
