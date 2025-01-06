@@ -11,16 +11,14 @@ import (
 )
 
 type CreateRoleInput struct {
+	Event       string `json:"event" binding:"required" example:"INSERT"`
 	Name        string `json:"name" binding:"required" example:"Administrador"`
 	Description string `json:"description" example:"Rol con permisos de administración"`
 	Active      bool   `json:"active" example:"true"`
 }
 
 type CreateRoleResponse struct {
-	RoleID      uint   `json:"role_id" example:"1"`
-	Name        string `json:"name" example:"Administrador"`
-	Description string `json:"description" example:"Rol con permisos de administración"`
-	Active      bool   `json:"active" example:"true"`
+	Message string `json:"message" example:"Rol creado exitosamente"`
 }
 
 type ErrorResponseRole struct {
@@ -34,11 +32,10 @@ type ErrorResponseRole struct {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param input body object true "Datos del rol"
-// @Success 200 {object} map[string]interface{} "role"
-// @Failure 400 {object} map[string]string "error"
-// @Failure 401 {object} map[string]string "error"
-// @Failure 500 {object} map[string]string "error"
+// @Param input body CreateRoleInput true "Datos del rol"
+// @Success 200 {object} CreateRoleResponse "Rol registrado exitosamente"
+// @Failure 400 {object} ErrorResponseRole "Datos inválidos o formato incorrecto"
+// @Failure 500 {object} ErrorResponseRole "Error al registrar el Rol"
 // @Router /roles [post]
 func CreateRole(c *gin.Context) {
 
@@ -88,7 +85,7 @@ func CreateRole(c *gin.Context) {
 type GetRolesQueryParams struct {
 	Page     int    `json:"page" example:"1"`
 	PageSize int    `json:"pageSize" example:"10"`
-	Name     string `json:"name" example:"Admin"`
+	Name     string `json:"name" example:"Administrador"`
 	Active   string `json:"active" example:"true"`
 }
 
@@ -113,19 +110,19 @@ type ErrorResponseGetRoles struct {
 
 // GetRoles obtiene la lista de roles con paginación y filtros opcionales
 // @Summary Obtener roles
-// @Description Devuelve una lista paginada de roles, permitiendo filtrar por nombre y estado activo.
+// @Description Devuelve una lista paginada de roles, permitiendo filtrar por nombre y estado activo. Los resultados pueden ser paginados utilizando los parámetros `page` y `pageSize`.
 // @Tags Roles
 // @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param page query int false "Número de página (por defecto 1)"
 // @Param pageSize query int false "Tamaño de página (por defecto 10)"
-// @Param name query string false "Filtrar por nombre"
-// @Param active query boolean false "Filtrar por estado activo"
-// @Success 200 {object} map[string]interface{} "roles"
-// @Failure 400 {object} map[string]string "error"
-// @Failure 401 {object} map[string]string "error"
-// @Failure 500 {object} map[string]string "error"
+// @Param name query string false "Filtrar por nombre del rol"
+// @Param active query string false "Filtrar por estado activo (true/false)"
+// @Success 200 {object} GetRolesResponse "Roles obtenidos exitosamente"
+// @Failure 400 {object} ErrorResponseGetRoles "Datos inválidos o formato incorrecto"
+// @Failure 401 {object} ErrorResponseGetRoles "No autorizado, se requiere autenticación"
+// @Failure 500 {object} ErrorResponseGetRoles "Error interno del servidor al intentar obtener los roles"
 // @Router /roles [get]
 func GetRoles(c *gin.Context) {
 	// Obtener parámetros de consulta para paginación y filtros
@@ -181,18 +178,18 @@ type ErrorResponseUpdateRole struct {
 
 // UpdateRole actualiza la información de un rol existente
 // @Summary Actualizar rol
-// @Description Actualiza los datos de un rol existente identificándolo por su ID. Requiere un Bearer Token.
+// @Description Permite actualizar los datos de un rol existente, como el nombre, descripción y estado activo. Se requiere un Bearer Token para la autenticación.
 // @Tags Roles
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param id path int true "ID del rol"
-// @Param input body object true "Datos actualizados del rol"
-// @Success 200 {object} map[string]interface{} "role"
-// @Failure 400 {object} map[string]string "error"
-// @Failure 401 {object} map[string]string "error"
-// @Failure 404 {object} map[string]string "error"
-// @Failure 500 {object} map[string]string "error"
+// @Param id path int true "ID del rol a actualizar"
+// @Param input body UpdateRoleInput true "Estructura que contiene los datos actualizados del rol"
+// @Success 200 {object} UpdateRoleResponse "Rol actualizado exitosamente"
+// @Failure 400 {object} ErrorResponseUpdateRole "Datos inválidos o formato incorrecto"
+// @Failure 401 {object} ErrorResponseUpdateRole "No autorizado, falta el token de autenticación"
+// @Failure 404 {object} ErrorResponseUpdateRole "Rol no encontrado"
+// @Failure 500 {object} ErrorResponseUpdateRole "Error interno del servidor al intentar actualizar el rol"
 // @Router /roles/{id} [put]
 func UpdateRole(c *gin.Context) {
 	currentTime := time.Now()
@@ -258,20 +255,18 @@ type ErrorResponseUpdateRoleState struct {
 	Error string `json:"error" example:"Error al actualizar el estado del rol"`
 }
 
-// UpdateRoleState actualiza el estado a activo-inactivo de un rol
+// UpdateRoleState actualiza el estado de un rol
 // @Summary Actualizar estado del rol
-// @Description Cambia únicamente el estado activo de un rol identificado por su ID. Requiere un Bearer Token.
+// @Description Actualiza el estado de un rol existente (activo/inactivo)
 // @Tags Roles
-// @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param id path int true "ID del rol"
-// @Param input body object true "Estado del rol"
-// @Success 200 {object} map[string]string "message"
-// @Failure 400 {object} map[string]string "error"
-// @Failure 401 {object} map[string]string "error"
-// @Failure 404 {object} map[string]string "error"
-// @Failure 500 {object} map[string]string "error"
+// @Param id path int true "ID del rol a actualizar"
+// @Param roleState body UpdateRoleStateInput true "Estado del rol a actualizar"
+// @Success 200 {object} UpdateRoleStateResponse "Estado del rol actualizado exitosamente"
+// @Failure 400 {object} ErrorResponseUpdateRoleState "Datos inválidos o ID incorrecto"
+// @Failure 401 {object} ErrorResponseUpdateRoleState "No se pudo obtener el ID del usuario desde el contexto"
+// @Failure 500 {object} ErrorResponseUpdateRoleState "Error interno al actualizar el estado del rol o registrar la auditoría"
 // @Router /roles/{id}/state [patch]
 func UpdateRoleState(c *gin.Context) {
 	currentTime := time.Now()
