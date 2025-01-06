@@ -1120,6 +1120,54 @@
                 }
             }
         },
+        "controllers.RegisterUserInput": {
+            "type": "object",
+            "required": [
+                "active",
+                "email",
+                "name",
+                "password"
+            ],
+            "properties": {
+                "active": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "email": {
+                    "type": "string",
+                    "example": "nuevousuario@gmail.com"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "12345abcd"
+                }
+            }
+        },
+        "controllers.Role": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "description": {
+                    "type": "string",
+                    "example": "Gestión de usuarios"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Administrador"
+                }
+            }
+        },
         "controllers.TokenResponse": {
             "type": "object",
             "properties": {

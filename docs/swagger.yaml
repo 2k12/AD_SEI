@@ -142,6 +142,41 @@ definitions:
         example: Auditoría registrada exitosamente
         type: string
     type: object
+  controllers.RegisterUserInput:
+    properties:
+      active:
+        example: true
+        type: boolean
+      email:
+        example: nuevousuario@gmail.com
+        type: string
+      name:
+        example: John Doe
+        type: string
+      password:
+        example: 12345abcd
+        type: string
+    required:
+    - active
+    - email
+    - name
+    - password
+    type: object
+  controllers.Role:
+    properties:
+      active:
+        example: true
+        type: boolean
+      description:
+        example: Gestión de usuarios
+        type: string
+      id:
+        example: 1
+        type: integer
+      name:
+        example: Administrador
+        type: string
+    type: object
   controllers.TokenResponse:
     properties:
       token:
