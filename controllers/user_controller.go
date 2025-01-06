@@ -47,14 +47,12 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	// Obtener el userID del contexto
 	userID, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener el ID del usuario desde el contexto"})
 		return
 	}
 
-	// Si el ID es de tipo float64, conviértelo a uint
 	userIDUint := uint(userID.(float64))
 
 	event := "INSERT"
@@ -189,7 +187,6 @@ func UpdateUser(c *gin.Context) {
 	id := c.Param("id")
 	currentTime := time.Now()
 
-	// Ajustar la hora al huso horario de Ecuador usando el helper
 	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
 
 	var userData struct {
@@ -209,14 +206,12 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	// Obtener el userID del contexto
 	userID, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener el ID del usuario desde el contexto"})
 		return
 	}
 
-	// Si el ID es de tipo float64, conviértelo a uint
 	userIDUint := uint(userID.(float64))
 
 	event := "UPDATE"
@@ -247,7 +242,6 @@ func DeleteUser(c *gin.Context) {
 	authenticatedUserID, exists := c.Get("userID")
 	currentTime := time.Now()
 
-	// Ajustar la hora al huso horario de Ecuador usando el helper
 	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
 
 	if !exists {
