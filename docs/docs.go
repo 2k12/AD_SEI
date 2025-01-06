@@ -920,9 +920,178 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/users/{id}/roles": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Devuelve una lista de los roles asignados a un usuario especificado por su ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Obtener roles de un usuario",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID del usuario",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de roles asignados",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/controllers.RoleResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "ID de usuario inválido",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponseD"
+                        }
+                    },
+                    "500": {
+                        "description": "Error interno del servidor",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponseD"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Asigna un rol a un usuario especificado por su ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Asignar un rol a un usuario",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID del usuario",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Estructura JSON con el ID del rol",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AssignRolePayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Rol asignado correctamente",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.UserRoleResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "ID de usuario o datos inválidos",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponseD"
+                        }
+                    },
+                    "500": {
+                        "description": "Error interno del servidor",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponseD"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}/roles/{role_id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Elimina un rol previamente asignado a un usuario dado su ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Eliminar un rol de un usuario",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID del usuario",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID del rol a eliminar",
+                        "name": "role_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mensaje de éxito indicando que el rol fue eliminado",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "ID de usuario o rol inválido",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponseD"
+                        }
+                    },
+                    "500": {
+                        "description": "Error interno del servidor",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponseD"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "controllers.AssignRolePayload": {
+            "type": "object",
+            "properties": {
+                "role_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "controllers.CreateRoleInput": {
             "type": "object",
             "required": [
@@ -972,6 +1141,14 @@ const docTemplate = `{
                 "error": {
                     "type": "string",
                     "example": "Error al realizar el registro"
+                }
+            }
+        },
+        "controllers.ErrorResponseD": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
                 }
             }
         },
@@ -1174,6 +1351,25 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.RoleResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "controllers.TokenResponse": {
             "type": "object",
             "properties": {
@@ -1245,6 +1441,26 @@ const docTemplate = `{
                     "example": "Estado del rol actualizado exitosamente"
                 }
             }
+        },
+        "controllers.UserRoleResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "role_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
         }
     },
     "securityDefinitions": {
@@ -1258,7 +1474,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.2",
+	Version:          "1.4",
 	Host:             "localhost:8080",
 	BasePath:         "/api",
 	Schemes:          []string{},

@@ -10,17 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// CreateModule crea un nuevo módulo
-// @Summary Crear módulo
-// @Description Crea un nuevo módulo con nombre, descripción y estado activo
-// @Tags Módulos
-// @Accept json
-// @Produce json
-// @Param input body struct{ Name string `json:"name" binding:"required"; Description string `json:"description"`; Active bool `json:"active"` } true "Datos del módulo"
-// @Success 200 {object} map[string]string "message"
-// @Failure 400 {object} map[string]string "error"
-// @Failure 500 {object} map[string]string "error"
-// @Router /modules [post]
 func CreateModule(c *gin.Context) {
 	var input struct {
 		Name        string `json:"name" binding:"required"`

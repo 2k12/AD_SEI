@@ -13,17 +13,43 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type AssignRolePayload struct {
+	RoleID uint `json:"role_id"`
+}
+
+type ErrorResponseD struct {
+	Error string `json:"error"`
+}
+
+type SuccessResponse struct {
+	Message string `json:"message"`
+}
+
+type UserRoleResponse struct {
+	ID        uint      `json:"id"`
+	UserID    uint      `json:"user_id"`
+	RoleID    uint      `json:"role_id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type RoleResponse struct {
+	ID   uint   `json:"id"`
+	Name string `json:"name"`
+}
+
 // AssignRoleToUser godoc
-// @Summary Asigna un rol a un usuario
-// @Description Asigna un rol a un usuario dado su ID
+// @Summary Asignar un rol a un usuario
+// @Description Asigna un rol a un usuario especificado por su ID.
 // @Tags Roles
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path int true "ID del usuario"
-// @Param body body struct{ RoleID uint `json:"role_id"` } true "JSON con el ID del rol"
-// @Success 201 {object} models.UserRole
-// @Failure 400 {object} map[string]string "ID del usuario o datos inválidos"
-// @Failure 500 {object} map[string]string "Error interno del servidor"
+// @Param body body AssignRolePayload true "Estructura JSON con el ID del rol"
+// @Success 201 {object} UserRoleResponse "Rol asignado correctamente"
+// @Failure 400 {object} ErrorResponseD "ID de usuario o datos inválidos"
+// @Failure 500 {object} ErrorResponseD "Error interno del servidor"
 // @Router /users/{id}/roles [post]
 func AssignRoleToUser(c *gin.Context) {
 	userID, err := strconv.Atoi(c.Param("id"))
@@ -38,9 +64,7 @@ func AssignRoleToUser(c *gin.Context) {
 		return
 	}
 
-	var payload struct {
-		RoleID uint `json:"role_id"`
-	}
+	var payload AssignRolePayload
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos"})
 		return
@@ -88,16 +112,17 @@ func AssignRoleToUser(c *gin.Context) {
 }
 
 // RemoveRoleFromUser godoc
-// @Summary Elimina un rol de un usuario
-// @Description Elimina un rol asignado a un usuario dado su ID
+// @Summary Eliminar un rol de un usuario
+// @Description Elimina un rol previamente asignado a un usuario dado su ID.
 // @Tags Roles
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path int true "ID del usuario"
 // @Param role_id path int true "ID del rol a eliminar"
-// @Success 200 {object} map[string]string "Rol eliminado correctamente"
-// @Failure 400 {object} map[string]string "ID de usuario o rol inválido"
-// @Failure 500 {object} map[string]string "Error interno del servidor"
+// @Success 200 {object} SuccessResponse "Mensaje de éxito indicando que el rol fue eliminado"
+// @Failure 400 {object} ErrorResponseD "ID de usuario o rol inválido"
+// @Failure 500 {object} ErrorResponseD "Error interno del servidor"
 // @Router /users/{id}/roles/{role_id} [delete]
 func RemoveRoleFromUser(c *gin.Context) {
 	userID, err := strconv.Atoi(c.Param("id"))
@@ -150,18 +175,19 @@ func RemoveRoleFromUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Rol eliminado correctamente"})
+	c.JSON(http.StatusOK, SuccessResponse{Message: "Rol eliminado correctamente"})
 }
 
 // GetUserRoles godoc
-// @Summary Obtener los roles asignados a un usuario
-// @Description Devuelve una lista de roles asignados a un usuario dado su ID
+// @Summary Obtener roles de un usuario
+// @Description Devuelve una lista de los roles asignados a un usuario especificado por su ID.
 // @Tags Roles
+// @Security BearerAuth
 // @Produce json
 // @Param id path int true "ID del usuario"
-// @Success 200 {array} models.Role "Lista de roles asignados"
-// @Failure 400 {object} map[string]string "ID de usuario inválido"
-// @Failure 500 {object} map[string]string "Error interno del servidor"
+// @Success 200 {array} RoleResponse "Lista de roles asignados"
+// @Failure 400 {object} ErrorResponseD "ID de usuario inválido"
+// @Failure 500 {object} ErrorResponseD "Error interno del servidor"
 // @Router /users/{id}/roles [get]
 func GetUserRoles(c *gin.Context) {
 	userID, err := strconv.Atoi(c.Param("id"))
