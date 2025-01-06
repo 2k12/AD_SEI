@@ -29,6 +29,7 @@ type PermissionResponse struct {
 // @Summary Asignar permiso a rol
 // @Description Asocia un permiso existente a un rol específico
 // @Tags Rol_Permisos
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param role_id path int true "ID del rol"
@@ -84,6 +85,7 @@ func AssignPermission(c *gin.Context) {
 // @Summary Eliminar permiso de rol
 // @Description Elimina la asociación de un permiso específico con un rol
 // @Tags Rol_Permisos
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param role_id path int true "ID del rol"
@@ -138,6 +140,7 @@ func RemovePermission(c *gin.Context) {
 // @Summary Obtener todos los permisos
 // @Description Lista todos los permisos disponibles, incluyendo los módulos a los que pertenecen
 // @Tags Rol_Permisos
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {array} PermissionResponse "Lista de permisos"
 // @Failure 500 {object} map[string]string "error"
@@ -155,6 +158,7 @@ func GetAllPermissions(c *gin.Context) {
 // @Summary Obtener permisos de un rol
 // @Description Lista todos los permisos asignados a un rol específico
 // @Tags Rol_Permisos
+// @Security BearerAuth
 // @Produce json
 // @Param role_id path int true "ID del rol"
 // @Success 200 {array} PermissionResponse "Lista de permisos"
