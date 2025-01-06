@@ -13,6 +13,18 @@ import (
 )
 
 // CreatePermission crea un nuevo permiso
+// @Summary Crear permiso
+// @Description Crea un nuevo permiso con nombre, descripción, ID del módulo y estado activo. Requiere un Bearer Token.
+// @Tags Permisos
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param input body models.Permission true "Datos del permiso"
+// @Success 200 {object} models.Permission "permission"
+// @Failure 400 {object} map[string]string "error"
+// @Failure 401 {object} map[string]string "error"
+// @Failure 500 {object} map[string]string "error"
+// @Router /permissions [post]
 func CreatePermission(c *gin.Context) {
 	var input struct {
 		Name        string `json:"name" binding:"required"`
@@ -63,6 +75,16 @@ func CreatePermission(c *gin.Context) {
 }
 
 // GetPermissions obtiene todos los permisos con paginación
+// @Summary Obtener permisos
+// @Description Devuelve una lista de permisos paginada.
+// @Tags Permisos
+// @Security BearerAuth
+// @Produce json
+// @Param page query int false "Número de página (por defecto: 1)"
+// @Param limit query int false "Tamaño de página (por defecto: 10)"
+// @Success 200 {object} map[string]interface{} "permissions"
+// @Failure 401 {object} map[string]string "error"
+// @Router /permissions [get]
 func GetPermissions(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
@@ -83,6 +105,19 @@ func GetPermissions(c *gin.Context) {
 }
 
 // UpdatePermission actualiza un permiso existente
+// @Summary Actualizar permiso
+// @Description Actualiza los datos de un permiso existente. Requiere un Bearer Token.
+// @Tags Permisos
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "ID del permiso"
+// @Param input body models.Permission true "Datos del permiso"
+// @Success 200 {object} models.Permission "permission"
+// @Failure 400 {object} map[string]string "error"
+// @Failure 401 {object} map[string]string "error"
+// @Failure 500 {object} map[string]string "error"
+// @Router /permissions/{id} [put]
 func UpdatePermission(c *gin.Context) {
 	id := c.Param("id")
 	var input struct {
@@ -134,6 +169,16 @@ func UpdatePermission(c *gin.Context) {
 }
 
 // DeletePermission elimina un permiso
+// @Summary Eliminar permiso
+// @Description Elimina un permiso existente. Requiere un Bearer Token.
+// @Tags Permisos
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "ID del permiso"
+// @Success 200 {object} map[string]string "message"
+// @Failure 401 {object} map[string]string "error"
+// @Failure 500 {object} map[string]string "error"
+// @Router /permissions/{id} [delete]
 func DeletePermission(c *gin.Context) {
 	id := c.Param("id")
 	if err := services.DeletePermission(id); err != nil {
@@ -167,6 +212,16 @@ func DeletePermission(c *gin.Context) {
 }
 
 // GetPermissionByID obtiene los detalles de un permiso por ID
+// @Summary Obtener permiso por ID
+// @Description Devuelve los detalles de un permiso dado su ID. Requiere un Bearer Token.
+// @Tags Permisos
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "ID del permiso"
+// @Success 200 {object} models.Permission "permission"
+// @Failure 401 {object} map[string]string "error"
+// @Failure 404 {object} map[string]string "error"
+// @Router /permissions/{id} [get]
 func GetPermissionByID(c *gin.Context) {
 	id := c.Param("id")
 	var permission models.Permission
