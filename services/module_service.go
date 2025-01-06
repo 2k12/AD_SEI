@@ -53,6 +53,16 @@ func UpdateModule(id uint, name, description *string, active *bool) error {
 	return result.Error
 }
 
+func DeleteModule(id uint) error {
+	var module models.Module
+	if err := config.DB.First(&module, id).Error; err != nil {
+		return errors.New("module not found")
+	}
+
+	result := config.DB.Delete(&module)
+	return result.Error
+}
+
 func ToggleModuleActive(id uint) error {
 	var module models.Module
 	if err := config.DB.First(&module, id).Error; err != nil {
