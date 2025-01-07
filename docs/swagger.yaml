@@ -262,6 +262,45 @@ definitions:
       user_id:
         type: integer
     type: object
+  models.Module:
+    properties:
+      active:
+        type: boolean
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      permissions:
+        description: Permissions []Permission `gorm:"foreignKey:ModuleID" json:"permissions"`
+        items:
+          $ref: '#/definitions/models.Permission'
+        type: array
+      updated_at:
+        type: string
+    type: object
+  models.Permission:
+    properties:
+      active:
+        type: boolean
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      module:
+        $ref: '#/definitions/models.Module'
+      module_id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -360,6 +399,386 @@ paths:
       summary: Cerrar sesión
       tags:
       - Autenticación
+  /modules:
+    get:
+      description: Devuelve una lista de todos los módulos. Requiere un Bearer Token.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: modules
+          schema:
+            items:
+              $ref: '#/definitions/models.Module'
+            type: array
+        "401":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Obtener módulos
+      tags:
+      - Módulos
+    post:
+      consumes:
+      - application/json
+      description: Crea un nuevo módulo con nombre, descripción y estado activo. Requiere
+        un Bearer Token.
+      parameters:
+      - description: Datos del módulo
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Module'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Crear módulo
+      tags:
+      - Módulos
+  /modules/{id}:
+    delete:
+      description: Elimina un módulo existente. Requiere un Bearer Token.
+      parameters:
+      - description: ID del módulo
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Eliminar módulo
+      tags:
+      - Módulos
+    get:
+      description: Devuelve los detalles de un módulo dado su ID. Requiere un Bearer
+        Token.
+      parameters:
+      - description: ID del módulo
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: module
+          schema:
+            $ref: '#/definitions/models.Module'
+        "401":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Obtener módulo por ID
+      tags:
+      - Módulos
+    put:
+      consumes:
+      - application/json
+      description: Actualiza los datos de un módulo existente. Requiere un Bearer
+        Token.
+      parameters:
+      - description: ID del módulo
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Datos del módulo
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Module'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Actualizar módulo
+      tags:
+      - Módulos
+  /modules/{id}/toggle:
+    put:
+      description: Cambia el estado activo de un módulo existente. Requiere un Bearer
+        Token.
+      parameters:
+      - description: ID del módulo
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Cambiar estado activo del módulo
+      tags:
+      - Módulos
+  /permissions:
+    get:
+      description: Devuelve una lista de permisos paginada.
+      parameters:
+      - description: 'Número de página (por defecto: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Tamaño de página (por defecto: 10)'
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: permissions
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Obtener permisos
+      tags:
+      - Permisos
+    post:
+      consumes:
+      - application/json
+      description: Crea un nuevo permiso con nombre, descripción, ID del módulo y
+        estado activo. Requiere un Bearer Token.
+      parameters:
+      - description: Datos del permiso
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Permission'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: permission
+          schema:
+            $ref: '#/definitions/models.Permission'
+        "400":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Crear permiso
+      tags:
+      - Permisos
+  /permissions/{id}:
+    get:
+      description: Devuelve los detalles de un permiso dado su ID. Requiere un Bearer
+        Token.
+      parameters:
+      - description: ID del permiso
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: permission
+          schema:
+            $ref: '#/definitions/models.Permission'
+        "401":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Obtener permiso por ID
+      tags:
+      - Permisos
+    put:
+      consumes:
+      - application/json
+      description: Actualiza los datos de un permiso existente. Requiere un Bearer
+        Token.
+      parameters:
+      - description: ID del permiso
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Datos del permiso
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Permission'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: permission
+          schema:
+            $ref: '#/definitions/models.Permission'
+        "400":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Actualizar permiso
+      tags:
+      - Permisos
   /permissions/all:
     get:
       description: Lista todos los permisos disponibles, incluyendo los módulos a
