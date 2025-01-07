@@ -74,3 +74,30 @@ func DeleteModule(id uint) error {
 // 	result := config.DB.Save(&module)
 // 	return result.Error
 // }
+
+func GetPaginatedModules(page, pageSize int, filters map[string]interface{}) ([]models.Module, int64, error) {
+	var modules []models.Module
+	var total int64
+
+	query := config.DB.Model(&models.Module{})
+
+	// Aplicar filtros
+	// if email, ok := filters["email"]; ok {
+	// 	query = query.Where("email = ?", email)
+	// }
+	if name, ok := filters["name"]; ok {
+		query = query.Where("name LIKE ?", "%"+name.(string)+"%")
+	}
+
+	query.Count(&total)
+
+	offset := (page - 1) * pageSize
+	query = query.Offset(offset).Limit(pageSize)
+
+	err := query.Find(&modules).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return modules, total, nil
+}
