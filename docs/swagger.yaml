@@ -301,7 +301,7 @@ definitions:
       updated_at:
         type: string
     type: object
-host: localhost:8080
+host: seri-api-utn-2024.fly.dev
 info:
   contact:
     email: jfpastillod@utn.edu.ec
@@ -312,8 +312,8 @@ info:
     name: MIT
     url: https://opensource.org/licenses/MIT
   termsOfService: http://swagger.io/terms/
-  title: API SEGURIDAD
-  version: "1.5"
+  title: API SEGURIDAD con Swagger
+  version: "1.0"
 paths:
   /audit:
     post:
