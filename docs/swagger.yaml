@@ -699,40 +699,6 @@ paths:
       tags:
       - Permisos
   /permissions/{id}:
-    delete:
-      description: Elimina un permiso existente. Requiere un Bearer Token.
-      parameters:
-      - description: ID del permiso
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: message
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "401":
-          description: error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Eliminar permiso
-      tags:
-      - Permisos
     get:
       description: Devuelve los detalles de un permiso dado su ID. Requiere un Bearer
         Token.

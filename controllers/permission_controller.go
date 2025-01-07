@@ -168,17 +168,6 @@ func UpdatePermission(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"permission": permission})
 }
 
-// DeletePermission elimina un permiso
-// @Summary Eliminar permiso
-// @Description Elimina un permiso existente. Requiere un Bearer Token.
-// @Tags Permisos
-// @Security BearerAuth
-// @Produce json
-// @Param id path string true "ID del permiso"
-// @Success 200 {object} map[string]string "message"
-// @Failure 401 {object} map[string]string "error"
-// @Failure 500 {object} map[string]string "error"
-// @Router /permissions/{id} [delete]
 func DeletePermission(c *gin.Context) {
 	id := c.Param("id")
 	if err := services.DeletePermission(id); err != nil {
