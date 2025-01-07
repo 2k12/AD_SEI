@@ -16,16 +16,14 @@
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
-
 package main
 
 import (
 	"log"
-	"seguridad-api/config"
-	"seguridad-api/routes"
-
 	"net/http"
 	"os"
+	"seguridad-api/config"
+	"seguridad-api/routes"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/cors"
@@ -39,7 +37,6 @@ func main() {
 	router := gin.Default()
 
 	corsHandler := cors.New(cors.Options{
-		// AllowedOrigins: []string{"http://localhost:5173"},
 		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization"},
@@ -51,7 +48,7 @@ func main() {
 			c.Next()
 		}))
 	})
-	// router.Static("/docs", "./docs")
+
 	router.Static("/docs", "/app/docs")
 
 	routes.SetupRoutes(router)
@@ -63,15 +60,12 @@ func main() {
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(files.Handler, ginSwagger.URL(swaggerURL)))
 
-	log.Println("Servidor corriendo en el puerto " + getPort())
+	port := getPort()
+	log.Println("Servidor corriendo en el puerto " + port)
 
-	// if err := router.Run(":" + getPort()); err != nil {
-	// 	log.Fatalf("Error al iniciar el servidor: %v", err)
-	// }
-	if err := http.ListenAndServe("0.0.0.0:"+os.Getenv("PORT"), nil); err != nil {
+	if err := router.Run("0.0.0.0:" + port); err != nil {
 		log.Fatalf("Error al iniciar el servidor: %v", err)
 	}
-
 }
 
 func getPort() string {
