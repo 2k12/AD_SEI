@@ -13,6 +13,14 @@ type Audit struct {
 	Date          time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"date"`
 	User          User      `gorm:"foreignKey:UserID;references:ID" json:"user"`
 }
+type AuditResponse struct {
+	ID            uint      `json:"id"`
+	Event         string    `json:"event"`
+	Description   string    `json:"description"`
+	User          string    `json:"user"`
+	OriginService string    `json:"origin_service"`
+	Date          time.Time `json:"date"`
+}
 
 func (Audit) TableName() string {
 	return "audit"
