@@ -44,15 +44,15 @@ func SetupRoutes(router *gin.Engine) {
 			api.GET("/roles/:role_id/permissions", controllers.GetRolePermissions)
 			api.GET("/permissions/all", controllers.GetAllPermissions)
 
-			api.POST("/users/:id/roles", controllers.AssignRoleToUser)              // Asignar rol
-			api.DELETE("/users/:id/roles/:role_id", controllers.RemoveRoleFromUser) // Eliminar rol
+			api.POST("/users/:id/roles", controllers.AssignRoleToUser)
+			api.DELETE("/users/:id/roles/:role_id", controllers.RemoveRoleFromUser)
 			api.GET("/users/:id/roles", controllers.GetUserRoles)
 
-			api.POST("/modules", controllers.CreateModule)       // Crear módulo
-			api.GET("/modules", controllers.GetModules)          // Obtener todos los módulos
-			api.GET("/modules/:id", controllers.GetModule)       // Obtener un módulo por ID
-			api.PUT("/modules/:id", controllers.UpdateModule)    // Actualizar un módulo
-			api.DELETE("/modules/:id", controllers.DeleteModule) // Eliminar un módulo definitivo
+			api.POST("/modules", controllers.CreateModule)
+			api.GET("/modules", controllers.GetModules)
+			api.GET("/modules/:id", controllers.GetModule)
+			api.PUT("/modules/:id", controllers.UpdateModule)
+			api.DELETE("/modules/:id", controllers.DeleteModule)
 
 			// api.PATCH("/modules/:id/toggle-active", controllers.ToggleModuleActive) // Esta ruta cambia estado activo/inactivo
 
