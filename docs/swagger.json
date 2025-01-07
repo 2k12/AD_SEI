@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "description": "Esta es la documentación de LA API DE SEGURIDAD hecha con Go.",
-        "title": "API SEGURIDAD con Swagger",
+        "title": "API SEGURIDAD",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
             "name": "Pastillo D Joan",
@@ -13,7 +13,7 @@
             "name": "MIT",
             "url": "https://opensource.org/licenses/MIT"
         },
-        "version": "1.0"
+        "version": "1.5"
     },
     "host": "seri-api-utn-2024.fly.dev",
     "basePath": "/api",

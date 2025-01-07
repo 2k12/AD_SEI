@@ -2081,11 +2081,11 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "1.5",
 	Host:             "seri-api-utn-2024.fly.dev",
 	BasePath:         "/api",
 	Schemes:          []string{},
-	Title:            "API SEGURIDAD con Swagger",
+	Title:            "API SEGURIDAD",
 	Description:      "Esta es la documentación de LA API DE SEGURIDAD hecha con Go.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
