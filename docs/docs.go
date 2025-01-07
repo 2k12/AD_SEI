@@ -615,6 +615,11 @@ const docTemplate = `{
         },
         "/permissions/all": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Lista todos los permisos disponibles, incluyendo los módulos a los que pertenecen",
                 "produces": [
                     "application/json"
@@ -1020,6 +1025,11 @@ const docTemplate = `{
         },
         "/roles/{role_id}/permissions": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Lista todos los permisos asignados a un rol específico",
                 "produces": [
                     "application/json"
@@ -1068,6 +1078,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Asocia un permiso existente a un rol específico",
                 "consumes": [
                     "application/json"
@@ -1117,6 +1132,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Elimina la asociación de un permiso específico con un rol",
                 "consumes": [
                     "application/json"

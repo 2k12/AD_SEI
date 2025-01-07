@@ -798,6 +798,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Obtener todos los permisos
       tags:
       - Rol_Permisos
@@ -1005,6 +1007,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Eliminar permiso de rol
       tags:
       - Rol_Permisos
@@ -1037,6 +1041,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Obtener permisos de un rol
       tags:
       - Rol_Permisos
@@ -1070,6 +1076,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Asignar permiso a rol
       tags:
       - Rol_Permisos
