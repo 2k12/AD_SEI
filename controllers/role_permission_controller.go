@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"seguridad-api/config"
+	helpers "seguridad-api/helpers"
 	"seguridad-api/models"
 	"seguridad-api/services"
 	"strconv"
@@ -29,6 +30,7 @@ type PermissionResponse struct {
 // @Summary Asignar permiso a rol
 // @Description Asocia un permiso existente a un rol específico
 // @Tags Rol_Permisos
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param role_id path int true "ID del rol"
@@ -64,13 +66,13 @@ func AssignPermission(c *gin.Context) {
 		return
 	}
 
-	// Ajustar el tiempo al huso horario de Ecuador
 	currentTime := time.Now()
-	ecuadorTime := currentTime.Add(-5 * time.Hour)
+	// Ajustar la hora al huso horario de Ecuador usando el helper
+	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
 
 	event := "INSERT"
 	description := "Se asignó el permiso con ID " + strconv.Itoa(int(input.PermissionID)) + " al rol con ID " + strconv.Itoa(int(roleID))
-	originService := "role_permission_service"
+	originService := "SEGURIDAD"
 
 	if err := services.RegisterAudit(event, description, uint(userID.(float64)), originService, ecuadorTime); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Permiso asignado, pero no se pudo registrar la auditoría"})
@@ -84,6 +86,7 @@ func AssignPermission(c *gin.Context) {
 // @Summary Eliminar permiso de rol
 // @Description Elimina la asociación de un permiso específico con un rol
 // @Tags Rol_Permisos
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param role_id path int true "ID del rol"
@@ -117,13 +120,17 @@ func RemovePermission(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuario no autenticado"})
 		return
 	}
+	currentTime := time.Now()
+
+	// Ajustar la hora al huso horario de Ecuador usando el helper
+	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
 
 	audit := models.Audit{
 		Event:         "DELETE",
 		Description:   "Eliminación del permiso ID: " + strconv.Itoa(int(input.PermissionID)) + " del rol ID: " + strconv.Itoa(int(roleID)),
 		UserID:        uint(userID.(float64)),
-		OriginService: "role_permission_service",
-		Date:          time.Now(),
+		OriginService: "SEGURIDAD",
+		Date:          ecuadorTime,
 	}
 
 	if err := config.DB.Create(&audit).Error; err != nil {
@@ -138,6 +145,7 @@ func RemovePermission(c *gin.Context) {
 // @Summary Obtener todos los permisos
 // @Description Lista todos los permisos disponibles, incluyendo los módulos a los que pertenecen
 // @Tags Rol_Permisos
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {array} PermissionResponse "Lista de permisos"
 // @Failure 500 {object} map[string]string "error"
@@ -155,6 +163,7 @@ func GetAllPermissions(c *gin.Context) {
 // @Summary Obtener permisos de un rol
 // @Description Lista todos los permisos asignados a un rol específico
 // @Tags Rol_Permisos
+// @Security BearerAuth
 // @Produce json
 // @Param role_id path int true "ID del rol"
 // @Success 200 {array} PermissionResponse "Lista de permisos"
