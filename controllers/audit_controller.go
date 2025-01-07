@@ -63,3 +63,32 @@ func RegisterAudit(c *gin.Context) {
 
 	c.JSON(http.StatusOK, RegisterAuditResponse{Message: "Auditoría registrada exitosamente"})
 }
+
+func GetAudit(c *gin.Context) {
+	// Obtener parámetros de consulta para paginación y filtros
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
+	event := c.Query("event")
+
+	// Construir filtros
+	filters := make(map[string]interface{})
+	if event != "" {
+		filters["event"] = event
+	}
+
+	// Llamar al servicio para obtener auditorias paginadas
+	audits, total, err := services.GetPaginatedAudit(page, pageSize, filters)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener los Auditoria"})
+		return
+	}
+
+	// Respuesta con datos paginados
+	c.JSON(http.StatusOK, gin.H{
+		"audits":     audits,
+		"total":      total,
+		"page":       page,
+		"pageSize":   pageSize,
+		"totalPages": (total + int64(pageSize) - 1) / int64(pageSize),
+	})
+}
