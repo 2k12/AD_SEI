@@ -93,7 +93,8 @@ func GetPermissions(c *gin.Context) {
 	var permissions []models.Permission
 	var total int64
 
-	config.DB.Offset(offset).Limit(limit).Find(&permissions)
+	// Preload del módulo para incluir el nombre del módulo asociado
+	config.DB.Preload("Module").Offset(offset).Limit(limit).Find(&permissions)
 	config.DB.Model(&models.Permission{}).Count(&total)
 
 	c.JSON(http.StatusOK, gin.H{
