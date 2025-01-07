@@ -13,7 +13,7 @@
             "name": "MIT",
             "url": "https://opensource.org/licenses/MIT"
         },
-        "version": "1.4"
+        "version": "1.5"
     },
     "host": "localhost:8080",
     "basePath": "/api",
@@ -399,61 +399,6 @@
                     "Módulos"
                 ],
                 "summary": "Eliminar módulo",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ID del módulo",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "message",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/modules/{id}/toggle": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Cambia el estado activo de un módulo existente. Requiere un Bearer Token.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Módulos"
-                ],
-                "summary": "Cambiar estado activo del módulo",
                 "parameters": [
                     {
                         "type": "string",

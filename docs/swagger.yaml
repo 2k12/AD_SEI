@@ -313,7 +313,7 @@ info:
     url: https://opensource.org/licenses/MIT
   termsOfService: http://swagger.io/terms/
   title: API SEGURIDAD
-  version: "1.4"
+  version: "1.5"
 paths:
   /audit:
     post:
@@ -587,42 +587,6 @@ paths:
       security:
       - BearerAuth: []
       summary: Actualizar módulo
-      tags:
-      - Módulos
-  /modules/{id}/toggle:
-    put:
-      description: Cambia el estado activo de un módulo existente. Requiere un Bearer
-        Token.
-      parameters:
-      - description: ID del módulo
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: message
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "401":
-          description: error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Cambiar estado activo del módulo
       tags:
       - Módulos
   /permissions:

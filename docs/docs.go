@@ -445,61 +445,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/modules/{id}/toggle": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Cambia el estado activo de un módulo existente. Requiere un Bearer Token.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Módulos"
-                ],
-                "summary": "Cambiar estado activo del módulo",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ID del módulo",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "message",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/permissions": {
             "get": {
                 "security": [
@@ -2136,7 +2081,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.4",
+	Version:          "1.5",
 	Host:             "localhost:8080",
 	BasePath:         "/api",
 	Schemes:          []string{},
