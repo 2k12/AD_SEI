@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"seguridad-api/config"
+	helpers "seguridad-api/helpers"
 	"seguridad-api/models"
 	"seguridad-api/services"
 	"strconv"
@@ -65,13 +66,13 @@ func AssignPermission(c *gin.Context) {
 		return
 	}
 
-	// Ajustar el tiempo al huso horario de Ecuador
 	currentTime := time.Now()
-	ecuadorTime := currentTime.Add(-5 * time.Hour)
+	// Ajustar la hora al huso horario de Ecuador usando el helper
+	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
 
 	event := "INSERT"
 	description := "Se asignó el permiso con ID " + strconv.Itoa(int(input.PermissionID)) + " al rol con ID " + strconv.Itoa(int(roleID))
-	originService := "role_permission_service"
+	originService := "SEGURIDAD"
 
 	if err := services.RegisterAudit(event, description, uint(userID.(float64)), originService, ecuadorTime); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Permiso asignado, pero no se pudo registrar la auditoría"})
@@ -119,13 +120,17 @@ func RemovePermission(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuario no autenticado"})
 		return
 	}
+	currentTime := time.Now()
+
+	// Ajustar la hora al huso horario de Ecuador usando el helper
+	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
 
 	audit := models.Audit{
 		Event:         "DELETE",
 		Description:   "Eliminación del permiso ID: " + strconv.Itoa(int(input.PermissionID)) + " del rol ID: " + strconv.Itoa(int(roleID)),
 		UserID:        uint(userID.(float64)),
-		OriginService: "role_permission_service",
-		Date:          time.Now(),
+		OriginService: "SEGURIDAD",
+		Date:          ecuadorTime,
 	}
 
 	if err := config.DB.Create(&audit).Error; err != nil {
