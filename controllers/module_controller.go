@@ -32,9 +32,9 @@ func CreateModule(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if exists {
 		userIDUint := uint(userID.(float64))
-		event := "CREATE"
+		event := "INSERT"
 		description := "Se creó un módulo con el nombre: " + input.Name
-		_ = services.RegisterAudit(event, description, userIDUint, "MÓDULOS", currentTime)
+		_ = services.RegisterAudit(event, description, userIDUint, "SEGURIDAD", currentTime)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Module created successfully"})
@@ -109,29 +109,29 @@ func DeleteModule(c *gin.Context) {
 		userIDUint := uint(userID.(float64))
 		event := "DELETE"
 		description := "Se eliminó el módulo con ID: " + strconv.Itoa(id)
-		_ = services.RegisterAudit(event, description, userIDUint, "MÓDULOS", currentTime)
+		_ = services.RegisterAudit(event, description, userIDUint, "SEGURIDAD", currentTime)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Module deleted successfully"})
 }
 
-func ToggleModuleActive(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
+// func ToggleModuleActive(c *gin.Context) {
+// 	id, _ := strconv.Atoi(c.Param("id"))
 
-	err := services.ToggleModuleActive(uint(id))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change module active state"})
-		return
-	}
+// 	err := services.ToggleModuleActive(uint(id))
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to change module active state"})
+// 		return
+// 	}
 
-	currentTime := helpers.AdjustToEcuadorTime(time.Now())
-	userID, exists := c.Get("userID")
-	if exists {
-		userIDUint := uint(userID.(float64))
-		event := "TOGGLE_ACTIVE"
-		description := "Se cambió el estado activo del módulo con ID: " + strconv.Itoa(id)
-		_ = services.RegisterAudit(event, description, userIDUint, "MÓDULOS", currentTime)
-	}
+// 	currentTime := helpers.AdjustToEcuadorTime(time.Now())
+// 	userID, exists := c.Get("userID")
+// 	if exists {
+// 		userIDUint := uint(userID.(float64))
+// 		event := "UPDATE"
+// 		description := "Se cambió el estado activo del módulo con ID: " + strconv.Itoa(id)
+// 		_ = services.RegisterAudit(event, description, userIDUint, "SEGURIDAD", currentTime)
+// 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Module state changed successfully"})
-}
+// 	c.JSON(http.StatusOK, gin.H{"message": "Module state changed successfully"})
+// }

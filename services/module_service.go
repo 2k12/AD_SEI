@@ -63,14 +63,14 @@ func DeleteModule(id uint) error {
 	return result.Error
 }
 
-func ToggleModuleActive(id uint) error {
-	var module models.Module
-	if err := config.DB.First(&module, id).Error; err != nil {
-		return errors.New("module not found")
-	}
+// func ToggleModuleActive(id uint) error {
+// 	var module models.Module
+// 	if err := config.DB.First(&module, id).Error; err != nil {
+// 		return errors.New("module not found")
+// 	}
 
-	module.Active = !module.Active
+// 	module.Active = !module.Active
 
-	result := config.DB.Save(&module)
-	return result.Error
-}
+// 	result := config.DB.Save(&module)
+// 	return result.Error
+// }
