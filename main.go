@@ -1,5 +1,5 @@
-// @title API SEGURIDAD con Swagger
-// @version 1.0
+// @title API SEGURIDAD
+// @version 1.5
 // @description Esta es la documentación de LA API DE SEGURIDAD hecha con Go.
 // @termsOfService http://swagger.io/terms/
 
@@ -65,10 +65,7 @@ func main() {
 
 	log.Println("Servidor corriendo en el puerto " + getPort())
 
-	// if err := router.Run("0.0.0.0:" + getPort()); err != nil {
-	// 	log.Fatalf("Error al iniciar el servidor: %v", err)
-	// }
-	if err := router.Run("0.0.0.0:" + getPort()); err != nil {
+	if err := router.Run(":" + getPort()); err != nil {
 		log.Fatalf("Error al iniciar el servidor: %v", err)
 	}
 
