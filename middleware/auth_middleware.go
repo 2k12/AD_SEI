@@ -51,10 +51,8 @@ func AuthMiddleware(secret string) gin.HandlerFunc {
 			return
 		}
 
-		// Eliminar el prefijo "Bearer "
 		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 
-		// Parsear el token
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			return []byte(secret), nil
 		})
@@ -64,7 +62,6 @@ func AuthMiddleware(secret string) gin.HandlerFunc {
 			return
 		}
 
-		// Extraer los claims
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudieron obtener los claims del token"})
@@ -72,7 +69,6 @@ func AuthMiddleware(secret string) gin.HandlerFunc {
 			return
 		}
 
-		// Buscar la clave correcta ("id" en este caso)
 		userID, exists := claims["id"]
 		if !exists {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "El token no contiene un ID de usuario"})
@@ -80,10 +76,8 @@ func AuthMiddleware(secret string) gin.HandlerFunc {
 			return
 		}
 
-		// Guardar el ID del usuario en el contexto
 		c.Set("userID", userID)
 
-		// Continuar con la solicitud
 		c.Next()
 	}
 }

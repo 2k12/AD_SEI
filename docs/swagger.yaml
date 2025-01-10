@@ -94,6 +94,9 @@ definitions:
       email:
         example: user@example.com
         type: string
+      module_key:
+        example: '.....'
+        type: string
       password:
         example: securePassword123
         type: string
@@ -349,10 +352,11 @@ paths:
     post:
       consumes:
       - application/json
-      description: Autentica un usuario con email y contraseña, devolviendo un token
-        JWT
+      description: Autentica un usuario con email, contraseña y key del módulo devolviendo
+        un token JWT
       parameters:
-      - description: Datos de inicio de sesión (email y password)
+      - description: Datos de inicio de sesión (email,password y la key del módulo
+          correspondiente)
         in: body
         name: loginData
         required: true

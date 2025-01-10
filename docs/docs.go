@@ -72,7 +72,7 @@ const docTemplate = `{
         },
         "/login": {
             "post": {
-                "description": "Autentica un usuario con email y contraseña, devolviendo un token JWT",
+                "description": "Autentica un usuario con email, contraseña y key del módulo devolviendo un token JWT",
                 "consumes": [
                     "application/json"
                 ],
@@ -85,7 +85,7 @@ const docTemplate = `{
                 "summary": "Iniciar sesión",
                 "parameters": [
                     {
-                        "description": "Datos de inicio de sesión (email y password)",
+                        "description": "Datos de inicio de sesión (email,password y la key del módulo correspondiente)",
                         "name": "loginData",
                         "in": "body",
                         "required": true,
@@ -1769,6 +1769,10 @@ const docTemplate = `{
                 "email": {
                     "type": "string",
                     "example": "user@example.com"
+                },
+                "module_key": {
+                    "type": "string",
+                    "example": "....."
                 },
                 "password": {
                     "type": "string",

@@ -2,9 +2,12 @@ package controllers
 
 import (
 	"net/http"
+	helpers "seguridad-api/helpers"
 	"seguridad-api/services"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 type TokenResponse struct {
@@ -16,35 +19,63 @@ type ErrorResponse struct {
 }
 
 type LoginData struct {
-	Email    string `json:"email" example:"user@example.com"`
-	Password string `json:"password" example:"securePassword123"`
+	Email     string `json:"email" example:"user@example.com"`
+	Password  string `json:"password" example:"securePassword123"`
+	ModuleKey string `json:"module_key" example:"....."`
 }
 
 // Login autentica al usuario y genera un token JWT
 // @Summary Iniciar sesión
-// @Description Autentica un usuario con email y contraseña, devolviendo un token JWT
+// @Description Autentica un usuario con email, contraseña y key del módulo devolviendo un token JWT
 // @Tags Autenticación
 // @Accept json
 // @Produce json
-// @Param loginData body LoginData true "Datos de inicio de sesión (email y password)"
+// @Param loginData body LoginData true "Datos de inicio de sesión (email,password y la key del módulo correspondiente)"
 // @Success 200 {object} TokenResponse "token"
 // @Failure 400 {object} ErrorResponse "Datos inválidos"
 // @Failure 401 {object} ErrorResponse "Credenciales inválidas"
 // @Router /login [post]
 func Login(c *gin.Context) {
 	var loginData struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
+		Email     string `json:"email"`
+		Password  string `json:"password"`
+		ModuleKey string `json:"module_key"`
 	}
+
+	currentTime := time.Now()
+	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
 
 	if err := c.ShouldBindJSON(&loginData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos"})
 		return
 	}
 
-	token, err := services.Authenticate(loginData.Email, loginData.Password)
+	token, err := services.Authenticate(loginData.Email, loginData.Password, loginData.ModuleKey)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	parsedToken, _, err := new(jwt.Parser).ParseUnverified(token, jwt.MapClaims{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al decodificar el token"})
+		return
+	}
+
+	claims, ok := parsedToken.Claims.(jwt.MapClaims)
+	if !ok || claims["id"] == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ID del usuario no encontrado en el token"})
+		return
+	}
+
+	userIDUint := uint(claims["id"].(float64))
+
+	event := "INSERT"
+	description := "Se registra ingreso a la plataforma, usuario: " + loginData.Email
+	originService := "SEGURIDAD"
+
+	if auditErr := services.RegisterAudit(event, description, userIDUint, originService, ecuadorTime); auditErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Usuario creado, pero no se pudo registrar la auditoría"})
 		return
 	}
 

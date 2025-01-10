@@ -10,6 +10,7 @@ type User struct {
 	Email     string    `gorm:"type:varchar(150);unique;not null" json:"email"`
 	Password  string    `gorm:"type:varchar(255);not null" json:"password"`
 	Active    bool      `gorm:"default:true" json:"active"`
+	ModuleKey string    `gorm:"type:varchar(15);not null" json:"module_key"`
 	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP;autoUpdateTime" json:"updated_at"`
 	Roles     []Role    `gorm:"many2many:user_roles" json:"roles"`
