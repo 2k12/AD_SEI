@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	helpers "seguridad-api/helpers"
+	"time"
 
 	"github.com/signintech/gopdf"
 )
@@ -23,7 +25,7 @@ func GeneratePDF(title, usernameAndFilters string, data [][]string, headers []st
 		log.Println("Error al agregar fuente:", err)
 		return nil, err
 	}
-	err = pdf.SetFont("arial", "", 8) // Fuente más pequeña
+	err = pdf.SetFont("arial", "", 8)
 	if err != nil {
 		log.Println("Error al establecer la fuente:", err)
 		return nil, err
@@ -32,62 +34,125 @@ func GeneratePDF(title, usernameAndFilters string, data [][]string, headers []st
 	// Configuración inicial
 	marginX := 30.0
 	marginY := 30.0
-	cellWidth := 80.0  // Ajustar ancho de celda
-	cellHeight := 12.0 // Ajustar alto de celda
-	maxWidth := gopdf.PageSizeA4.W - 2*marginX
+	cellHeight := 18.0
+	lineSpacing := 8.0 // Espaciado entre líneas dentro de una celda
+	pageWidth := gopdf.PageSizeA4.W
+	pageHeight := gopdf.PageSizeA4.H
+	usableWidth := pageWidth - 2*marginX
+	columnWidth := usableWidth / float64(len(headers))
 	startX := marginX
 	startY := marginY + 50.0 // Espacio para título y encabezado
+	currentTime := time.Now()
+
+	// Ajustar la hora al huso horario de Ecuador usando el helper
+	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
 
 	// Función para agregar encabezado en cada página
 	addHeader := func(pageNum int) {
-		pdf.SetX(marginX)
-		pdf.SetY(marginY)
+		pdf.Br(20)
+
+		// Cargar imagen
+		imgPath := "public/security.png"
+		err := pdf.Image(imgPath, pageWidth-marginX-50, marginY, &gopdf.Rect{W: 50, H: 50})
+		if err != nil {
+			log.Println("Error al cargar la imagen:", err)
+		}
 
 		// Título
-		pdf.SetFont("arial", "B", 10)
+		pdf.SetFont("arial", "B", 14)
+		pdf.SetX(marginX) // Establecer la posición horizontal inicial
 		pdf.Cell(nil, title)
-		pdf.Br(12)
 
 		// Usuario y filtros
+		pdf.Br(12)
 		pdf.SetFont("arial", "", 8)
+		pdf.SetX(marginX) // Asegurar margen izquierdo consistente
 		pdf.Cell(nil, usernameAndFilters)
-		pdf.Br(15)
+		pdf.Br(12)
 
-		// Numeración de página
-		pdf.SetX(maxWidth - 50)
+		// Hora de Ecuador
+		pdf.SetFont("arial", "", 8)
+		pdf.SetX(marginX)                                                                            // Asegurar margen izquierdo consistente
+		pdf.Cell(nil, fmt.Sprintf("Hora de Ecuador: %s", ecuadorTime.Format("02/01/2006 15:04:05"))) // Formato corregido
+		pdf.Br(15)
+	}
+
+	// // Función para agregar encabezado en cada página
+	// addHeader := func(pageNum int) {
+	// 	pdf.Br(20)
+
+	// 	// Título
+	// 	pdf.SetFont("arial", "B", 14)
+	// 	pdf.SetX(marginX) // Establecer la posición horizontal inicial
+	// 	pdf.Cell(nil, title)
+	// 	pdf.Br(12)
+
+	// 	// Usuario y filtros
+	// 	pdf.SetFont("arial", "", 8)
+	// 	pdf.SetX(marginX) // Asegurar margen izquierdo consistente
+	// 	pdf.Cell(nil, usernameAndFilters)
+	// 	pdf.Br(12)
+
+	// 	// Hora de Ecuador
+	// 	pdf.SetFont("arial", "", 8)
+	// 	pdf.SetX(marginX)                                                                            // Asegurar margen izquierdo consistente
+	// 	pdf.Cell(nil, fmt.Sprintf("Hora de Ecuador: %s", ecuadorTime.Format("02/01/2006 15:04:05"))) // Formato corregido
+	// 	pdf.Br(15)
+	// }
+
+	// Función para agregar pie de página
+	addFooter := func(pageNum int) {
+		pdf.SetFont("arial", "", 8)
+		pdf.SetX(marginX)
+		pdf.SetY(pageHeight - marginY + 10)
 		pdf.Cell(nil, fmt.Sprintf("Página %d", pageNum))
-		pdf.Br(10)
 	}
 
 	// Agregar encabezado en la primera página
 	addHeader(1)
 
-	// Dibujar encabezados de la tabla
+	// Dibujar encabezados de la tabla sin fondo (solo texto negro)
 	pdf.SetFont("arial", "B", 8)
 	currentY := startY
+	pdf.SetTextColor(0, 0, 0) // Texto negro
 	for i, header := range headers {
-		x := startX + float64(i)*cellWidth
-		pdf.RectFromUpperLeftWithStyle(x, currentY, cellWidth, cellHeight, "D")
+		x := startX + float64(i)*columnWidth
+		pdf.RectFromUpperLeftWithStyle(x, currentY, columnWidth, cellHeight, "D") // Solo dibuja el borde
 		pdf.SetXY(x+2, currentY+2)
 		pdf.Cell(nil, header)
 	}
 	pdf.Br(cellHeight)
 
-	// Dibujar filas de datos
+	// Dibujar filas de datos sin espacio entre filas
 	pdf.SetFont("arial", "", 8)
 	pageNum := 1
 	for _, row := range data {
 		currentY = pdf.GetY()
+
+		// Dibujar cada celda de la fila
 		for i, col := range row {
-			x := startX + float64(i)*cellWidth
-			pdf.RectFromUpperLeftWithStyle(x, currentY, cellWidth, cellHeight, "D")
-			pdf.SetXY(x+2, currentY+2)
-			pdf.Cell(nil, col)
+			x := startX + float64(i)*columnWidth
+
+			// Dividir el texto en líneas si es necesario (máximo dos líneas)
+			lines := wrapText(col, columnWidth-4, &pdf)
+			if len(lines) > 2 {
+				lines = lines[:2] // Limitar a dos líneas
+			}
+
+			// Dibujar celda
+			pdf.RectFromUpperLeftWithStyle(x, currentY, columnWidth, cellHeight, "D") // "D" solo dibuja el borde
+			for j, line := range lines {
+				pdf.SetXY(x+2, currentY+2+float64(j)*lineSpacing)
+				pdf.Cell(nil, line)
+			}
 		}
-		pdf.Br(cellHeight)
+
+		currentY += cellHeight
+		pdf.SetY(currentY)
 
 		// Verificar si se necesita una nueva página
-		if currentY+cellHeight > gopdf.PageSizeA4.H-marginY {
+		if currentY+cellHeight > pageHeight-marginY {
+			addFooter(pageNum)
 			pageNum++
 			pdf.AddPage()
 			addHeader(pageNum)
@@ -95,6 +160,9 @@ func GeneratePDF(title, usernameAndFilters string, data [][]string, headers []st
 			pdf.SetY(currentY)
 		}
 	}
+
+	// Agregar pie de página en la última página
+	addFooter(pageNum)
 
 	// Guardar el documento PDF en el buffer
 	_, err = pdf.WriteTo(&buf)
@@ -104,4 +172,28 @@ func GeneratePDF(title, usernameAndFilters string, data [][]string, headers []st
 	}
 
 	return &buf, nil
+}
+
+// wrapText divide el texto en líneas según el ancho máximo permitido.
+func wrapText(text string, maxWidth float64, pdf *gopdf.GoPdf) []string {
+	words := []rune(text)
+	var lines []string
+	var currentLine string
+	var currentWidth float64
+
+	for _, word := range words {
+		wordWidth, _ := pdf.MeasureTextWidth(string(word))
+		if currentWidth+wordWidth > maxWidth {
+			lines = append(lines, currentLine)
+			currentLine = ""
+			currentWidth = 0
+		}
+		currentLine += string(word)
+		currentWidth += wordWidth
+	}
+	if currentLine != "" {
+		lines = append(lines, currentLine)
+	}
+
+	return lines
 }
