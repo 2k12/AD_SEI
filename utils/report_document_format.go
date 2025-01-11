@@ -63,18 +63,18 @@ func GeneratePDF(title, usernameAndFilters string, data [][]string, headers []st
 		pdf.SetX(marginX) // Establecer la posición horizontal inicial
 		pdf.Cell(nil, title)
 
-		// Usuario y filtros
+		// Fecha
 		pdf.Br(12)
+		pdf.SetFont("arial", "", 8)
+		pdf.SetX(marginX)                                                                     // Asegurar margen izquierdo consistente
+		pdf.Cell(nil, fmt.Sprintf("Fecha [ %s ]", ecuadorTime.Format("02/01/2006 15:04:05"))) // Formato corregido
+		pdf.Br(12)
+
 		pdf.SetFont("arial", "", 8)
 		pdf.SetX(marginX) // Asegurar margen izquierdo consistente
 		pdf.Cell(nil, usernameAndFilters)
-		pdf.Br(12)
-
-		// Hora de Ecuador
-		pdf.SetFont("arial", "", 8)
-		pdf.SetX(marginX)                                                                  // Asegurar margen izquierdo consistente
-		pdf.Cell(nil, fmt.Sprintf("Fecha: %s", ecuadorTime.Format("02/01/2006 15:04:05"))) // Formato corregido
 		pdf.Br(15)
+
 	}
 
 	// // Función para agregar encabezado en cada página
