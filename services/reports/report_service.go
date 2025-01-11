@@ -45,7 +45,7 @@ func GenerateReport(all bool) (*bytes.Buffer, string, error) {
 
 	title := "Reporte de Usuarios"
 
-	fileBuffer, err := utils.GeneratePDF(title, "Usario C.R: Jorge Manosalvas", data, headers)
+	fileBuffer, err := utils.GeneratePDF(title, "Generado por (USUARIO)", data, headers)
 	if err != nil {
 		return nil, "", fmt.Errorf("error al generar el PDF: %w", err)
 	}

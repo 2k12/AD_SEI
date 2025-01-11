@@ -52,14 +52,14 @@ func GeneratePDF(title, usernameAndFilters string, data [][]string, headers []st
 		pdf.Br(20)
 
 		// Cargar imagen
-		imgPath := "public/security.png"
-		err := pdf.Image(imgPath, pageWidth-marginX-50, marginY, &gopdf.Rect{W: 50, H: 50})
+		imgPath := "assets/img/security.png"
+		err := pdf.Image(imgPath, pageWidth-marginX-50, marginY, &gopdf.Rect{W: 20, H: 20})
 		if err != nil {
 			log.Println("Error al cargar la imagen:", err)
 		}
 
 		// Título
-		pdf.SetFont("arial", "B", 14)
+		pdf.SetFont("arial", "B", 20)
 		pdf.SetX(marginX) // Establecer la posición horizontal inicial
 		pdf.Cell(nil, title)
 
@@ -72,8 +72,8 @@ func GeneratePDF(title, usernameAndFilters string, data [][]string, headers []st
 
 		// Hora de Ecuador
 		pdf.SetFont("arial", "", 8)
-		pdf.SetX(marginX)                                                                            // Asegurar margen izquierdo consistente
-		pdf.Cell(nil, fmt.Sprintf("Hora de Ecuador: %s", ecuadorTime.Format("02/01/2006 15:04:05"))) // Formato corregido
+		pdf.SetX(marginX)                                                                  // Asegurar margen izquierdo consistente
+		pdf.Cell(nil, fmt.Sprintf("Fecha: %s", ecuadorTime.Format("02/01/2006 15:04:05"))) // Formato corregido
 		pdf.Br(15)
 	}
 
