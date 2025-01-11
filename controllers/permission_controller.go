@@ -86,22 +86,40 @@ func CreatePermission(c *gin.Context) {
 // @Failure 401 {object} map[string]string "error"
 // @Router /permissions [get]
 func GetPermissions(c *gin.Context) {
+	// Obtener parámetros para filtros y paginación
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
-	offset := (page - 1) * limit
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
+	name := c.Query("name")
+	moduleName := c.Query("moduleName")
+	active := c.Query("active")
 
-	var permissions []models.Permission
-	var total int64
+	// Construir filtros dinámicos
+	filters := make(map[string]interface{})
+	if name != "" {
+		filters["name"] = name
+	}
+	if moduleName != "" {
+		filters["moduleName"] = moduleName
+	}
+	if active != "" {
+		activeBool, _ := strconv.ParseBool(active)
+		filters["active"] = activeBool
+	}
 
-	// Preload del módulo para incluir el nombre del módulo asociado
-	config.DB.Preload("Module").Offset(offset).Limit(limit).Find(&permissions)
-	config.DB.Model(&models.Permission{}).Count(&total)
+	// Llamar al servicio para obtener los datos
+	permissions, total, err := services.GetPaginatedPermissions(page, pageSize, filters)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener los permisos"})
+		return
+	}
 
+	// Respuesta con datos paginados
 	c.JSON(http.StatusOK, gin.H{
 		"permissions": permissions,
-		"page":        page,
-		"limit":       limit,
 		"total":       total,
+		"page":        page,
+		"pageSize":    pageSize,
+		"totalPages":  (total + int64(pageSize) - 1) / int64(pageSize),
 	})
 }
 
