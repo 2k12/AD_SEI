@@ -11,7 +11,7 @@ import (
 )
 
 // GeneratePDF genera un documento PDF con título, encabezados y datos en formato de tabla.
-func GeneratePDF(title, usernameAndFilters string, data [][]string, headers []string) (*bytes.Buffer, error) {
+func GeneratePDF(title, usernameAndFilters string, data [][]string, headers []string, userName string) (*bytes.Buffer, error) {
 	var buf bytes.Buffer
 	pdf := gopdf.GoPdf{}
 
@@ -68,6 +68,12 @@ func GeneratePDF(title, usernameAndFilters string, data [][]string, headers []st
 		pdf.SetFont("arial", "", 8)
 		pdf.SetX(marginX)                                                                     // Asegurar margen izquierdo consistente
 		pdf.Cell(nil, fmt.Sprintf("Fecha [ %s ]", ecuadorTime.Format("02/01/2006 15:04:05"))) // Formato corregido
+		pdf.Br(12)
+
+		// Fecha
+		pdf.SetFont("arial", "", 8)
+		pdf.SetX(marginX)                                            // Asegurar margen izquierdo consistente
+		pdf.Cell(nil, fmt.Sprintf("Generado por: [ %s ]", userName)) // Formato corregido
 		pdf.Br(12)
 
 		pdf.SetFont("arial", "", 8)

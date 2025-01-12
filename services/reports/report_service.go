@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func GenerateReport(modelName string, filters map[string]interface{}) (*bytes.Buffer, string, error) {
+func GenerateReport(modelName string, filters map[string]interface{}, userName string) (*bytes.Buffer, string, error) {
 	var headers []string
 	var data [][]string
 	var state string
@@ -61,7 +61,7 @@ func GenerateReport(modelName string, filters map[string]interface{}) (*bytes.Bu
 	// Formatear filtros para incluirlos en el PDF
 	formattedFilters := formatFilters(filters)
 
-	fileBuffer, err := utils.GeneratePDF(title, "Filtros [ "+formattedFilters+" ]", data, headers)
+	fileBuffer, err := utils.GeneratePDF(title, "Filtros [ "+formattedFilters+" ]", data, headers, userName)
 	if err != nil {
 		return nil, "", fmt.Errorf("error al generar el PDF: %w", err)
 	}
