@@ -1,9 +1,12 @@
 package controllers
 
 import (
+	// "log"
 	"net/http"
 	helpers "seguridad-api/helpers"
 	"seguridad-api/services"
+
+	// email "seguridad-api/services/email"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -36,11 +39,7 @@ type LoginData struct {
 // @Failure 401 {object} ErrorResponse "Credenciales inválidas"
 // @Router /login [post]
 func Login(c *gin.Context) {
-	var loginData struct {
-		Email     string `json:"email"`
-		Password  string `json:"password"`
-		ModuleKey string `json:"module_key"`
-	}
+	var loginData LoginData
 
 	currentTime := time.Now()
 	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
@@ -78,6 +77,16 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Usuario creado, pero no se pudo registrar la auditoría"})
 		return
 	}
+
+	// // Enviar correo de notificación
+	// go func() {
+	// 	subject := "Inicio de sesión exitoso"
+	// 	body := "Hola,\n\nSe ha registrado un inicio de sesión en la plataforma con tu cuenta de correo: " + loginData.Email + ".\n\nFecha y hora: " + ecuadorTime.Format("02/01/2006 15:04:05") + "\n\nSi no reconoces esta actividad, por favor contacta al soporte."
+	// 	err := email.SendEmail(loginData.Email, subject, body)
+	// 	if err != nil {
+	// 		log.Printf("Error al enviar el correo electrónico: %v", err)
+	// 	}
+	// }()
 
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }

@@ -11,18 +11,19 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-func GenerateExcel(title string, headers []string, data [][]string, usernameAndFilters string, userName string) (*bytes.Buffer, error) {
+func GenerateExcel(title string, headers []string, data [][]string, usernameAndFilters string, userName string, option string) (*bytes.Buffer, error) {
 	f := excelize.NewFile()
 
-	// Crear una hoja y establecer el título
 	sheetName := "Reporte"
+	if option == "usuariosCompletos" {
+		sheetName = "Usuarios Completos"
+	}
 	index, err := f.NewSheet(sheetName)
 	if err != nil {
 		return nil, err
 	}
 	f.SetActiveSheet(index)
 
-	// Título del reporte
 	titleCell := "A1"
 	f.SetCellValue(sheetName, titleCell, title)
 	style := &excelize.Style{
@@ -41,39 +42,51 @@ func GenerateExcel(title string, headers []string, data [][]string, usernameAndF
 	f.MergeCell(sheetName, titleCell, fmt.Sprintf("%s1", columnNameFromIndex(len(headers)-1)))
 	f.SetCellStyle(sheetName, titleCell, fmt.Sprintf("%s1", columnNameFromIndex(len(headers)-1)), styleID)
 
-	// Agregar la fecha, generado por y otros detalles en el encabezado
 	currentTime := time.Now()
 	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
 	f.SetCellValue(sheetName, "A2", fmt.Sprintf("Fecha [ %s ]", ecuadorTime.Format("02/01/2006 15:04:05")))
 	f.SetCellValue(sheetName, "A3", fmt.Sprintf("Generado por: [ %s ]", userName))
 	f.SetCellValue(sheetName, "A4", usernameAndFilters)
 
-	// Ajustar el estilo de las celdas del encabezado de información adicional
 	for i := 0; i < 4; i++ {
 		f.SetColWidth(sheetName, columnNameFromIndex(i), columnNameFromIndex(i), 20)
 	}
 
-	// Encabezados
+	if option == "usuariosCompletos" {
+		headers = []string{"Nombre", "Roles", "Permisos", "Módulos"}
+	}
+
 	for i, header := range headers {
-		cell := fmt.Sprintf("%s5", columnNameFromIndex(i)) // Encabezados en la fila 5
+		cell := fmt.Sprintf("%s5", columnNameFromIndex(i))
 		f.SetCellValue(sheetName, cell, header)
 	}
 
-	// Datos
 	for rowIndex, row := range data {
 		for colIndex, value := range row {
-			cell := fmt.Sprintf("%s%d", columnNameFromIndex(colIndex), rowIndex+6) // Datos desde la fila 6
+			cell := fmt.Sprintf("%s%d", columnNameFromIndex(colIndex), rowIndex+6)
 			f.SetCellValue(sheetName, cell, value)
+			if option == "usuariosCompletos" {
+				if colIndex == 1 || colIndex == 2 || colIndex == 3 {
+					style := &excelize.Style{
+						Alignment: &excelize.Alignment{
+							WrapText: true,
+						},
+					}
+					styleID, err := f.NewStyle(style)
+					if err != nil {
+						return nil, fmt.Errorf("error creando estilo de ajuste de texto: %w", err)
+					}
+					f.SetCellStyle(sheetName, cell, cell, styleID)
+				}
+			}
 		}
 	}
 
-	// Ajustar automáticamente las columnas
 	for i := range headers {
 		column := columnNameFromIndex(i)
-		f.SetColWidth(sheetName, column, column, 20)
+		f.SetColWidth(sheetName, column, column, 40)
 	}
 
-	// Guardar el archivo en un buffer
 	buf := new(bytes.Buffer)
 	if err := f.Write(buf); err != nil {
 		return nil, err
@@ -82,7 +95,6 @@ func GenerateExcel(title string, headers []string, data [][]string, usernameAndF
 	return buf, nil
 }
 
-// columnNameFromIndex convierte un índice de columna (0 basado) al nombre de columna en Excel
 func columnNameFromIndex(index int) string {
 	name := ""
 	for index >= 0 {
@@ -92,16 +104,13 @@ func columnNameFromIndex(index int) string {
 	return name
 }
 
-// GeneratePDF genera un documento PDF con título, encabezados y datos en formato de tabla.
-func GeneratePDF(title, usernameAndFilters string, data [][]string, headers []string, userName string) (*bytes.Buffer, error) {
+func GeneratePDF(title, usernameAndFilters string, data [][]string, headers []string, userName string, option string) (*bytes.Buffer, error) {
 	var buf bytes.Buffer
 	pdf := gopdf.GoPdf{}
 
-	// Configurar el tamaño de la página (A4)
 	pdf.Start(gopdf.Config{PageSize: *gopdf.PageSizeA4})
 	pdf.AddPage()
 
-	// Agregar la fuente
 	err := pdf.AddTTFFont("arial", "assets/fonts/Roboto-Regular.ttf")
 	if err != nil {
 		log.Println("Error al agregar fuente:", err)
@@ -113,59 +122,50 @@ func GeneratePDF(title, usernameAndFilters string, data [][]string, headers []st
 		return nil, err
 	}
 
-	// Configuración inicial
 	marginX := 30.0
 	marginY := 30.0
 	cellHeight := 18.0
-	lineSpacing := 8.0 // Espaciado entre líneas dentro de una celda
+	lineSpacing := 8.0
 	pageWidth := gopdf.PageSizeA4.W
 	pageHeight := gopdf.PageSizeA4.H
 	usableWidth := pageWidth - 2*marginX
 	columnWidth := usableWidth / float64(len(headers))
 	startX := marginX
-	startY := marginY + 50.0 // Espacio para título y encabezado
+	startY := marginY + 50.0
 	currentTime := time.Now()
 
-	// Ajustar la hora al huso horario de Ecuador usando el helper
 	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
 
-	// Función para agregar encabezado en cada página
 	addHeader := func(pageNum int) {
 		pdf.Br(20)
 
-		// Cargar imagen
 		imgPath := "assets/img/security.png"
 		err := pdf.Image(imgPath, pageWidth-marginX-50, marginY, &gopdf.Rect{W: 20, H: 20})
 		if err != nil {
 			log.Println("Error al cargar la imagen:", err)
 		}
 
-		// Título
 		pdf.SetFont("arial", "B", 20)
-		pdf.SetX(marginX) // Establecer la posición horizontal inicial
+		pdf.SetX(marginX)
 		pdf.Cell(nil, title)
 
-		// Fecha
 		pdf.Br(12)
 		pdf.SetFont("arial", "", 8)
-		pdf.SetX(marginX)                                                                     // Asegurar margen izquierdo consistente
-		pdf.Cell(nil, fmt.Sprintf("Fecha [ %s ]", ecuadorTime.Format("02/01/2006 15:04:05"))) // Formato corregido
-		pdf.Br(12)
-
-		// Fecha
-		pdf.SetFont("arial", "", 8)
-		pdf.SetX(marginX)                                            // Asegurar margen izquierdo consistente
-		pdf.Cell(nil, fmt.Sprintf("Generado por: [ %s ]", userName)) // Formato corregido
+		pdf.SetX(marginX)
+		pdf.Cell(nil, fmt.Sprintf("Fecha [ %s ]", ecuadorTime.Format("02/01/2006 15:04:05")))
 		pdf.Br(12)
 
 		pdf.SetFont("arial", "", 8)
-		pdf.SetX(marginX) // Asegurar margen izquierdo consistente
+		pdf.SetX(marginX)
+		pdf.Cell(nil, fmt.Sprintf("Generado por: [ %s ]", userName))
+		pdf.Br(12)
+
+		pdf.SetFont("arial", "", 8)
+		pdf.SetX(marginX)
 		pdf.Cell(nil, usernameAndFilters)
 		pdf.Br(15)
-
 	}
 
-	// Función para agregar pie de página
 	addFooter := func(pageNum int) {
 		pdf.SetFont("arial", "", 8)
 		pdf.SetX(marginX)
@@ -173,49 +173,65 @@ func GeneratePDF(title, usernameAndFilters string, data [][]string, headers []st
 		pdf.Cell(nil, fmt.Sprintf("Página %d", pageNum))
 	}
 
-	// Agregar encabezado en la primera página
 	addHeader(1)
 
-	// Dibujar encabezados de la tabla sin fondo (solo texto negro)
 	pdf.SetFont("arial", "B", 8)
 	currentY := startY
-	pdf.SetTextColor(0, 0, 0) // Texto negro
+	pdf.SetTextColor(0, 0, 0)
 	for i, header := range headers {
 		x := startX + float64(i)*columnWidth
-		pdf.RectFromUpperLeftWithStyle(x, currentY, columnWidth, cellHeight, "D") // Solo dibuja el borde
+		pdf.RectFromUpperLeftWithStyle(x, currentY, columnWidth, cellHeight, "D")
 		pdf.SetXY(x+2, currentY+2)
 		pdf.Cell(nil, header)
 	}
 	pdf.Br(cellHeight)
 
-	// Dibujar filas de datos sin espacio entre filas
 	pdf.SetFont("arial", "", 8)
 	pageNum := 1
 	for _, row := range data {
 		currentY = pdf.GetY()
+		maxLinesInRow := 0
 
-		// Dibujar cada celda de la fila
+		defaultMaxLines := 3
+		if option == "usuariosCompletos" {
+			defaultMaxLines = 15
+		}
+
+		cellLines := make([]int, len(row))
+		for i, col := range row {
+			lines := wrapText(col, columnWidth-4, &pdf)
+			if len(lines) > defaultMaxLines {
+				lines = lines[:defaultMaxLines]
+			}
+			cellLines[i] = len(lines)
+
+			if len(lines) > maxLinesInRow {
+				maxLinesInRow = len(lines)
+			}
+		}
+
+		if maxLinesInRow < defaultMaxLines {
+			maxLinesInRow = defaultMaxLines
+		}
+
 		for i, col := range row {
 			x := startX + float64(i)*columnWidth
-
-			// Dividir el texto en líneas si es necesario (máximo dos líneas)
 			lines := wrapText(col, columnWidth-4, &pdf)
-			if len(lines) > 2 {
-				lines = lines[:2] // Limitar a dos líneas
+
+			if len(lines) > maxLinesInRow {
+				lines = lines[:maxLinesInRow]
 			}
 
-			// Dibujar celda
-			pdf.RectFromUpperLeftWithStyle(x, currentY, columnWidth, cellHeight, "D") // "D" solo dibuja el borde
+			pdf.RectFromUpperLeftWithStyle(x, currentY, columnWidth, float64(maxLinesInRow)*lineSpacing+2, "D")
 			for j, line := range lines {
 				pdf.SetXY(x+2, currentY+2+float64(j)*lineSpacing)
 				pdf.Cell(nil, line)
 			}
 		}
 
-		currentY += cellHeight
+		currentY += float64(maxLinesInRow)*lineSpacing + 2
 		pdf.SetY(currentY)
 
-		// Verificar si se necesita una nueva página
 		if currentY+cellHeight > pageHeight-marginY {
 			addFooter(pageNum)
 			pageNum++
@@ -226,10 +242,8 @@ func GeneratePDF(title, usernameAndFilters string, data [][]string, headers []st
 		}
 	}
 
-	// Agregar pie de página en la última página
 	addFooter(pageNum)
 
-	// Guardar el documento PDF en el buffer
 	_, err = pdf.WriteTo(&buf)
 	if err != nil {
 		log.Println("Error al escribir el archivo PDF:", err)
@@ -239,9 +253,8 @@ func GeneratePDF(title, usernameAndFilters string, data [][]string, headers []st
 	return &buf, nil
 }
 
-// wrapText divide el texto en líneas según el ancho máximo permitido.
 func wrapText(text string, maxWidth float64, pdf *gopdf.GoPdf) []string {
-	words := []rune(text)
+	words := text
 	var lines []string
 	var currentLine string
 	var currentWidth float64
