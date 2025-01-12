@@ -3,6 +3,7 @@ package services
 import (
 	"bytes"
 	"fmt"
+	"reflect"
 	"seguridad-api/config"
 	"seguridad-api/models"
 	"seguridad-api/utils"
@@ -12,10 +13,9 @@ import (
 func GenerateReport(modelName string, filters map[string]interface{}, userName string, format string, option string) (*bytes.Buffer, string, error) {
 	var headers []string
 	var data [][]string
-	var state string
-
 	var query interface{}
 
+	// Configurar los headers y las consultas según el modelo
 	switch modelName {
 	case "User":
 		if option == "usuariosCompletos" {
@@ -36,81 +36,131 @@ func GenerateReport(modelName string, filters map[string]interface{}, userName s
 			for key, value := range filters {
 				dbQuery = dbQuery.Where(fmt.Sprintf("%s = ?", key), value)
 			}
-
 			if err := dbQuery.Find(query).Error; err != nil {
 				return nil, "", fmt.Errorf("error al consultar los datos: %w", err)
 			}
 		}
+
+	case "Role":
+		headers = []string{"Nombre del Rol", "Descripción", "Estado", "F. Creación", "F. Actualización"}
+		query = &[]models.Role{}
+		dbQuery := config.DB.Model(query)
+		for key, value := range filters {
+			switch key {
+			case "active":
+				dbQuery = dbQuery.Where("active = ?", value)
+			case "date_range":
+				dateRange, ok := value.(map[string]interface{})
+				if ok {
+					if start, exists := dateRange["start"]; exists {
+						dbQuery = dbQuery.Where("DATE(created_at) >= ?", start)
+					}
+					if end, exists := dateRange["end"]; exists {
+						dbQuery = dbQuery.Where("DATE(created_at) <= ?", end)
+					}
+				}
+			default:
+				dbQuery = dbQuery.Where(fmt.Sprintf("%s = ?", key), value)
+			}
+		}
+		if err := dbQuery.Find(query).Error; err != nil {
+			return nil, "", fmt.Errorf("error al consultar los datos: %w", err)
+		}
+
+	case "Module":
+		headers = []string{"Nombre del Módulo", "Descripción", "Estado", "F. Creación", "F. Actualización"}
+		query = &[]models.Module{}
+		dbQuery := config.DB.Model(query)
+		for key, value := range filters {
+			switch key {
+			case "active":
+				dbQuery = dbQuery.Where("active = ?", value)
+			case "date_range":
+				dateRange, ok := value.(map[string]interface{})
+				if ok {
+					if start, exists := dateRange["start"]; exists {
+						dbQuery = dbQuery.Where("DATE(created_at) >= ?", start)
+					}
+					if end, exists := dateRange["end"]; exists {
+						dbQuery = dbQuery.Where("DATE(created_at) <= ?", end)
+					}
+				}
+			default:
+				dbQuery = dbQuery.Where(fmt.Sprintf("%s = ?", key), value)
+			}
+		}
+		if err := dbQuery.Find(query).Error; err != nil {
+			return nil, "", fmt.Errorf("error al consultar los datos: %w", err)
+		}
+
 	default:
 		return nil, "", fmt.Errorf("modelo no soportado")
 	}
 
-	var users []models.User
-	switch v := query.(type) {
-	case []models.User:
-		users = v
-	case *[]models.User:
-		users = *v
-	default:
-		return nil, "", fmt.Errorf("tipo de 'query' no reconocido")
+	// Procesar los datos
+	var rows reflect.Value
+	if reflect.TypeOf(query).Kind() == reflect.Ptr {
+		rows = reflect.ValueOf(query).Elem()
+	} else {
+		rows = reflect.ValueOf(query)
 	}
 
-	for _, user := range users {
+	for i := 0; i < rows.Len(); i++ {
 		row := []string{}
-		if user.Active {
-			state = "Activo"
-		} else {
-			state = "Inactivo"
-		}
-
-		if option == "usuariosCompletos" {
-			roles := ""
-			permissions := ""
-			modules := ""
-			modulesMap := make(map[string]bool)
-
-			for _, role := range user.Roles {
-				roles += role.Name + ", "
-				for _, permission := range role.Permissions {
-					permissions += permission.Name + ", "
-
-					if !modulesMap[permission.Module.Name] {
-						modulesMap[permission.Module.Name] = true
-						modules += permission.Module.Name + ", "
-					}
-				}
+		switch modelName {
+		case "User":
+			user := rows.Index(i).Interface().(models.User)
+			state := "Activo"
+			if !user.Active {
+				state = "Inactivo"
 			}
-
-			if len(roles) > 0 {
-				roles = roles[:len(roles)-2]
+			if option == "usuariosCompletos" {
+				roles, permissions, modules := formatUserDetails(user)
+				row = append(row, user.Name, roles, permissions, modules)
+			} else {
+				row = append(row,
+					user.Name,
+					user.Email,
+					state,
+					user.ModuleKey,
+					user.CreatedAt.Format("2006-01-02 15:04:05"),
+					user.UpdatedAt.Format("2006-01-02 15:04:05"),
+				)
 			}
-			if len(permissions) > 0 {
-				permissions = permissions[:len(permissions)-2]
+		case "Role":
+			role := rows.Index(i).Interface().(models.Role)
+			state := "Activo"
+			if !role.Active {
+				state = "Inactivo"
 			}
-			if len(modules) > 0 {
-				modules = modules[:len(modules)-2]
-			}
-
-			row = append(row, user.Name, roles, permissions, modules)
-		} else {
 			row = append(row,
-				user.Name,
-				user.Email,
+				role.Name,
+				role.Description,
 				state,
-				user.ModuleKey,
-				user.CreatedAt.Format("2006-01-02 15:04:05"),
-				user.UpdatedAt.Format("2006-01-02 15:04:05"),
+				role.CreatedAt.Format("2006-01-02 15:04:05"),
+				role.UpdatedAt.Format("2006-01-02 15:04:05"),
+			)
+		case "Module":
+			module := rows.Index(i).Interface().(models.Module)
+			state := "Activo"
+			if !module.Active {
+				state = "Inactivo"
+			}
+			row = append(row,
+				module.Name,
+				module.Description,
+				state,
+				module.CreatedAt.Format("2006-01-02 15:04:05"),
+				module.UpdatedAt.Format("2006-01-02 15:04:05"),
 			)
 		}
-
 		data = append(data, row)
 	}
 
-	// Generar el título y los filtros formateados
+	// Generar el archivo
 	title := fmt.Sprintf("Reporte de %s", modelName)
 	formattedFilters := formatFilters(filters)
 
-	// Generar el archivo en el formato solicitado
 	var fileBuffer *bytes.Buffer
 	var fileName string
 	var err error
@@ -118,10 +168,10 @@ func GenerateReport(modelName string, filters map[string]interface{}, userName s
 	switch format {
 	case "pdf":
 		fileBuffer, err = utils.GeneratePDF(title, "Filtros [ "+formattedFilters+" ]", data, headers, userName, option)
-		fileName = "reporte_" + time.Now().Format("20060102_150405") + ".pdf"
+		fileName = fmt.Sprintf("reporte_%s_%s.pdf", modelName, time.Now().Format("20060102_150405"))
 	case "excel":
 		fileBuffer, err = utils.GenerateExcel(title, headers, data, "Filtros [ "+formattedFilters+" ]", userName, option)
-		fileName = "reporte_" + time.Now().Format("20060102_150405") + ".xlsx"
+		fileName = fmt.Sprintf("reporte_%s_%s.xlsx", modelName, time.Now().Format("20060102_150405"))
 	default:
 		return nil, "", fmt.Errorf("formato no soportado")
 	}
@@ -131,6 +181,30 @@ func GenerateReport(modelName string, filters map[string]interface{}, userName s
 	}
 
 	return fileBuffer, fileName, nil
+}
+
+func formatUserDetails(user models.User) (roles, permissions, modules string) {
+	modulesMap := make(map[string]bool)
+	for _, role := range user.Roles {
+		roles += role.Name + ", "
+		for _, permission := range role.Permissions {
+			permissions += permission.Name + ", "
+			if !modulesMap[permission.Module.Name] {
+				modulesMap[permission.Module.Name] = true
+				modules += permission.Module.Name + ", "
+			}
+		}
+	}
+	if len(roles) > 0 {
+		roles = roles[:len(roles)-2]
+	}
+	if len(permissions) > 0 {
+		permissions = permissions[:len(permissions)-2]
+	}
+	if len(modules) > 0 {
+		modules = modules[:len(modules)-2]
+	}
+	return
 }
 
 func formatFilters(filters map[string]interface{}) string {
