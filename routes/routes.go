@@ -22,6 +22,7 @@ func SetupRoutes(router *gin.Engine) {
 
 			api.POST("/users", controllers.CreateUser)
 			api.GET("/users", controllers.GetUsers)
+			api.GET("/users-dropdown", controllers.GetUsersforDropdown)
 			api.PUT("/users/:id", controllers.UpdateUser)
 			api.DELETE("/users/:id", controllers.DeleteUser)
 

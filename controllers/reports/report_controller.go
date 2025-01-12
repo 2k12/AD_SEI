@@ -12,7 +12,8 @@ func GenerateReport(c *gin.Context) {
 		Filters  map[string]interface{} `json:"filters"`
 		Model    string                 `json:"model"`
 		Username string                 `json:"username"`
-		Format   string                 `json:"format"` // Nuevo campo para el formato
+		Format   string                 `json:"format"`
+		Option   string                 `json:"option"`
 	}
 
 	if err := c.ShouldBindJSON(&requestData); err != nil {
@@ -20,7 +21,7 @@ func GenerateReport(c *gin.Context) {
 		return
 	}
 
-	fileBuffer, fileName, err := services.GenerateReport(requestData.Model, requestData.Filters, requestData.Username, requestData.Format)
+	fileBuffer, fileName, err := services.GenerateReport(requestData.Model, requestData.Filters, requestData.Username, requestData.Format, requestData.Option)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
