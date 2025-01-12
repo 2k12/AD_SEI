@@ -8,7 +8,89 @@ import (
 	"time"
 
 	"github.com/signintech/gopdf"
+	"github.com/xuri/excelize/v2"
 )
+
+func GenerateExcel(title string, headers []string, data [][]string, usernameAndFilters string, userName string) (*bytes.Buffer, error) {
+	f := excelize.NewFile()
+
+	// Crear una hoja y establecer el título
+	sheetName := "Reporte"
+	index, err := f.NewSheet(sheetName)
+	if err != nil {
+		return nil, err
+	}
+	f.SetActiveSheet(index)
+
+	// Título del reporte
+	titleCell := "A1"
+	f.SetCellValue(sheetName, titleCell, title)
+	style := &excelize.Style{
+		Font: &excelize.Font{
+			Bold: true,
+			Size: 16,
+		},
+		Alignment: &excelize.Alignment{
+			Horizontal: "center",
+		},
+	}
+	styleID, err := f.NewStyle(style)
+	if err != nil {
+		return nil, fmt.Errorf("error creating style: %w", err)
+	}
+	f.MergeCell(sheetName, titleCell, fmt.Sprintf("%s1", columnNameFromIndex(len(headers)-1)))
+	f.SetCellStyle(sheetName, titleCell, fmt.Sprintf("%s1", columnNameFromIndex(len(headers)-1)), styleID)
+
+	// Agregar la fecha, generado por y otros detalles en el encabezado
+	currentTime := time.Now()
+	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
+	f.SetCellValue(sheetName, "A2", fmt.Sprintf("Fecha [ %s ]", ecuadorTime.Format("02/01/2006 15:04:05")))
+	f.SetCellValue(sheetName, "A3", fmt.Sprintf("Generado por: [ %s ]", userName))
+	f.SetCellValue(sheetName, "A4", usernameAndFilters)
+
+	// Ajustar el estilo de las celdas del encabezado de información adicional
+	for i := 0; i < 4; i++ {
+		f.SetColWidth(sheetName, columnNameFromIndex(i), columnNameFromIndex(i), 20)
+	}
+
+	// Encabezados
+	for i, header := range headers {
+		cell := fmt.Sprintf("%s5", columnNameFromIndex(i)) // Encabezados en la fila 5
+		f.SetCellValue(sheetName, cell, header)
+	}
+
+	// Datos
+	for rowIndex, row := range data {
+		for colIndex, value := range row {
+			cell := fmt.Sprintf("%s%d", columnNameFromIndex(colIndex), rowIndex+6) // Datos desde la fila 6
+			f.SetCellValue(sheetName, cell, value)
+		}
+	}
+
+	// Ajustar automáticamente las columnas
+	for i := range headers {
+		column := columnNameFromIndex(i)
+		f.SetColWidth(sheetName, column, column, 20)
+	}
+
+	// Guardar el archivo en un buffer
+	buf := new(bytes.Buffer)
+	if err := f.Write(buf); err != nil {
+		return nil, err
+	}
+
+	return buf, nil
+}
+
+// columnNameFromIndex convierte un índice de columna (0 basado) al nombre de columna en Excel
+func columnNameFromIndex(index int) string {
+	name := ""
+	for index >= 0 {
+		name = string('A'+(index%26)) + name
+		index = index/26 - 1
+	}
+	return name
+}
 
 // GeneratePDF genera un documento PDF con título, encabezados y datos en formato de tabla.
 func GeneratePDF(title, usernameAndFilters string, data [][]string, headers []string, userName string) (*bytes.Buffer, error) {
@@ -82,29 +164,6 @@ func GeneratePDF(title, usernameAndFilters string, data [][]string, headers []st
 		pdf.Br(15)
 
 	}
-
-	// // Función para agregar encabezado en cada página
-	// addHeader := func(pageNum int) {
-	// 	pdf.Br(20)
-
-	// 	// Título
-	// 	pdf.SetFont("arial", "B", 14)
-	// 	pdf.SetX(marginX) // Establecer la posición horizontal inicial
-	// 	pdf.Cell(nil, title)
-	// 	pdf.Br(12)
-
-	// 	// Usuario y filtros
-	// 	pdf.SetFont("arial", "", 8)
-	// 	pdf.SetX(marginX) // Asegurar margen izquierdo consistente
-	// 	pdf.Cell(nil, usernameAndFilters)
-	// 	pdf.Br(12)
-
-	// 	// Hora de Ecuador
-	// 	pdf.SetFont("arial", "", 8)
-	// 	pdf.SetX(marginX)                                                                            // Asegurar margen izquierdo consistente
-	// 	pdf.Cell(nil, fmt.Sprintf("Hora de Ecuador: %s", ecuadorTime.Format("02/01/2006 15:04:05"))) // Formato corregido
-	// 	pdf.Br(15)
-	// }
 
 	// Función para agregar pie de página
 	addFooter := func(pageNum int) {
