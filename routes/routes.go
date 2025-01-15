@@ -3,6 +3,7 @@ package routes
 import (
 	"os"
 	"seguridad-api/controllers"
+	controllerReport "seguridad-api/controllers/reports"
 	"seguridad-api/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,7 @@ func SetupRoutes(router *gin.Engine) {
 	api := router.Group("/api")
 	{
 		api.POST("/login", controllers.Login)
+		api.POST("/generate-report", controllerReport.GenerateReport)
 		api.POST("/logout", middleware.AuthMiddleware(os.Getenv("JWT_SECRET_KEY")), controllers.Logout)
 
 		api.Use(middleware.AuthMiddleware(os.Getenv("JWT_SECRET_KEY")))
@@ -20,7 +22,9 @@ func SetupRoutes(router *gin.Engine) {
 
 			api.POST("/users", controllers.CreateUser)
 			api.GET("/users", controllers.GetUsers)
+			api.GET("/users-dropdown", controllers.GetUsersforDropdown)
 			api.PUT("/users/:id", controllers.UpdateUser)
+			api.POST("/users/fastCharge", controllers.ChargeFastUsers)
 			api.DELETE("/users/:id", controllers.DeleteUser)
 
 			api.GET("/roles", controllers.GetRoles)
@@ -30,6 +34,7 @@ func SetupRoutes(router *gin.Engine) {
 
 			api.GET("/permissions", controllers.GetPermissions)
 			api.POST("/permissions", controllers.CreatePermission)
+			api.POST("/permissions/fastCharge", controllers.ChargeFastOfData)
 			api.PUT("/permissions/:id", controllers.UpdatePermission)
 			api.DELETE("/permissions/:id", controllers.DeletePermission)
 			api.GET("/permissions/:id", controllers.GetPermissionByID)

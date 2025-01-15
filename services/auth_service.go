@@ -23,7 +23,7 @@ func init() {
 	}
 }
 
-func Authenticate(email, password string) (string, error) {
+func Authenticate(email, password, module_key string) (string, error) {
 	var user models.User
 
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err != nil {
@@ -32,6 +32,10 @@ func Authenticate(email, password string) (string, error) {
 
 	if !user.Active {
 		return "", errors.New("la cuenta está inactiva")
+	}
+
+	if user.ModuleKey != module_key {
+		return "", errors.New("no dispone de acceso a este módulo")
 	}
 
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
@@ -60,6 +64,7 @@ func Authenticate(email, password string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":          user.ID,
+		"Name":        user.Name,
 		"email":       user.Email,
 		"roles":       roleNames,
 		"permissions": permissions,
