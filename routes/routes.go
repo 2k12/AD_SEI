@@ -24,6 +24,7 @@ func SetupRoutes(router *gin.Engine) {
 			api.GET("/users", controllers.GetUsers)
 			api.GET("/users-dropdown", controllers.GetUsersforDropdown)
 			api.PUT("/users/:id", controllers.UpdateUser)
+			api.POST("/users/fastCharge", controllers.ChargeFastUsers)
 			api.DELETE("/users/:id", controllers.DeleteUser)
 
 			api.GET("/roles", controllers.GetRoles)

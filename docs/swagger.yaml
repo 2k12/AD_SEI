@@ -771,6 +771,52 @@ paths:
       summary: Obtener todos los permisos
       tags:
       - Rol_Permisos
+  /permissions/fast:
+    post:
+      consumes:
+      - application/json
+      description: Permite la creación masiva de permisos en una sola solicitud. Requiere
+        un Bearer Token.
+      parameters:
+      - description: Lista de permisos a crear
+        in: body
+        name: input
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/models.Permission'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lista de permisos creados y errores de auditoría (si los hay)
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Error en la validación de datos
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Error de autorización
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Error interno del servidor
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Carga rápida de permisos
+      tags:
+      - Permisos
   /roles:
     get:
       consumes:
