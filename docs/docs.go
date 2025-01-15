@@ -72,7 +72,7 @@ const docTemplate = `{
         },
         "/login": {
             "post": {
-                "description": "Autentica un usuario con email y contraseña, devolviendo un token JWT",
+                "description": "Autentica un usuario con email, contraseña y key del módulo devolviendo un token JWT",
                 "consumes": [
                     "application/json"
                 ],
@@ -85,7 +85,7 @@ const docTemplate = `{
                 "summary": "Iniciar sesión",
                 "parameters": [
                     {
-                        "description": "Datos de inicio de sesión (email y password)",
+                        "description": "Datos de inicio de sesión (email,password y la key del módulo correspondiente)",
                         "name": "loginData",
                         "in": "body",
                         "required": true,
@@ -585,6 +585,76 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/permissions/fast": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Permite la creación masiva de permisos en una sola solicitud. Requiere un Bearer Token.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Permisos"
+                ],
+                "summary": "Carga rápida de permisos",
+                "parameters": [
+                    {
+                        "description": "Lista de permisos a crear",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Permission"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de permisos creados y errores de auditoría (si los hay)",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Error en la validación de datos",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Error de autorización",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error interno del servidor",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -1769,6 +1839,10 @@ const docTemplate = `{
                 "email": {
                     "type": "string",
                     "example": "user@example.com"
+                },
+                "module_key": {
+                    "type": "string",
+                    "example": "....."
                 },
                 "password": {
                     "type": "string",
