@@ -13,7 +13,7 @@
             "name": "MIT",
             "url": "https://opensource.org/licenses/MIT"
         },
-        "version": "1.5"
+        "version": "1.6"
     },
     "host": "seri-api-utn-2024.fly.dev",
     "basePath": "/api",

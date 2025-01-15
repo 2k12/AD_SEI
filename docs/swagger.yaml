@@ -316,7 +316,7 @@ info:
     url: https://opensource.org/licenses/MIT
   termsOfService: http://swagger.io/terms/
   title: API SEGURIDAD
-  version: "1.5"
+  version: "1.6"
 paths:
   /audit:
     post:
