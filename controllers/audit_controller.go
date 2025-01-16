@@ -29,6 +29,7 @@ type ErrorResponseAudit struct {
 // @Summary Registrar auditoría
 // @Description Registra un evento de auditoría en el sistema
 // @Tags Auditoría
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param auditData body RegisterAuditInput true "Datos de auditoría a registrar"

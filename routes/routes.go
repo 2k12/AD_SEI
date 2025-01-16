@@ -13,7 +13,6 @@ func SetupRoutes(router *gin.Engine) {
 	api := router.Group("/api")
 	{
 		api.POST("/login", controllers.Login)
-		api.POST("/generate-report", controllerReport.GenerateReport)
 		api.POST("/logout", middleware.AuthMiddleware(os.Getenv("JWT_SECRET_KEY")), controllers.Logout)
 
 		api.Use(middleware.AuthMiddleware(os.Getenv("JWT_SECRET_KEY")))
@@ -61,6 +60,7 @@ func SetupRoutes(router *gin.Engine) {
 
 			// api.PATCH("/modules/:id/toggle-active", controllers.ToggleModuleActive) // Esta ruta cambia estado activo/inactivo
 
+			api.POST("/generate-report", controllerReport.GenerateReport)
 		}
 	}
 }
