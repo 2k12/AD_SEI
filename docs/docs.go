@@ -26,6 +26,11 @@ const docTemplate = `{
     "paths": {
         "/audit": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Registra un evento de auditoría en el sistema",
                 "consumes": [
                     "application/json"

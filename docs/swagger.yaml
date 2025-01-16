@@ -345,6 +345,8 @@ paths:
           description: Error al registrar la auditoría
           schema:
             $ref: '#/definitions/controllers.ErrorResponseAudit'
+      security:
+      - BearerAuth: []
       summary: Registrar auditoría
       tags:
       - Auditoría
