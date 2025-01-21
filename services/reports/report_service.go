@@ -22,6 +22,8 @@ func GenerateReport(modelName string, filters map[string]interface{}, userName s
 		headers = []string{"Nombre", "Descripción", "Estado", "Módulo", "F. Creación", "F. Actualización"}
 		query = &[]models.Permission{}
 		dbQuery := config.DB.Model(query).Preload("Module")
+
+		// Aplicar filtros según los parámetros
 		for key, value := range filters {
 			switch key {
 			case "active":
@@ -42,28 +44,46 @@ func GenerateReport(modelName string, filters map[string]interface{}, userName s
 				dbQuery = dbQuery.Where(fmt.Sprintf("%s = ?", key), value)
 			}
 		}
+
+		// Realizar la consulta
 		if err := dbQuery.Find(query).Error; err != nil {
 			return nil, "", fmt.Errorf("error al consultar los datos: %w", err)
 		}
 
+		// Construir las filas para exportar
 		rows := reflect.ValueOf(query).Elem()
 		for i := 0; i < rows.Len(); i++ {
 			permission := rows.Index(i).Interface().(models.Permission)
+
+			// Determinar el estado
 			state := "Activo"
 			if !permission.Active {
 				state = "Inactivo"
 			}
-			// Inicializar la variable `row` dentro del bucle
+
+			// Verificar el nombre del módulo
+			moduleName := "Sin módulo"
+			if permission.Module.ID > 0 && permission.Module.Name != "" {
+				moduleName = permission.Module.Name
+			}
+
+			// Construir la fila
 			row := []string{
 				permission.Name,
 				permission.Description,
 				state,
-				permission.Module.Name,
+				moduleName,
 				permission.CreatedAt.Format("2006-01-02 15:04:05"),
 				permission.UpdatedAt.Format("2006-01-02 15:04:05"),
 			}
 			data = append(data, row)
 		}
+
+		// Validación extra para detectar claves foráneas inválidas (opcional)
+		if len(data) == 0 {
+			fmt.Println("Advertencia: Puede que haya claves foráneas inválidas en 'module_id'")
+		}
+
 	case "User":
 		if option == "usuariosCompletos" {
 			headers = []string{"Nombre", "Roles", "Permisos", "Módulos"}
