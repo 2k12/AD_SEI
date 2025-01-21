@@ -29,14 +29,15 @@ type LoginData struct {
 
 // Login autentica al usuario y genera un token JWT
 // @Summary Iniciar sesión
-// @Description Autentica un usuario con email, contraseña y key del módulo devolviendo un token JWT
+// @Description Este endpoint autentica un usuario utilizando su email, contraseña y la clave del módulo correspondiente. Si la autenticación es exitosa, se genera y devuelve un token JWT.
 // @Tags Autenticación
 // @Accept json
 // @Produce json
-// @Param loginData body LoginData true "Datos de inicio de sesión (email,password y la key del módulo correspondiente)"
-// @Success 200 {object} TokenResponse "token"
-// @Failure 400 {object} ErrorResponse "Datos inválidos"
+// @Param loginData body LoginData true "Datos de inicio de sesión (email, password y la key del módulo correspondiente)"
+// @Success 200 {object} TokenResponse "Token JWT generado"
+// @Failure 400 {object} ErrorResponse "Datos inválidos en la solicitud"
 // @Failure 401 {object} ErrorResponse "Credenciales inválidas"
+// @Failure 500 {object} ErrorResponse "Error interno al procesar la autenticación"
 // @Router /login [post]
 func Login(c *gin.Context) {
 	var loginData LoginData
@@ -44,17 +45,20 @@ func Login(c *gin.Context) {
 	currentTime := time.Now()
 	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
 
+	// Verificar los datos de la solicitud
 	if err := c.ShouldBindJSON(&loginData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos"})
 		return
 	}
 
+	// Autenticación del usuario
 	token, err := services.Authenticate(loginData.Email, loginData.Password, loginData.ModuleKey)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
+	// Procesar y validar el token
 	parsedToken, _, err := new(jwt.Parser).ParseUnverified(token, jwt.MapClaims{})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al decodificar el token"})
@@ -69,6 +73,7 @@ func Login(c *gin.Context) {
 
 	userIDUint := uint(claims["id"].(float64))
 
+	// Registrar evento de auditoría
 	event := "INSERT"
 	description := "Se registra ingreso a la plataforma, usuario: " + loginData.Email
 	originService := "SEGURIDAD"
@@ -78,22 +83,13 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// // Enviar correo de notificación
-	// go func() {
-	// 	subject := "Inicio de sesión exitoso"
-	// 	body := "Hola,\n\nSe ha registrado un inicio de sesión en la plataforma con tu cuenta de correo: " + loginData.Email + ".\n\nFecha y hora: " + ecuadorTime.Format("02/01/2006 15:04:05") + "\n\nSi no reconoces esta actividad, por favor contacta al soporte."
-	// 	err := email.SendEmail(loginData.Email, subject, body)
-	// 	if err != nil {
-	// 		log.Printf("Error al enviar el correo electrónico: %v", err)
-	// 	}
-	// }()
-
+	// Devolver el token generado
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
 // Logout cierra la sesión del usuario
 // @Summary Cerrar sesión
-// @Description Invalida la sesión actual del usuario. Requiere un Bearer Token.
+// @Description Invalida la sesión actual del usuario. Requiere un Bearer Token válido. Este endpoint cierra la sesión del usuario, eliminando el acceso al sistema hasta una nueva autenticación.
 // @Tags Autenticación
 // @Security BearerAuth
 // @Produce json
@@ -101,5 +97,6 @@ func Login(c *gin.Context) {
 // @Failure 401 {object} map[string]string "error"
 // @Router /logout [post]
 func Logout(c *gin.Context) {
+	// Aquí se pueden agregar acciones para invalidar el token si fuera necesario
 	c.JSON(http.StatusOK, gin.H{"message": "Sesión cerrada exitosamente"})
 }
