@@ -29,6 +29,7 @@ type ErrorResponseAudit struct {
 // @Summary Registrar auditoría
 // @Description Registra un evento de auditoría en el sistema
 // @Tags Auditoría
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param auditData body RegisterAuditInput true "Datos de auditoría a registrar"
@@ -68,6 +69,7 @@ func RegisterAudit(c *gin.Context) {
 // @Summary Obtener auditorías
 // @Description Devuelve una lista de auditorías registradas, con soporte para paginación y filtros (por evento).
 // @Tags Auditoría
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param page query int false "Número de página para la paginación (por defecto: 1)"
