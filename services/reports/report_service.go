@@ -17,6 +17,53 @@ func GenerateReport(modelName string, filters map[string]interface{}, userName s
 
 	// Configurar los headers y las consultas según el modelo
 	switch modelName {
+
+	case "Permission":
+		headers = []string{"Nombre", "Descripción", "Estado", "Módulo", "F. Creación", "F. Actualización"}
+		query = &[]models.Permission{}
+		dbQuery := config.DB.Model(query).Preload("Module")
+		for key, value := range filters {
+			switch key {
+			case "active":
+				dbQuery = dbQuery.Where("active = ?", value)
+			case "module_id":
+				dbQuery = dbQuery.Where("module_id = ?", value)
+			case "date_range":
+				dateRange, ok := value.(map[string]interface{})
+				if ok {
+					if start, exists := dateRange["start"]; exists {
+						dbQuery = dbQuery.Where("DATE(created_at) >= ?", start)
+					}
+					if end, exists := dateRange["end"]; exists {
+						dbQuery = dbQuery.Where("DATE(created_at) <= ?", end)
+					}
+				}
+			default:
+				dbQuery = dbQuery.Where(fmt.Sprintf("%s = ?", key), value)
+			}
+		}
+		if err := dbQuery.Find(query).Error; err != nil {
+			return nil, "", fmt.Errorf("error al consultar los datos: %w", err)
+		}
+
+		rows := reflect.ValueOf(query).Elem()
+		for i := 0; i < rows.Len(); i++ {
+			permission := rows.Index(i).Interface().(models.Permission)
+			state := "Activo"
+			if !permission.Active {
+				state = "Inactivo"
+			}
+			// Inicializar la variable `row` dentro del bucle
+			row := []string{
+				permission.Name,
+				permission.Description,
+				state,
+				permission.Module.Name,
+				permission.CreatedAt.Format("2006-01-02 15:04:05"),
+				permission.UpdatedAt.Format("2006-01-02 15:04:05"),
+			}
+			data = append(data, row)
+		}
 	case "User":
 		if option == "usuariosCompletos" {
 			headers = []string{"Nombre", "Roles", "Permisos", "Módulos"}
