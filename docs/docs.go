@@ -26,6 +26,11 @@ const docTemplate = `{
     "paths": {
         "/audit": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Devuelve una lista de auditorías registradas, con soporte para paginación y filtros (por evento).",
                 "consumes": [
                     "application/json"
@@ -74,6 +79,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Registra un evento de auditoría en el sistema",
                 "consumes": [
                     "application/json"
@@ -2312,7 +2322,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.6",
+	Version:          "1.7",
 	Host:             "localhost:8080",
 	BasePath:         "/api",
 	Schemes:          []string{},

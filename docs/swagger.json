@@ -13,13 +13,18 @@
             "name": "MIT",
             "url": "https://opensource.org/licenses/MIT"
         },
-        "version": "1.6"
+        "version": "1.7"
     },
     "host": "localhost:8080",
     "basePath": "/api",
     "paths": {
         "/audit": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Devuelve una lista de auditorías registradas, con soporte para paginación y filtros (por evento).",
                 "consumes": [
                     "application/json"
@@ -68,6 +73,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Registra un evento de auditoría en el sistema",
                 "consumes": [
                     "application/json"

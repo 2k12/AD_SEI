@@ -338,7 +338,7 @@ info:
     url: https://opensource.org/licenses/MIT
   termsOfService: http://swagger.io/terms/
   title: API SEGURIDAD
-  version: "1.6"
+  version: "1.7"
 paths:
   /audit:
     get:
@@ -371,6 +371,8 @@ paths:
           description: Error al obtener las auditorías
           schema:
             $ref: '#/definitions/controllers.ErrorResponseAudit'
+      security:
+      - BearerAuth: []
       summary: Obtener auditorías
       tags:
       - Auditoría
@@ -400,6 +402,8 @@ paths:
           description: Error al registrar la auditoría
           schema:
             $ref: '#/definitions/controllers.ErrorResponseAudit'
+      security:
+      - BearerAuth: []
       summary: Registrar auditoría
       tags:
       - Auditoría
