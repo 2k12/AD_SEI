@@ -25,6 +25,54 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/audit": {
+            "get": {
+                "description": "Devuelve una lista de auditorías registradas, con soporte para paginación y filtros (por evento).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auditoría"
+                ],
+                "summary": "Obtener auditorías",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Número de página para la paginación (por defecto: 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Número de registros por página (por defecto: 10)",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filtrar auditorías por tipo de evento",
+                        "name": "event",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "audits",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Error al obtener las auditorías",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponseAudit"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Registra un evento de auditoría en el sistema",
                 "consumes": [
@@ -72,7 +120,7 @@ const docTemplate = `{
         },
         "/login": {
             "post": {
-                "description": "Autentica un usuario con email, contraseña y key del módulo devolviendo un token JWT",
+                "description": "Este endpoint autentica un usuario utilizando su email, contraseña y la clave del módulo correspondiente. Si la autenticación es exitosa, se genera y devuelve un token JWT.",
                 "consumes": [
                     "application/json"
                 ],
@@ -85,7 +133,7 @@ const docTemplate = `{
                 "summary": "Iniciar sesión",
                 "parameters": [
                     {
-                        "description": "Datos de inicio de sesión (email,password y la key del módulo correspondiente)",
+                        "description": "Datos de inicio de sesión (email, password y la key del módulo correspondiente)",
                         "name": "loginData",
                         "in": "body",
                         "required": true,
@@ -96,19 +144,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "token",
+                        "description": "Token JWT generado",
                         "schema": {
                             "$ref": "#/definitions/controllers.TokenResponse"
                         }
                     },
                     "400": {
-                        "description": "Datos inválidos",
+                        "description": "Datos inválidos en la solicitud",
                         "schema": {
                             "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Credenciales inválidas",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Error interno al procesar la autenticación",
                         "schema": {
                             "$ref": "#/definitions/controllers.ErrorResponse"
                         }
@@ -123,7 +177,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Invalida la sesión actual del usuario. Requiere un Bearer Token.",
+                "description": "Invalida la sesión actual del usuario. Requiere un Bearer Token válido. Este endpoint cierra la sesión del usuario, eliminando el acceso al sistema hasta una nueva autenticación.",
                 "produces": [
                     "application/json"
                 ],
@@ -602,7 +656,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Permite la creación masiva de permisos en una sola solicitud. Requiere un Bearer Token.",
+                "description": "Este endpoint permite la creación masiva de permisos en una sola solicitud. Se espera que la solicitud incluya una lista de permisos a crear. Además, se requiere un token de autenticación Bearer para acceder a este endpoint.",
                 "consumes": [
                     "application/json"
                 ],
@@ -645,7 +699,7 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Error de autorización",
+                        "description": "Error de autorización (no se pudo obtener el ID del usuario)",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -1347,6 +1401,78 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/fast": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Este endpoint permite la creación masiva de usuarios, incluyendo la asignación de roles a cada uno. Requiere un token de autenticación Bearer para ser utilizado. La solicitud debe incluir una lista de usuarios a crear junto con su rol correspondiente.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Usuarios"
+                ],
+                "summary": "Carga rápida de usuarios y asignación de roles",
+                "parameters": [
+                    {
+                        "description": "Lista de usuarios a crear y asignar roles",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/controllers.FastUserPayload"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mensaje de éxito",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error en la validación de datos",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Error de autorización (usuario no autenticado)",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error interno del servidor",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/users/{id}": {
             "put": {
                 "security": [
@@ -1806,6 +1932,32 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.FastUserPayload": {
+            "type": "object",
+            "required": [
+                "email",
+                "name",
+                "password",
+                "role_id"
+            ],
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "role_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "controllers.GetRolesResponse": {
             "type": "object",
             "properties": {
@@ -1931,7 +2083,8 @@ const docTemplate = `{
                 "active",
                 "email",
                 "name",
-                "password"
+                "password",
+                "rolId"
             ],
             "properties": {
                 "active": {
@@ -1949,6 +2102,10 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "example": "12345abcd"
+                },
+                "rolId": {
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },

@@ -311,6 +311,16 @@ func DeleteUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "El estado del Usuario fue cambiado exitosamente"})
 }
 
+// GetUsersforDropdown obtiene todos los usuarios para ser utilizados en un dropdown
+// @Summary Obtener usuarios para dropdown
+// @Description Devuelve una lista de usuarios que pueden ser utilizados en un dropdown o lista de selección.
+// @Tags Usuarios
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} map[string]interface{} "users"
+// @Failure 500 {object} map[string]string "error"
+// @Router /users/dropdown [get]
+
 func GetUsersforDropdown(c *gin.Context) {
 
 	users, err := services.GetUsers()

@@ -64,6 +64,18 @@ func RegisterAudit(c *gin.Context) {
 	c.JSON(http.StatusOK, RegisterAuditResponse{Message: "Auditoría registrada exitosamente"})
 }
 
+// GetAudit obtiene auditorías con paginación y filtros
+// @Summary Obtener auditorías
+// @Description Devuelve una lista de auditorías registradas, con soporte para paginación y filtros (por evento).
+// @Tags Auditoría
+// @Accept json
+// @Produce json
+// @Param page query int false "Número de página para la paginación (por defecto: 1)"
+// @Param pageSize query int false "Número de registros por página (por defecto: 10)"
+// @Param event query string false "Filtrar auditorías por tipo de evento"
+// @Success 200 {object} map[string]interface{} "audits"
+// @Failure 500 {object} ErrorResponseAudit "Error al obtener las auditorías"
+// @Router /audit [get]
 func GetAudit(c *gin.Context) {
 	// Obtener parámetros de consulta para paginación y filtros
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -79,7 +91,7 @@ func GetAudit(c *gin.Context) {
 	// Llamar al servicio para obtener auditorias paginadas
 	audits, total, err := services.GetPaginatedAudit(page, pageSize, filters)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener los Auditoria"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener las auditorias"})
 		return
 	}
 
