@@ -21,6 +21,11 @@ type AuditResponse struct {
 	OriginService string    `json:"origin_service"`
 	Date          time.Time `json:"date"`
 }
+type AuditStatisticsResponse struct {
+	Event         string `json:"event"`
+	OriginService string `json:"origin_service"`
+	Total         int    `json:"total"`
+}
 
 func (Audit) TableName() string {
 	return "audit"

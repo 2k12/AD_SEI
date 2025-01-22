@@ -92,3 +92,21 @@ func GetAudit(c *gin.Context) {
 		"totalPages": (total + int64(pageSize) - 1) / int64(pageSize),
 	})
 }
+func GetAuditoriaEstadisticas(c *gin.Context) {
+	// Obtener parámetros de consulta
+	event := c.Query("event")
+	userID := c.Query("user_id")
+	originService := c.Query("origin_service")
+	startDate := c.Query("start_date")
+	endDate := c.Query("end_date")
+
+	// Llamar al servicio
+	stats, err := services.GetAuditStatistics(event, userID, originService, startDate, endDate)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Devolver resultados
+	c.JSON(http.StatusOK, stats)
+}
