@@ -160,11 +160,47 @@ func GenerateReport(modelName string, filters map[string]interface{}, userName s
 			return nil, "", fmt.Errorf("error al consultar los datos: %w", err)
 		}
 
+	case "Audit": // Caso específico añadido para auditoría
+		headers = []string{"Evento", "Descripción", "Usuario", "Servicio Origen", "Fecha"}
+		var audits []models.Audit
+		dbQuery := config.DB.Model(&audits)
+
+		// Aplicar filtros específicos para auditorías
+		for key, value := range filters {
+			switch key {
+			case "userId":
+				dbQuery = dbQuery.Where("user_id = ?", value)
+			case "date_range":
+				dateRange, ok := value.(map[string]interface{})
+				if ok {
+					if start, exists := dateRange["start"]; exists {
+						dbQuery = dbQuery.Where("DATE(date) >= ?", start)
+					}
+					if end, exists := dateRange["end"]; exists {
+						dbQuery = dbQuery.Where("DATE(date) <= ?", end)
+					}
+				}
+			case "event":
+				dbQuery = dbQuery.Where("event = ?", value)
+			}
+		}
+
+		// Ejecutar consulta y manejar errores
+		if err := dbQuery.Find(&audits).Error; err != nil {
+			return nil, "", fmt.Errorf("error al consultar los datos de auditoría: %w", err)
+		}
+
+		query = audits
+
 	default:
 		return nil, "", fmt.Errorf("modelo no soportado")
 	}
 
 	// Procesar los datos
+	if query == nil {
+		return nil, "", fmt.Errorf("error: la consulta no devolvió resultados o el modelo '%s' no es válido", modelName)
+	}
+
 	var rows reflect.Value
 	if reflect.TypeOf(query).Kind() == reflect.Ptr {
 		rows = reflect.ValueOf(query).Elem()
@@ -219,6 +255,15 @@ func GenerateReport(modelName string, filters map[string]interface{}, userName s
 				state,
 				module.CreatedAt.Format("2006-01-02 15:04:05"),
 				module.UpdatedAt.Format("2006-01-02 15:04:05"),
+			)
+		case "Audit": // Procesar datos para auditoría
+			audit := rows.Index(i).Interface().(models.Audit)
+			row = append(row,
+				audit.Event,
+				audit.Description,
+				fmt.Sprintf("%d", audit.UserID),
+				audit.OriginService,
+				audit.Date.Format("2006-01-02 15:04:05"),
 			)
 		}
 		data = append(data, row)
