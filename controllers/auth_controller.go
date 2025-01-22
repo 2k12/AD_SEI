@@ -1,16 +1,20 @@
 package controllers
 
 import (
-	// "log"
+	"log"
 	"net/http"
 	helpers "seguridad-api/helpers"
 	"seguridad-api/services"
 
 	// email "seguridad-api/services/email"
+	"fmt"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/sendgrid/sendgrid-go"
+	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 
 type TokenResponse struct {
@@ -83,6 +87,13 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	// Enviar correo electrónico al usuario
+	err = sendWelcomeEmail(loginData.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al enviar el correo electrónico: " + err.Error()})
+		return
+	}
+
 	// Devolver el token generado
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
@@ -99,4 +110,101 @@ func Login(c *gin.Context) {
 func Logout(c *gin.Context) {
 	// Aquí se pueden agregar acciones para invalidar el token si fuera necesario
 	c.JSON(http.StatusOK, gin.H{"message": "Sesión cerrada exitosamente"})
+}
+
+func sendWelcomeEmail(userEmail string) error {
+	from := mail.NewEmail("Módulo de Seguridad", "sheremypavon12@gmail.com")
+	subject := "¡Bienvenido al Módulo de Seguridad!"
+	to := mail.NewEmail("Usuario", userEmail)
+
+	plainTextContent := `¡Hola! 
+
+Gracias por iniciar sesión en el Módulo de Seguridad. 
+Si no fuiste tú quien realizó esta acción, por favor comunícate de inmediato con nuestro equipo de soporte.
+
+Saludos cordiales, 
+El equipo de Seguridad`
+
+	htmlContent := `
+		<html>
+			<head>
+				<style>
+					body {
+						font-family: Arial, sans-serif;
+						background-color: #f4f4f4;
+						color: #333;
+					}
+					.container {
+						background-color: #ffffff;
+						border-radius: 8px;
+						padding: 20px;
+						box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+						max-width: 600px;
+						margin: 0 auto;
+					}
+					.header {
+						text-align: center;
+						background-color: #4CAF50;
+						color: white;
+						padding: 10px 0;
+						border-radius: 8px;
+					}
+					.content {
+						margin-top: 20px;
+						font-size: 16px;
+					}
+					.footer {
+						margin-top: 30px;
+						text-align: center;
+						font-size: 12px;
+						color: #888;
+					}
+					.button {
+						background-color: #4CAF50;
+						color: white;
+						padding: 10px 20px;
+						border-radius: 5px;
+						text-decoration: none;
+						font-weight: bold;
+					}
+					.button:hover {
+						background-color: #45a049;
+					}
+				</style>
+			</head>
+			<body>
+				<div class="container">
+					<div class="header">
+						<h2>¡Bienvenido al Módulo de Seguridad!</h2>
+					</div>
+					<div class="content">
+						<p>Hola, <strong>usuario</strong>!</p>
+						<p>Gracias por iniciar sesión en el Módulo de Seguridad.</p>
+						<p><strong>Si no fuiste tú quien inició sesión, por favor comunícate con soporte inmediatamente.</strong></p>
+						<p>Para más información, visita nuestra página de soporte o contáctanos directamente.</p>
+					</div>
+					<div class="footer">
+						<p>Saludos cordiales,</p>
+						<p><strong>El equipo de Seguridad</strong></p>
+						<p><a href="https://sei-ad-frontend.vercel.app" class="button">Ir al soporte</a></p>
+					</div>
+				</div>
+			</body>
+		</html>`
+
+	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
+
+	client := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
+	response, err := client.Send(message)
+
+	if err != nil {
+		return fmt.Errorf("error al enviar el correo: %v", err)
+	}
+
+	if response.StatusCode >= 400 {
+		return fmt.Errorf("error en el envío del correo, código de estado: %d, cuerpo: %s", response.StatusCode, response.Body)
+	}
+
+	log.Printf("Correo enviado exitosamente a %s. Código de estado: %d", userEmail, response.StatusCode)
+	return nil
 }
