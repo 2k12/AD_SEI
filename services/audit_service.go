@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"seguridad-api/config"
 	"seguridad-api/models"
 	"time"
@@ -64,37 +65,113 @@ func GetPaginatedAudit(page, pageSize int, filters map[string]interface{}) ([]mo
 }
 
 // Obtener estadísticas de auditoría con filtros dinámicos
+// func GetAuditStatistics(event, userID, originService, startDate, endDate string) ([]models.AuditStatisticsResponse, error) {
+// 	var stats []models.AuditStatisticsResponse
+
+// 	// Crear la consulta base
+// 	query := config.DB.Model(&models.Audit{}).Select("event, origin_service, COUNT(*) as total")
+
+// 	// Aplicar filtros dinámicos con validaciones y logs
+// 	if event != "" {
+// 		fmt.Println("Aplicando filtro para event:", event)
+// 		query = query.Where("event = ?", event)
+// 	}
+// 	if userID != "" {
+// 		fmt.Println("Aplicando filtro para user_id:", userID)
+// 		query = query.Where("user_id = ?", userID)
+// 	}
+// 	if originService != "" {
+// 		fmt.Println("Aplicando filtro para origin_service:", originService)
+// 		query = query.Where("origin_service = ?", originService)
+// 	}
+// 	if startDate != "" && endDate != "" {
+// 		start, err := time.Parse("2006-01-02", startDate)
+// 		if err != nil {
+// 			fmt.Println("Error al parsear startDate:", err)
+// 			return nil, err
+// 		}
+// 		end, err := time.Parse("2006-01-02", endDate)
+// 		if err != nil {
+// 			fmt.Println("Error al parsear endDate:", err)
+// 			return nil, err
+// 		}
+// 		// Ajustar el rango para incluir el final del día
+// 		end = end.Add(24 * time.Hour).Add(-time.Nanosecond)
+// 		fmt.Printf("Aplicando filtro para rango de fechas: %v - %v\n", start, end)
+// 		query = query.Where("date BETWEEN ? AND ?", start, end)
+// 	}
+
+// 	// Registrar el SQL generado para depuración
+// 	fmt.Println("SQL Generado:", query.Statement.SQL.String())
+
+// 	// Agrupar resultados por evento y servicio
+// 	err := query.Group("event, origin_service").Scan(&stats).Error
+// 	if err != nil {
+// 		fmt.Println("Error al ejecutar consulta:", err)
+// 		return nil, err
+// 	}
+
+// 	// Verificar resultados obtenidos
+// 	if len(stats) == 0 {
+// 		fmt.Println("No se encontraron estadísticas para los filtros aplicados.")
+// 	} else {
+// 		fmt.Printf("Estadísticas obtenidas: %+v\n", stats)
+// 	}
+
+// 	return stats, nil
+// }
+
 func GetAuditStatistics(event, userID, originService, startDate, endDate string) ([]models.AuditStatisticsResponse, error) {
 	var stats []models.AuditStatisticsResponse
 
+	// Crear la consulta base
 	query := config.DB.Model(&models.Audit{}).Select("event, origin_service, COUNT(*) as total")
 
-	// Aplicar filtros dinámicos
+	// Aplicar filtros dinámicos con validaciones y logs
 	if event != "" {
+		fmt.Println("Aplicando filtro para event:", event)
 		query = query.Where("event = ?", event)
 	}
 	if userID != "" {
+		fmt.Println("Aplicando filtro para user_id:", userID)
 		query = query.Where("user_id = ?", userID)
 	}
 	if originService != "" {
+		fmt.Println("Aplicando filtro para origin_service:", originService)
 		query = query.Where("origin_service = ?", originService)
 	}
 	if startDate != "" && endDate != "" {
 		start, err := time.Parse("2006-01-02", startDate)
 		if err != nil {
+			fmt.Println("Error al parsear startDate:", err)
 			return nil, err
 		}
 		end, err := time.Parse("2006-01-02", endDate)
 		if err != nil {
+			fmt.Println("Error al parsear endDate:", err)
 			return nil, err
 		}
+		// Ajustar el rango para incluir el final del día
+		end = end.Add(24 * time.Hour).Add(-time.Nanosecond)
+		fmt.Printf("Aplicando filtro para rango de fechas: %v - %v\n", start, end)
 		query = query.Where("date BETWEEN ? AND ?", start, end)
 	}
+
+	// Registrar el SQL generado para depuración
+	fmt.Println("SQL Generado:", query.Statement.SQL.String())
 
 	// Agrupar resultados por evento y servicio
 	err := query.Group("event, origin_service").Scan(&stats).Error
 	if err != nil {
+		fmt.Println("Error al ejecutar consulta:", err)
 		return nil, err
+	}
+
+	// Verificar resultados obtenidos
+	if len(stats) == 0 {
+		fmt.Println("No se encontraron estadísticas para los filtros aplicados.")
+	} else {
+		fmt.Printf("Estadísticas obtenidas: %+v\n", stats)
 	}
 
 	return stats, nil

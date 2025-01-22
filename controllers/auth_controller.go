@@ -87,12 +87,12 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// Enviar correo electrónico al usuario
-	err = sendWelcomeEmail(loginData.Email)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al enviar el correo electrónico: " + err.Error()})
-		return
-	}
+	// // Enviar correo electrónico al usuario
+	// err = sendWelcomeEmail(loginData.Email)
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al enviar el correo electrónico: " + err.Error()})
+	// 	return
+	// }
 
 	// Devolver el token generado
 	c.JSON(http.StatusOK, gin.H{"token": token})
