@@ -37,7 +37,7 @@ func GetPaginatedAudit(page, pageSize int, filters map[string]interface{}) ([]mo
 	// Aplicar filtros
 	if event, ok := filters["event"]; ok {
 		query = query.Joins("INNER JOIN users ON users.id = audit.user_id").
-			Where("audit.event LIKE ? COLLATE utf8_general_ci", "%"+event.(string)+"%").
+			Where("audit.event LIKE ?", "%"+event.(string)+"%").
 			Select("audit.id, audit.event, audit.description, users.name AS user, audit.origin_service, audit.date")
 	} else {
 		query = query.Joins("INNER JOIN users ON users.id = audit.user_id").
