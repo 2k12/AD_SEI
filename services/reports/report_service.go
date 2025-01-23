@@ -15,7 +15,6 @@ func GenerateReport(modelName string, filters map[string]interface{}, userName s
 	var data [][]string
 	var query interface{}
 
-	// Configurar los headers y las consultas según el modelo
 	switch modelName {
 
 	case "Permission":
