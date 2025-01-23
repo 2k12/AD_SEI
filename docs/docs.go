@@ -1411,6 +1411,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/dropdown": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Devuelve una lista de usuarios que pueden ser utilizados en un dropdown o lista de selección.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Usuarios"
+                ],
+                "summary": "Obtener usuarios para dropdown",
+                "responses": {
+                    "200": {
+                        "description": "users",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/users/fast": {
             "post": {
                 "security": [

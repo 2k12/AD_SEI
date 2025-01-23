@@ -1480,6 +1480,29 @@ paths:
       summary: Eliminar un rol de un usuario
       tags:
       - Roles
+  /users/dropdown:
+    get:
+      description: Devuelve una lista de usuarios que pueden ser utilizados en un
+        dropdown o lista de selección.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: users
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Obtener usuarios para dropdown
+      tags:
+      - Usuarios
   /users/fast:
     post:
       consumes:
