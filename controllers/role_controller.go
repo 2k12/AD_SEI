@@ -318,3 +318,16 @@ func UpdateRoleState(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Estado del rol actualizado exitosamente"})
 }
+
+func GetRolesforDropdown(c *gin.Context) {
+
+	roles, err := services.GetRoles()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener los roles"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"roles": roles,
+	})
+}

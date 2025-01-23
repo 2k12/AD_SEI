@@ -1,5 +1,5 @@
 // @title API SEGURIDAD
-// @version 1.7
+// @version 1.8
 // @description Esta es la documentación de LA API DE SEGURIDAD hecha con Go.
 // @termsOfService http://swagger.io/terms/
 

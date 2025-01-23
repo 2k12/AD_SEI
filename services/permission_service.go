@@ -27,19 +27,21 @@ func GetPaginatedPermissions(page, pageSize int, filters map[string]interface{})
 	query := config.DB.Model(&models.Permission{})
 
 	// Aplicar filtros dinámicos
-	if moduleName, ok := filters["moduleName"]; ok {
+	if moduleName, ok := filters["moduleName"]; ok && moduleName != "" {
 		query = query.Joins("JOIN modules ON modules.id = permissions.module_id").
-			Where("modules.name LIKE ? COLLATE utf8_general_ci", "%"+moduleName.(string)+"%")
+			Where("LOWER(modules.name) LIKE LOWER(?)", "%"+moduleName.(string)+"%")
 	}
-	if name, ok := filters["name"]; ok {
-		query = query.Where("permissions.name LIKE ? COLLATE utf8_general_ci", "%"+name.(string)+"%")
+	if name, ok := filters["name"]; ok && name != "" {
+		query = query.Where("LOWER(permissions.name) LIKE LOWER(?)", "%"+name.(string)+"%")
 	}
 	if active, ok := filters["active"]; ok {
 		query = query.Where("permissions.active = ?", active)
 	}
 
 	// Contar el total de registros filtrados
-	query.Count(&total)
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
 
 	// Aplicar paginación
 	offset := (page - 1) * pageSize

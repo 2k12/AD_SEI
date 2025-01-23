@@ -65,6 +65,19 @@ func RegisterAudit(c *gin.Context) {
 	c.JSON(http.StatusOK, RegisterAuditResponse{Message: "Auditoría registrada exitosamente"})
 }
 
+// GetAudit obtiene auditorías con paginación y filtros
+// @Summary Obtener auditorías
+// @Description Devuelve una lista de auditorías registradas, con soporte para paginación y filtros (por evento).
+// @Tags Auditoría
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param page query int false "Número de página para la paginación (por defecto: 1)"
+// @Param pageSize query int false "Número de registros por página (por defecto: 10)"
+// @Param event query string false "Filtrar auditorías por tipo de evento"
+// @Success 200 {object} map[string]interface{} "audits"
+// @Failure 500 {object} ErrorResponseAudit "Error al obtener las auditorías"
+// @Router /audit [get]
 func GetAudit(c *gin.Context) {
 	// Obtener parámetros de consulta para paginación y filtros
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -80,7 +93,7 @@ func GetAudit(c *gin.Context) {
 	// Llamar al servicio para obtener auditorias paginadas
 	audits, total, err := services.GetPaginatedAudit(page, pageSize, filters)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener los Auditoria"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener las auditorias"})
 		return
 	}
 
@@ -92,4 +105,46 @@ func GetAudit(c *gin.Context) {
 		"pageSize":   pageSize,
 		"totalPages": (total + int64(pageSize) - 1) / int64(pageSize),
 	})
+}
+
+// func GetAuditoriaEstadisticas(c *gin.Context) {
+// 	// Obtener parámetros de consulta
+// 	event := c.Query("event")
+// 	// userID := c.Query("user_id")
+// 	// originService := c.Query("origin_service")
+// 	startDate := c.Query("start_date")
+// 	endDate := c.Query("end_date")
+
+// 	// Llamar al servicio
+// 	stats, err := services.GetAuditStatistics(event, startDate, endDate)
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 		return
+// 	}
+
+// 	// Devolver resultados
+// 	c.JSON(http.StatusOK, stats)
+// }
+
+func GetAuditoriaEstadisticas(c *gin.Context) {
+	// Obtener parámetros de consulta
+	event := c.Query("event")
+	startDate := c.Query("start_date")
+	endDate := c.Query("end_date")
+
+	// Llamar al servicio
+	stats, records, err := services.GetAuditStatistics(event, startDate, endDate)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Construir la respuesta JSON con estadísticas y registros
+	response := gin.H{
+		"statistics": stats,
+		"records":    records,
+	}
+
+	// Devolver resultados
+	c.JSON(http.StatusOK, response)
 }
