@@ -1,16 +1,20 @@
 package controllers
 
 import (
-	// "log"
+	"log"
 	"net/http"
 	helpers "seguridad-api/helpers"
 	"seguridad-api/services"
 
 	// email "seguridad-api/services/email"
+	"fmt"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/sendgrid/sendgrid-go"
+	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 
 type TokenResponse struct {
@@ -29,14 +33,15 @@ type LoginData struct {
 
 // Login autentica al usuario y genera un token JWT
 // @Summary Iniciar sesión
-// @Description Autentica un usuario con email, contraseña y key del módulo devolviendo un token JWT
+// @Description Este endpoint autentica un usuario utilizando su email, contraseña y la clave del módulo correspondiente. Si la autenticación es exitosa, se genera y devuelve un token JWT.
 // @Tags Autenticación
 // @Accept json
 // @Produce json
-// @Param loginData body LoginData true "Datos de inicio de sesión (email,password y la key del módulo correspondiente)"
-// @Success 200 {object} TokenResponse "token"
-// @Failure 400 {object} ErrorResponse "Datos inválidos"
+// @Param loginData body LoginData true "Datos de inicio de sesión (email, password y la key del módulo correspondiente)"
+// @Success 200 {object} TokenResponse "Token JWT generado"
+// @Failure 400 {object} ErrorResponse "Datos inválidos en la solicitud"
 // @Failure 401 {object} ErrorResponse "Credenciales inválidas"
+// @Failure 500 {object} ErrorResponse "Error interno al procesar la autenticación"
 // @Router /login [post]
 func Login(c *gin.Context) {
 	var loginData LoginData
@@ -44,17 +49,20 @@ func Login(c *gin.Context) {
 	currentTime := time.Now()
 	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
 
+	// Verificar los datos de la solicitud
 	if err := c.ShouldBindJSON(&loginData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos"})
 		return
 	}
 
+	// Autenticación del usuario
 	token, err := services.Authenticate(loginData.Email, loginData.Password, loginData.ModuleKey)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
+	// Procesar y validar el token
 	parsedToken, _, err := new(jwt.Parser).ParseUnverified(token, jwt.MapClaims{})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al decodificar el token"})
@@ -69,6 +77,7 @@ func Login(c *gin.Context) {
 
 	userIDUint := uint(claims["id"].(float64))
 
+	// Registrar evento de auditoría
 	event := "INSERT"
 	description := "Se registra ingreso a la plataforma, usuario: " + loginData.Email
 	originService := "SEGURIDAD"
@@ -78,22 +87,20 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// // Enviar correo de notificación
-	// go func() {
-	// 	subject := "Inicio de sesión exitoso"
-	// 	body := "Hola,\n\nSe ha registrado un inicio de sesión en la plataforma con tu cuenta de correo: " + loginData.Email + ".\n\nFecha y hora: " + ecuadorTime.Format("02/01/2006 15:04:05") + "\n\nSi no reconoces esta actividad, por favor contacta al soporte."
-	// 	err := email.SendEmail(loginData.Email, subject, body)
-	// 	if err != nil {
-	// 		log.Printf("Error al enviar el correo electrónico: %v", err)
-	// 	}
-	// }()
+	// // Enviar correo electrónico al usuario
+	// err = sendWelcomeEmail(loginData.Email)
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al enviar el correo electrónico: " + err.Error()})
+	// 	return
+	// }
 
+	// Devolver el token generado
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
 // Logout cierra la sesión del usuario
 // @Summary Cerrar sesión
-// @Description Invalida la sesión actual del usuario. Requiere un Bearer Token.
+// @Description Invalida la sesión actual del usuario. Requiere un Bearer Token válido. Este endpoint cierra la sesión del usuario, eliminando el acceso al sistema hasta una nueva autenticación.
 // @Tags Autenticación
 // @Security BearerAuth
 // @Produce json
@@ -101,5 +108,103 @@ func Login(c *gin.Context) {
 // @Failure 401 {object} map[string]string "error"
 // @Router /logout [post]
 func Logout(c *gin.Context) {
+	// Aquí se pueden agregar acciones para invalidar el token si fuera necesario
 	c.JSON(http.StatusOK, gin.H{"message": "Sesión cerrada exitosamente"})
+}
+
+func sendWelcomeEmail(userEmail string) error {
+	from := mail.NewEmail("Módulo de Seguridad", "sheremypavon12@gmail.com")
+	subject := "¡Bienvenido al Módulo de Seguridad!"
+	to := mail.NewEmail("Usuario", userEmail)
+
+	plainTextContent := `¡Hola! 
+
+Gracias por iniciar sesión en el Módulo de Seguridad. 
+Si no fuiste tú quien realizó esta acción, por favor comunícate de inmediato con nuestro equipo de soporte.
+
+Saludos cordiales, 
+El equipo de Seguridad`
+
+	htmlContent := `
+		<html>
+			<head>
+				<style>
+					body {
+						font-family: Arial, sans-serif;
+						background-color: #f4f4f4;
+						color: #333;
+					}
+					.container {
+						background-color: #ffffff;
+						border-radius: 8px;
+						padding: 20px;
+						box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+						max-width: 600px;
+						margin: 0 auto;
+					}
+					.header {
+						text-align: center;
+						background-color: #4CAF50;
+						color: white;
+						padding: 10px 0;
+						border-radius: 8px;
+					}
+					.content {
+						margin-top: 20px;
+						font-size: 16px;
+					}
+					.footer {
+						margin-top: 30px;
+						text-align: center;
+						font-size: 12px;
+						color: #888;
+					}
+					.button {
+						background-color: #4CAF50;
+						color: white;
+						padding: 10px 20px;
+						border-radius: 5px;
+						text-decoration: none;
+						font-weight: bold;
+					}
+					.button:hover {
+						background-color: #45a049;
+					}
+				</style>
+			</head>
+			<body>
+				<div class="container">
+					<div class="header">
+						<h2>¡Bienvenido al Módulo de Seguridad!</h2>
+					</div>
+					<div class="content">
+						<p>Hola, <strong>usuario</strong>!</p>
+						<p>Gracias por iniciar sesión en el Módulo de Seguridad.</p>
+						<p><strong>Si no fuiste tú quien inició sesión, por favor comunícate con soporte inmediatamente.</strong></p>
+						<p>Para más información, visita nuestra página de soporte o contáctanos directamente.</p>
+					</div>
+					<div class="footer">
+						<p>Saludos cordiales,</p>
+						<p><strong>El equipo de Seguridad</strong></p>
+						<p><a href="https://sei-ad-frontend.vercel.app" class="button">Ir al soporte</a></p>
+					</div>
+				</div>
+			</body>
+		</html>`
+
+	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
+
+	client := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
+	response, err := client.Send(message)
+
+	if err != nil {
+		return fmt.Errorf("error al enviar el correo: %v", err)
+	}
+
+	if response.StatusCode >= 400 {
+		return fmt.Errorf("error en el envío del correo, código de estado: %d, cuerpo: %s", response.StatusCode, response.Body)
+	}
+
+	log.Printf("Correo enviado exitosamente a %s. Código de estado: %d", userEmail, response.StatusCode)
+	return nil
 }

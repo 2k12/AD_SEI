@@ -2,7 +2,10 @@ package controllers
 
 import (
 	"net/http"
+	"seguridad-api/config"
 	helpers "seguridad-api/helpers"
+	"seguridad-api/models"
+
 	"seguridad-api/services"
 	"strconv"
 	"time"
@@ -15,6 +18,7 @@ type RegisterUserInput struct {
 	Email    string `json:"email" binding:"required" example:"nuevousuario@gmail.com"`
 	Password string `json:"password" binding:"required" example:"12345abcd"`
 	Active   bool   `json:"active" binding:"required" example:"true"`
+	RolId    uint   `json:"rolId" binding:"required" example:"1"`
 }
 
 // CreateUser crea un nuevo usuario
@@ -36,43 +40,95 @@ func CreateUser(c *gin.Context) {
 	// Ajustar la hora al huso horario de Ecuador usando el helper
 	ecuadorTime := helpers.AdjustToEcuadorTime(currentTime)
 
+	// Estructura de entrada para el usuario
 	var input struct {
 		Name     string `json:"name" binding:"required"`
 		Email    string `json:"email" binding:"required"`
 		Password string `json:"password" binding:"required"`
 		Active   bool   `json:"active"`
+		RolId    string `json:"rolId" binding:"required"` // Cambiado a string
 	}
 
+	// Vincular datos de entrada
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	user, err := services.CreateUser(input.Name, input.Email, input.Password, input.Active)
+	// Convertir RolId de string a uint
+	rolID, err := strconv.ParseUint(input.RolId, 10, 32)
 	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "RolId debe ser un número válido"})
+		return
+	}
+
+	// Crear el usuario
+	user, err := services.CreateUser(input.Name, input.Email, input.Password, input.Active)
+	if err != nil || user.ID == 0 {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al crear el usuario"})
 		return
 	}
 
-	userID, exists := c.Get("userID")
+	// Obtener el ID del usuario autenticado desde el contexto
+	userIDInterface, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener el ID del usuario desde el contexto"})
 		return
 	}
 
-	userIDUint := uint(userID.(float64))
+	userIDFloat, ok := userIDInterface.(float64)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "El ID del usuario no tiene el formato esperado"})
+		return
+	}
+	userIDUint := uint(userIDFloat)
 
+	// Registrar la auditoría para la creación del usuario
 	event := "INSERT"
 	description := "Se creó un usuario con el email: " + input.Email
 	originService := "SEGURIDAD"
-	// date := time.Now()
-
 	if auditErr := services.RegisterAudit(event, description, userIDUint, originService, ecuadorTime); auditErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Usuario creado, pero no se pudo registrar la auditoría"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"user": user})
+	// Validar si el rol existe
+	var role models.Role
+	if err := config.DB.First(&role, "id = ?", uint(rolID)).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "El rol no existe"})
+		return
+	}
+
+	// Verificar si ya existe la asignación del rol al usuario
+	var existingUserRole models.UserRole
+	if err := config.DB.First(&existingUserRole, "user_id = ? AND role_id = ?", user.ID, uint(rolID)).Error; err == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "El usuario ya tiene asignado este rol"})
+		return
+	}
+
+	// Asignar el rol al usuario
+	userRole, err := services.AssignRoleToUser(user.ID, uint(rolID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al asignar el rol: " + err.Error()})
+		return
+	}
+
+	// Registrar la auditoría para la asignación del rol
+	descriptionInterm := "Se asignó el rol " + strconv.Itoa(int(rolID)) +
+		" al usuario " + strconv.Itoa(int(userIDUint))
+	eventInterm := "CREATE"
+	originServiceInterm := "SEGURIDAD"
+	if auditErr := services.RegisterAudit(eventInterm, descriptionInterm, userIDUint, originServiceInterm, ecuadorTime); auditErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Rol asignado, pero no se pudo registrar la auditoría"})
+		return
+	}
+
+	// Respuesta final
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Usuario creado y rol asignado con éxito",
+		"user":    user,
+		"role":    userRole,
+	})
 }
 
 // @Summary Obtener usuarios
@@ -255,14 +311,21 @@ func DeleteUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "El estado del Usuario fue cambiado exitosamente"})
 }
 
+// GetUsersforDropdown obtiene todos los usuarios para ser utilizados en un dropdown
+// @Summary Obtener usuarios para dropdown
+// @Description Devuelve una lista de usuarios que pueden ser utilizados en un dropdown o lista de selección.
+// @Tags Usuarios
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} map[string]interface{} "users"
+// @Failure 500 {object} map[string]string "error"
+// @Router /users/dropdown [get]
 func GetUsersforDropdown(c *gin.Context) {
-
 	users, err := services.GetUsers()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener los usuarios"})
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{
 		"users": users,
 	})

@@ -17,6 +17,73 @@ func GenerateReport(modelName string, filters map[string]interface{}, userName s
 
 	// Configurar los headers y las consultas según el modelo
 	switch modelName {
+
+	case "Permission":
+		headers = []string{"Nombre", "Descripción", "Estado", "Módulo", "F. Creación", "F. Actualización"}
+		query = &[]models.Permission{}
+		dbQuery := config.DB.Model(query).Preload("Module")
+
+		// Aplicar filtros según los parámetros
+		for key, value := range filters {
+			switch key {
+			case "active":
+				dbQuery = dbQuery.Where("active = ?", value)
+			case "module_id":
+				dbQuery = dbQuery.Where("module_id = ?", value)
+			case "date_range":
+				dateRange, ok := value.(map[string]interface{})
+				if ok {
+					if start, exists := dateRange["start"]; exists {
+						dbQuery = dbQuery.Where("DATE(created_at) >= ?", start)
+					}
+					if end, exists := dateRange["end"]; exists {
+						dbQuery = dbQuery.Where("DATE(created_at) <= ?", end)
+					}
+				}
+			default:
+				dbQuery = dbQuery.Where(fmt.Sprintf("%s = ?", key), value)
+			}
+		}
+
+		// Realizar la consulta
+		if err := dbQuery.Find(query).Error; err != nil {
+			return nil, "", fmt.Errorf("error al consultar los datos: %w", err)
+		}
+
+		// Construir las filas para exportar
+		rows := reflect.ValueOf(query).Elem()
+		for i := 0; i < rows.Len(); i++ {
+			permission := rows.Index(i).Interface().(models.Permission)
+
+			// Determinar el estado
+			state := "Activo"
+			if !permission.Active {
+				state = "Inactivo"
+			}
+
+			// Verificar el nombre del módulo
+			moduleName := "Sin módulo"
+			if permission.Module.ID > 0 && permission.Module.Name != "" {
+				moduleName = permission.Module.Name
+			}
+
+			// Construir la fila
+			row := []string{
+				permission.Name,
+				permission.Description,
+				state,
+				moduleName,
+				permission.CreatedAt.Format("2006-01-02 15:04:05"),
+				permission.UpdatedAt.Format("2006-01-02 15:04:05"),
+			}
+			data = append(data, row)
+		}
+
+		// Validación extra para detectar claves foráneas inválidas (opcional)
+		if len(data) == 0 {
+			fmt.Println("Advertencia: Puede que haya claves foráneas inválidas en 'module_id'")
+		}
+
 	case "User":
 		if option == "usuariosCompletos" {
 			headers = []string{"Nombre", "Roles", "Permisos", "Módulos"}
@@ -93,11 +160,40 @@ func GenerateReport(modelName string, filters map[string]interface{}, userName s
 			return nil, "", fmt.Errorf("error al consultar los datos: %w", err)
 		}
 
+	case "Audit":
+		headers = []string{"Evento", "Descripción", "Usuario", "Servicio Origen", "Fecha"}
+		var audits []models.Audit
+		dbQuery := config.DB.Model(&audits)
+		for key, value := range filters {
+			switch key {
+			case "userId":
+				dbQuery = dbQuery.Where("user_id = ?", value)
+			case "date_range":
+				dateRange, ok := value.(map[string]interface{})
+				if ok {
+					if start, exists := dateRange["start"]; exists {
+						dbQuery = dbQuery.Where("DATE(date) >= ?", start)
+					}
+					if end, exists := dateRange["end"]; exists {
+						dbQuery = dbQuery.Where("DATE(date) <= ?", end)
+					}
+				}
+			}
+		}
+		if err := dbQuery.Find(&audits).Error; err != nil {
+			return nil, "", fmt.Errorf("error al consultar los datos de auditoría: %w", err)
+		}
+		query = audits
+
 	default:
 		return nil, "", fmt.Errorf("modelo no soportado")
 	}
 
 	// Procesar los datos
+	if query == nil {
+		return nil, "", fmt.Errorf("error: la consulta no devolvió resultados o el modelo '%s' no es válido", modelName)
+	}
+
 	var rows reflect.Value
 	if reflect.TypeOf(query).Kind() == reflect.Ptr {
 		rows = reflect.ValueOf(query).Elem()
@@ -152,6 +248,15 @@ func GenerateReport(modelName string, filters map[string]interface{}, userName s
 				state,
 				module.CreatedAt.Format("2006-01-02 15:04:05"),
 				module.UpdatedAt.Format("2006-01-02 15:04:05"),
+			)
+		case "Audit": // Procesar datos para auditoría
+			audit := rows.Index(i).Interface().(models.Audit)
+			row = append(row,
+				audit.Event,
+				audit.Description,
+				fmt.Sprintf("%d", audit.UserID),
+				audit.OriginService,
+				audit.Date.Format("2006-01-02 15:04:05"),
 			)
 		}
 		data = append(data, row)
