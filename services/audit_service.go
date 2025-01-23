@@ -28,7 +28,6 @@ func GetAudit() ([]models.AuditResponse, error) {
 	return audits, result.Error
 }
 
-// Obtener auditorías paginadas con filtros
 func GetPaginatedAudit(page, pageSize int, filters map[string]interface{}) ([]models.AuditResponse, int64, error) {
 	var audits []models.AuditResponse
 	var total int64
@@ -45,7 +44,9 @@ func GetPaginatedAudit(page, pageSize int, filters map[string]interface{}) ([]mo
 			Select("audit.id, audit.event, audit.description, users.name AS user, audit.origin_service, audit.date")
 	}
 
-	// Contar el total de registros
+	if userName, ok := filters["userName"]; ok {
+		query = query.Where("LOWER(users.name) LIKE LOWER(?)", "%"+userName.(string)+"%")
+	}
 	err := query.Count(&total).Error
 	if err != nil {
 		return nil, 0, err
@@ -121,7 +122,7 @@ func GetPaginatedAudit(page, pageSize int, filters map[string]interface{}) ([]mo
 // 	return stats, nil
 // }
 
-func GetAuditStatistics(event, userID, originService, startDate, endDate string) ([]models.AuditStatisticsResponse, error) {
+func GetAuditStatistics(event, username, originService, startDate, endDate string) ([]models.AuditStatisticsResponse, error) {
 	var stats []models.AuditStatisticsResponse
 
 	// Crear la consulta base
@@ -132,9 +133,9 @@ func GetAuditStatistics(event, userID, originService, startDate, endDate string)
 		fmt.Println("Aplicando filtro para event:", event)
 		query = query.Where("event = ?", event)
 	}
-	if userID != "" {
-		fmt.Println("Aplicando filtro para user_id:", userID)
-		query = query.Where("user_id = ?", userID)
+	if username != "" {
+		fmt.Println("Aplicando filtro para username:", username)
+		query = query.Joins("INNER JOIN users ON users.id = audit.user_id").Where("users.name = ?", username)
 	}
 	if originService != "" {
 		fmt.Println("Aplicando filtro para origin_service:", originService)
