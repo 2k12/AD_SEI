@@ -208,3 +208,19 @@ El equipo de Seguridad`
 	log.Printf("Correo enviado exitosamente a %s. Código de estado: %d", userEmail, response.StatusCode)
 	return nil
 }
+
+// func UnlockUser(c *gin.Context) {
+// 	var user models.User
+// 	email := c.Param("email")
+
+// 	if err := config.DB.Where("email = ?", email).First(&user).Error; err != nil {
+// 		c.JSON(http.StatusNotFound, gin.H{"error": "Usuario no encontrado"})
+// 		return
+// 	}
+
+// 	user.FailedAttempts = 0
+// 	user.LockedUntil = nil
+// 	config.DB.Save(&user)
+
+// 	c.JSON(http.StatusOK, gin.H{"message": "Usuario desbloqueado exitosamente"})
+// }

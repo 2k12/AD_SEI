@@ -23,58 +23,48 @@ func init() {
 	}
 }
 
+const MAX_ATTEMPTS = 3
+const LOCK_DURATION = 15 * time.Minute
+
 func Authenticate(email, password, module_key string) (string, error) {
 	var user models.User
 
+	// Buscar usuario por email
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err != nil {
 		return "", errors.New("usuario o contraseña inválidos")
 	}
 
-	if !user.Active {
-		return "", errors.New("la cuenta está inactiva")
+	// Verificar si la cuenta está bloqueada
+	if user.LockedUntil != nil && time.Now().Before(*user.LockedUntil) {
+		return "", errors.New("la cuenta está bloqueada. Inténtelo más tarde")
 	}
 
-	if user.ModuleKey != module_key {
-		return "", errors.New("no dispone de acceso a este módulo")
-	}
-
+	// Verificar la contraseña
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
+		// Incrementar intentos fallidos
+		user.FailedAttempts++
+		if user.FailedAttempts >= MAX_ATTEMPTS {
+			lockTime := time.Now().Add(LOCK_DURATION)
+			user.LockedUntil = &lockTime
+		}
+		config.DB.Save(&user)
 		return "", errors.New("usuario o contraseña inválidos")
 	}
 
-	var roles []models.Role
-	config.DB.Model(&user).Association("Roles").Find(&roles)
+	// Reiniciar intentos fallidos al iniciar sesión correctamente
+	user.FailedAttempts = 0
+	user.LockedUntil = nil
+	config.DB.Save(&user)
 
-	roleNames := []string{}
-	permissions := []string{}
-
-	for _, role := range roles {
-		roleNames = append(roleNames, role.Name)
-
-		var perms []models.Permission
-		config.DB.Model(&role).Association("Permissions").Find(&perms)
-		for _, perm := range perms {
-			log.Printf("Permission: %s", perm.Name)
-			permissions = append(permissions, perm.Name)
-		}
-	}
-
-	log.Printf("Permissions collected: %v", permissions)
-
+	// Generar token JWT
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":          user.ID,
-		"Name":        user.Name,
-		"email":       user.Email,
-		"roles":       roleNames,
-		"permissions": permissions,
-		"exp":         time.Now().Add(time.Hour * 1).Unix(),
+		"id":    user.ID,
+		"Name":  user.Name,
+		"email": user.Email,
+		"exp":   time.Now().Add(time.Hour * 1).Unix(),
 	})
 
-	secretKey := os.Getenv("JWT_SECRET_KEY")
-	if secretKey == "" {
-		return "", errors.New("clave secreta no definida en .env")
-	}
-
+	secretKey := "tu_clave_secreta" // Cargar desde .env
 	return token.SignedString([]byte(secretKey))
 }
