@@ -1,9 +1,13 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
+	"seguridad-api/config"
+	"seguridad-api/models"
 	"seguridad-api/services"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -63,6 +67,57 @@ func RegisterAudit(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, RegisterAuditResponse{Message: "Auditoría registrada exitosamente"})
+}
+func GetAuditStatistics(event, module, startDate, endDate string) ([]models.AuditStatisticsResponse, error) {
+	var stats []models.AuditStatisticsResponse
+
+	// Crear la consulta base
+	query := config.DB.Model(&models.Audit{}).
+		Select("event, UPPER(origin_service) AS origin_service, COUNT(*) as total, MAX(date) as last_date").
+		Group("event, origin_service")
+
+	// Aplicar filtros dinámicos con validaciones y logs
+	if event != "" {
+		fmt.Println("Aplicando filtro para event:", event)
+		query = query.Where("event = ?", event)
+	}
+	if module != "" {
+		fmt.Println("Aplicando filtro para origin_service (módulo):", module)
+		query = query.Where("UPPER(origin_service) = ?", strings.ToUpper(module))
+	}
+	if startDate != "" && endDate != "" {
+		start, err := time.Parse("2006-01-02", startDate)
+		if err != nil {
+			fmt.Println("Error al parsear startDate:", err)
+			return nil, err
+		}
+		end, err := time.Parse("2006-01-02", endDate)
+		if err != nil {
+			fmt.Println("Error al parsear endDate:", err)
+			return nil, err
+		}
+		end = end.Add(24 * time.Hour).Add(-time.Nanosecond)
+		fmt.Printf("Aplicando filtro para rango de fechas: %v - %v\n", start, end)
+		query = query.Where("date BETWEEN ? AND ?", start, end)
+	}
+
+	// Registrar el SQL generado para depuración
+	fmt.Println("SQL Generado:", query.Statement.SQL.String())
+
+	// Obtener los resultados
+	err := query.Scan(&stats).Error
+	if err != nil {
+		fmt.Println("Error al ejecutar consulta:", err)
+		return nil, err
+	}
+
+	// Formatear las fechas antes de devolver la respuesta
+	loc, _ := time.LoadLocation("America/Guayaquil")
+	for i := range stats {
+		stats[i].LastDateFormatted = stats[i].LastDate.In(loc).Format("2006-01-02 15:04:05")
+	}
+
+	return stats, nil
 }
 
 // GetAudit obtiene auditorías con paginación y filtros
@@ -129,11 +184,12 @@ func GetAudit(c *gin.Context) {
 func GetAuditoriaEstadisticas(c *gin.Context) {
 	// Obtener parámetros de consulta
 	event := c.Query("event")
+	module := c.Query("module") // Obtener el módulo de los parámetros
 	startDate := c.Query("start_date")
 	endDate := c.Query("end_date")
 
 	// Llamar al servicio
-	stats, records, err := services.GetAuditStatistics(event, startDate, endDate)
+	stats, records, err := services.GetAuditStatistics(event, module, startDate, endDate)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
