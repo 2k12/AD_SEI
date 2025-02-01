@@ -218,7 +218,7 @@ func GenerateReport(modelName string, filters map[string]interface{}, userName s
 					user.Name,
 					user.Email,
 					state,
-					user.ModuleKey,
+					// user.ModuleKey,
 					user.CreatedAt.Format("2006-01-02 15:04:05"),
 					user.UpdatedAt.Format("2006-01-02 15:04:05"),
 				)
