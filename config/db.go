@@ -86,6 +86,37 @@ var DB *gorm.DB
 //		// db.AutoMigrate(&models.User{}, &models.Role{}, &models.Permission{}, &models.Module{}, &models.Audit{})
 //		DB = db
 //	}
+// func ConnectDB() {
+// 	dbUser := os.Getenv("DB_USER")
+// 	dbPassword := os.Getenv("DB_PASSWORD")
+// 	dbHost := os.Getenv("DB_HOST")
+// 	dbPort := os.Getenv("DB_PORT")
+// 	dbName := os.Getenv("DB_NAME")
+
+// 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+// 		dbUser, dbPassword, dbHost, dbPort, dbName)
+
+// 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+// 		Logger: logger.Default.LogMode(logger.Info),
+// 	})
+// 	if err != nil {
+// 		log.Fatalf("Error conectando a la base de datos: %v", err)
+// 	}
+
+// 	// Migración
+// 	// db.AutoMigrate(&models.Module{})
+// 	db.AutoMigrate(&models.User{}, &models.Role{}, &models.Permission{}, &models.Module{}, &models.Audit{}, models.RolePermission{})
+
+// 	// Añade la columna si no existe
+// 	if err := db.Migrator().AddColumn(&models.Module{}, "ModuleKey"); err != nil {
+// 		log.Printf("Error al agregar la columna ModuleKey: %v", err)
+// 	} else {
+// 		log.Println("Columna ModuleKey agregada exitosamente")
+// 	}
+
+// 	DB = db
+// }
+
 func ConnectDB() {
 	dbUser := os.Getenv("DB_USER")
 	dbPassword := os.Getenv("DB_PASSWORD")
@@ -104,15 +135,30 @@ func ConnectDB() {
 	}
 
 	// Migración
-	// db.AutoMigrate(&models.Module{})
-	db.AutoMigrate(&models.User{}, &models.Role{}, &models.Permission{}, &models.Module{}, &models.Audit{}, models.RolePermission{})
-
-	// Añade la columna si no existe
-	if err := db.Migrator().AddColumn(&models.Module{}, "ModuleKey"); err != nil {
-		log.Printf("Error al agregar la columna ModuleKey: %v", err)
-	} else {
-		log.Println("Columna ModuleKey agregada exitosamente")
+	migrations := []interface{}{
+		&models.User{}, &models.Role{}, &models.Permission{},
+		&models.Module{}, &models.Audit{}, models.RolePermission{},
 	}
+
+	for _, model := range migrations {
+		if err := db.AutoMigrate(model); err != nil {
+			log.Printf("Error al ejecutar migración para el modelo %T: %v", model, err)
+		} else {
+			log.Printf("Migración exitosa para el modelo %T", model)
+		}
+	}
+
+	// // Añade la columna si no existe
+	// if err := db.Migrator().AddColumn(&models.Module{}, "ModuleKey"); err != nil {
+	// 	log.Printf("Error al agregar la columna ModuleKey: %v", err)
+	// } else {
+	// 	log.Println("Columna ModuleKey agregada exitosamente")
+	// }
+
+	// // Validación final de la base de datos
+	// if err := db.Exec("SELECT 1").Error; err != nil {
+	// 	log.Fatalf("Error de conexión después de migraciones: %v", err)
+	// }
 
 	DB = db
 }

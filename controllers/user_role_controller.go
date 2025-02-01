@@ -76,11 +76,11 @@ func AssignRoleToUser(c *gin.Context) {
 		return
 	}
 
-	var existingUserRole models.UserRole
-	if err := config.DB.First(&existingUserRole, "user_id = ? AND role_id = ?", userID, payload.RoleID).Error; err == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "El usuario ya tiene asignado este rol"})
-		return
-	}
+	// var existingUserRole models.UserRole
+	// if err := config.DB.First(&existingUserRole, "user_id = ? AND role_id = ?", userID, payload.RoleID).Error; err == nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "El usuario ya tiene asignado este rol"})
+	// 	return
+	// }
 
 	userRole, err := services.AssignRoleToUser(uint(userID), payload.RoleID)
 	if err != nil {
