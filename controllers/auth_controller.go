@@ -209,6 +209,53 @@ El equipo de Seguridad`
 	return nil
 }
 
+func RequestPasswordReset(c *gin.Context) {
+	var request struct {
+		Email string `json:"email"`
+	}
+
+	fmt.Println("Solicitud recibida:", c.Request.Body)
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		fmt.Println("Error en el formato de datos:", err) // 🔍 Log de error
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Formato de datos inválido"})
+		return
+	}
+
+	fmt.Println("Email recibido:", request.Email)
+
+	err := services.SendPasswordResetEmail(request.Email)
+	if err != nil {
+		fmt.Println("Error al enviar correo:", err) // 🔍 Log de error
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Correo de restablecimiento enviado"})
+}
+
+// Confirmar restablecimiento de contraseña
+// Confirmar restablecimiento de contraseña
+func ResetPassword(c *gin.Context) {
+	var request struct {
+		Token    string `json:"token"`
+		Password string `json:"password"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Formato de datos inválido"})
+		return
+	}
+
+	err := services.ResetPassword(request.Token, request.Password)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Contraseña restablecida exitosamente"})
+}
+
 // func UnlockUser(c *gin.Context) {
 // 	var user models.User
 // 	email := c.Param("email")
