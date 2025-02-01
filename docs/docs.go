@@ -1885,6 +1885,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "event",
+                "id_module",
                 "name"
             ],
             "properties": {
@@ -1899,6 +1900,10 @@ const docTemplate = `{
                 "event": {
                     "type": "string",
                     "example": "INSERT"
+                },
+                "id_module": {
+                    "type": "integer",
+                    "example": 1
                 },
                 "name": {
                     "type": "string",
@@ -2293,6 +2298,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "created_at": {
+                    "description": "CreatedAt   time.Time ` + "`" + `gorm:\"default:CURRENT_TIMESTAMP\" json:\"created_at\"` + "`" + `\nUpdatedAt   time.Time ` + "`" + `gorm:\"default:CURRENT_TIMESTAMP;autoUpdateTime\" json:\"updated_at\"` + "`" + `",
                     "type": "string"
                 },
                 "description": {
@@ -2300,6 +2306,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "module_key": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -2323,6 +2332,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "created_at": {
+                    "description": "CreatedAt   time.Time ` + "`" + `gorm:\"default:CURRENT_TIMESTAMP\" json:\"created_at\"` + "`" + `\nUpdatedAt   time.Time ` + "`" + `gorm:\"default:CURRENT_TIMESTAMP;autoUpdateTime\" json:\"updated_at\"` + "`" + `",
                     "type": "string"
                 },
                 "description": {
@@ -2357,8 +2367,8 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.8",
-	Host:             "localhost:8080",
+	Version:          "1.9",
+	Host:             "seri-api-utn-2024.fly.dev",
 	BasePath:         "/api",
 	Schemes:          []string{},
 	Title:            "API SEGURIDAD",
