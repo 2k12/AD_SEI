@@ -2372,7 +2372,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/api",
 	Schemes:          []string{},
 	Title:            "API SEGURIDAD",
-	Description:      "Esta es la documentación de LA API DE SEGURIDAD hecha con Go.",
+	Description:      "Documentación de LA API DE SEGURIDAD hecha con Go.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

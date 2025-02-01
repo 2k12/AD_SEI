@@ -234,8 +234,6 @@ func RequestPasswordReset(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Correo de restablecimiento enviado"})
 }
 
-// Confirmar restablecimiento de contraseña
-// Confirmar restablecimiento de contraseña
 func ResetPassword(c *gin.Context) {
 	var request struct {
 		Token    string `json:"token"`

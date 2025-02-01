@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Esta es la documentación de LA API DE SEGURIDAD hecha con Go.",
+        "description": "Documentación de LA API DE SEGURIDAD hecha con Go.",
         "title": "API SEGURIDAD",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {

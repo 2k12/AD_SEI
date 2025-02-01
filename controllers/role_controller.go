@@ -160,18 +160,6 @@ func GetRoles(c *gin.Context) {
 	})
 }
 
-func GetRolesActive(c *gin.Context) {
-	// Llamar al servicio para obtener todos los roles
-	roles, err := services.GetRolesActive()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener los roles"})
-		return
-	}
-
-	// Respuesta con todos los roles
-	c.JSON(http.StatusOK, gin.H{"roles": roles})
-}
-
 type UpdateRoleInput struct {
 	Name        string `json:"name" binding:"required" example:"Administrador"`
 	Description string `json:"description" example:"Rol para gestionar usuarios y permisos"`
@@ -344,4 +332,16 @@ func GetRolesforDropdown(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"roles": roles,
 	})
+}
+
+func GetRolesActive(c *gin.Context) {
+	// Llamar al servicio para obtener todos los roles
+	roles, err := services.GetRolesActive()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener los roles"})
+		return
+	}
+
+	// Respuesta con todos los roles
+	c.JSON(http.StatusOK, gin.H{"roles": roles})
 }

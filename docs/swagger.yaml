@@ -344,7 +344,7 @@ info:
     email: jfpastillod@utn.edu.ec
     name: Pastillo D Joan
     url: https://www.utn.edu.ec
-  description: Esta es la documentación de LA API DE SEGURIDAD hecha con Go.
+  description: Documentación de LA API DE SEGURIDAD hecha con Go.
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
