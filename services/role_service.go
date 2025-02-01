@@ -23,7 +23,7 @@ func GetRoles() ([]models.Role, error) {
 // Obtener solo los roles activos
 func GetRolesActive() ([]models.Role, error) {
 	var roles []models.Role
-	result := config.DB.Where("active = ?", true).Find(&roles)
+	result := config.DB.Where("active = ?", 1).Find(&roles)
 	return roles, result.Error
 }
 

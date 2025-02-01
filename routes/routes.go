@@ -28,7 +28,7 @@ func SetupRoutes(router *gin.Engine) {
 			api.DELETE("/users/:id", controllers.DeleteUser)
 
 			api.GET("/roles", controllers.GetRoles)
-			api.GET("/rolesActive/", controllers.GetRolesActive)
+			api.GET("/roles-active", controllers.GetRolesActive)
 			api.GET("/roles-dropdown", controllers.GetRolesforDropdown)
 			api.POST("/roles", controllers.CreateRole)
 			api.PUT("/roles/:id", controllers.UpdateRole)
