@@ -31,9 +31,6 @@ func init() {
 const MAX_ATTEMPTS = 3
 const LOCK_DURATION = 15 * time.Minute
 
-const MAX_ATTEMPTS = 3
-const LOCK_DURATION = 15 * time.Minute
-
 // func Authenticate(email, password, module_key string) (string, error) {
 // 	var user models.User
 
@@ -102,11 +99,6 @@ func Authenticate(email, password, moduleKey string) (string, error) {
 		return "", errors.New("la cuenta está bloqueada. Inténtelo más tarde")
 	}
 
-	// Verificar si la cuenta está bloqueada
-	if user.LockedUntil != nil && time.Now().Before(*user.LockedUntil) {
-		return "", errors.New("la cuenta está bloqueada. Inténtelo más tarde")
-	}
-
 	// Verificar si la cuenta está activa
 	if !user.Active {
 		return "", errors.New("la cuenta está inactiva")
@@ -124,11 +116,6 @@ func Authenticate(email, password, moduleKey string) (string, error) {
 		config.DB.Save(&user)
 		return "", errors.New("usuario o contraseña inválidos")
 	}
-
-	// Reiniciar intentos fallidos al iniciar sesión correctamente
-	user.FailedAttempts = 0
-	user.LockedUntil = nil
-	config.DB.Save(&user)
 
 	// Reiniciar intentos fallidos al iniciar sesión correctamente
 	user.FailedAttempts = 0
