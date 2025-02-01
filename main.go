@@ -1,5 +1,5 @@
 // @title API SEGURIDAD
-// @version 1.9
+// @version 1.8
 // @description Esta es la documentación de LA API DE SEGURIDAD hecha con Go.
 // @termsOfService http://swagger.io/terms/
 
@@ -10,7 +10,7 @@
 // @license.name MIT
 // @license.url https://opensource.org/licenses/MIT
 
-// @host seri-api-utn-2024.fly.dev
+// @host localhost:8080
 // @BasePath /api
 
 // @securityDefinitions.apikey BearerAuth
