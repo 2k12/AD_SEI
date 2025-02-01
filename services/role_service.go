@@ -7,8 +7,8 @@ import (
 )
 
 // Crear un rol
-func CreateRole(name, description string) (models.Role, error) {
-	role := models.Role{Name: name, Description: description}
+func CreateRole(name, description string, module uint) (models.Role, error) {
+	role := models.Role{Name: name, Description: description, IDModule: module}
 	result := config.DB.Create(&role)
 	return role, result.Error
 }
@@ -17,6 +17,13 @@ func CreateRole(name, description string) (models.Role, error) {
 func GetRoles() ([]models.Role, error) {
 	var roles []models.Role
 	result := config.DB.Find(&roles)
+	return roles, result.Error
+}
+
+// Obtener solo los roles activos
+func GetRolesActive() ([]models.Role, error) {
+	var roles []models.Role
+	result := config.DB.Where("active = ?", true).Find(&roles)
 	return roles, result.Error
 }
 

@@ -14,6 +14,7 @@ type CreateRoleInput struct {
 	Event       string `json:"event" binding:"required" example:"INSERT"`
 	Name        string `json:"name" binding:"required" example:"Administrador"`
 	Description string `json:"description" example:"Rol con permisos de administración"`
+	IdModule    uint   `json:"id_module" binding:"required" example:"1"`
 	Active      bool   `json:"active" example:"true"`
 }
 
@@ -45,6 +46,7 @@ func CreateRole(c *gin.Context) {
 	var input struct {
 		Name        string `json:"name" binding:"required"`
 		Description string `json:"description"`
+		IDModule    uint   `json:"id_module" binding:"required"`
 		Active      bool   `json:"active"`
 	}
 
@@ -53,7 +55,7 @@ func CreateRole(c *gin.Context) {
 		return
 	}
 
-	role, err := services.CreateRole(input.Name, input.Description)
+	role, err := services.CreateRole(input.Name, input.Description, input.IDModule)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al crear el rol"})
 		return
@@ -156,6 +158,18 @@ func GetRoles(c *gin.Context) {
 		"pageSize":   pageSize,
 		"totalPages": (total + int64(pageSize) - 1) / int64(pageSize),
 	})
+}
+
+func GetRolesActive(c *gin.Context) {
+	// Llamar al servicio para obtener todos los roles
+	roles, err := services.GetRolesActive()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener los roles"})
+		return
+	}
+
+	// Respuesta con todos los roles
+	c.JSON(http.StatusOK, gin.H{"roles": roles})
 }
 
 type UpdateRoleInput struct {
