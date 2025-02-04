@@ -12,6 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const ErrUserIDContext2 = "No se pudo obtener el ID del usuario desde el contexto"
+
 // CreatePermission crea un nuevo permiso
 // @Summary Crear permiso
 // @Description Crea un nuevo permiso con nombre, descripción, ID del módulo y estado activo. Requiere un Bearer Token.
@@ -52,7 +54,7 @@ func CreatePermission(c *gin.Context) {
 	// Obtener el userID del contexto
 	userID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener el ID del usuario desde el contexto"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUserIDContext2})
 		return
 	}
 
@@ -165,7 +167,7 @@ func UpdatePermission(c *gin.Context) {
 	// Obtener el userID del contexto
 	userID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener el ID del usuario desde el contexto"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUserIDContext2})
 		return
 	}
 
@@ -197,7 +199,7 @@ func DeletePermission(c *gin.Context) {
 	// Obtener el userID del contexto
 	userID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener el ID del usuario desde el contexto"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUserIDContext2})
 		return
 	}
 

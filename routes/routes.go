@@ -35,12 +35,13 @@ func SetupRoutes(router *gin.Engine) {
 			api.PUT("/roles/:id", controllers.UpdateRole)
 			api.PUT("/roles/:id/state", controllers.UpdateRoleState)
 
+			const PermissionRoute = "/permissions/:id"
 			api.GET("/permissions", controllers.GetPermissions)
 			api.POST("/permissions", controllers.CreatePermission)
 			api.POST("/permissions/fastCharge", controllers.ChargeFastOfData)
-			api.PUT("/permissions/:id", controllers.UpdatePermission)
-			api.DELETE("/permissions/:id", controllers.DeletePermission)
-			api.GET("/permissions/:id", controllers.GetPermissionByID)
+			api.PUT(PermissionRoute, controllers.UpdatePermission)
+			api.DELETE(PermissionRoute, controllers.DeletePermission)
+			api.GET(PermissionRoute, controllers.GetPermissionByID)
 
 			//api.GET("/modules", controllers.GetModules)
 
@@ -48,9 +49,10 @@ func SetupRoutes(router *gin.Engine) {
 			api.GET("/audit", controllers.GetAudit)
 			api.GET("/audit/statistics", controllers.GetAuditoriaEstadisticas)
 
-			api.POST("/roles/:role_id/permissions", controllers.AssignPermission)
-			api.DELETE("/roles/:role_id/permissions", controllers.RemovePermission)
-			api.GET("/roles/:role_id/permissions", controllers.GetRolePermissions)
+			const RolePermissionsRoute = "/roles/:role_id/permissions"
+			api.POST(RolePermissionsRoute, controllers.AssignPermission)
+			api.DELETE(RolePermissionsRoute, controllers.RemovePermission)
+			api.GET(RolePermissionsRoute, controllers.GetRolePermissions)
 			api.GET("/permissions/all", controllers.GetAllPermissions)
 			api.GET("/modules/:id/permissions", controllers.GetPermissionsByModule)
 
@@ -58,11 +60,12 @@ func SetupRoutes(router *gin.Engine) {
 			api.DELETE("/users/:id/roles/:role_id", controllers.RemoveRoleFromUser)
 			api.GET("/users/:id/roles", controllers.GetUserRoles)
 
+			const moduleRoute = "/modules/:id"
 			api.POST("/modules", controllers.CreateModule)
 			api.GET("/modules", controllers.GetModules)
-			api.GET("/modules/:id", controllers.GetModule)
-			api.PUT("/modules/:id", controllers.UpdateModule)
-			api.DELETE("/modules/:id", controllers.DeleteModule)
+			api.GET(moduleRoute, controllers.GetModule)
+			api.PUT(moduleRoute, controllers.UpdateModule)
+			api.DELETE(moduleRoute, controllers.DeleteModule)
 
 			// api.PATCH("/modules/:id/toggle-active", controllers.ToggleModuleActive) // Esta ruta cambia estado activo/inactivo
 

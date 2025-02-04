@@ -10,6 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const ErrUserIDContext = "No se pudo obtener el ID del usuario desde el contexto"
+
 type CreateRoleInput struct {
 	Event       string `json:"event" binding:"required" example:"INSERT"`
 	Name        string `json:"name" binding:"required" example:"Administrador"`
@@ -64,7 +66,7 @@ func CreateRole(c *gin.Context) {
 	// Obtener el userID del contexto
 	userID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener el ID del usuario desde el contexto"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUserIDContext})
 		return
 	}
 
@@ -225,7 +227,7 @@ func UpdateRole(c *gin.Context) {
 	// Obtener el userID del contexto
 	userID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener el ID del usuario desde el contexto"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUserIDContext})
 		return
 	}
 
@@ -301,7 +303,7 @@ func UpdateRoleState(c *gin.Context) {
 	// Obtener el userID del contexto
 	userID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener el ID del usuario desde el contexto"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUserIDContext})
 		return
 	}
 
