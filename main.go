@@ -1,6 +1,6 @@
 // @title API SEGURIDAD
-// @version 1.8
-// @description Esta es la documentación de LA API DE SEGURIDAD hecha con Go.
+// @version 1.9
+// @description Documentación de LA API DE SEGURIDAD hecha con Go.
 // @termsOfService http://swagger.io/terms/
 
 // @contact.name Pastillo D Joan
@@ -21,11 +21,10 @@ package main
 
 import (
 	"log"
-	"net/http"
 	"seguridad-api/config"
 	"seguridad-api/routes"
 
-	// "os"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/cors"
@@ -39,8 +38,8 @@ func main() {
 	router := gin.Default()
 
 	corsHandler := cors.New(cors.Options{
-		// AllowedOrigins: []string{"http://localhost:5173"},
-		AllowedOrigins:   []string{"*"},
+		AllowedOrigins: []string{"http://localhost:5173"},
+		//AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,
@@ -69,7 +68,7 @@ func main() {
 // func getPort() string {
 // 	port := os.Getenv("PORT")
 // 	if port == "" {
-// 		port = "8080" // Valor por defecto para desarrollo local
+// 		port = "8080"
 // 	}
 // 	return port
 // }

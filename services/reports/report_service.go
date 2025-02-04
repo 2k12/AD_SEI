@@ -160,12 +160,10 @@ func GenerateReport(modelName string, filters map[string]interface{}, userName s
 			return nil, "", fmt.Errorf("error al consultar los datos: %w", err)
 		}
 
-	case "Audit": // Caso específico añadido para auditoría
+	case "Audit":
 		headers = []string{"Evento", "Descripción", "Usuario", "Servicio Origen", "Fecha"}
 		var audits []models.Audit
 		dbQuery := config.DB.Model(&audits)
-
-		// Aplicar filtros específicos para auditorías
 		for key, value := range filters {
 			switch key {
 			case "userId":
@@ -180,16 +178,11 @@ func GenerateReport(modelName string, filters map[string]interface{}, userName s
 						dbQuery = dbQuery.Where("DATE(date) <= ?", end)
 					}
 				}
-			case "event":
-				dbQuery = dbQuery.Where("event = ?", value)
 			}
 		}
-
-		// Ejecutar consulta y manejar errores
 		if err := dbQuery.Find(&audits).Error; err != nil {
 			return nil, "", fmt.Errorf("error al consultar los datos de auditoría: %w", err)
 		}
-
 		query = audits
 
 	default:
@@ -225,7 +218,7 @@ func GenerateReport(modelName string, filters map[string]interface{}, userName s
 					user.Name,
 					user.Email,
 					state,
-					user.ModuleKey,
+					// user.ModuleKey,
 					user.CreatedAt.Format("2006-01-02 15:04:05"),
 					user.UpdatedAt.Format("2006-01-02 15:04:05"),
 				)

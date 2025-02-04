@@ -46,7 +46,7 @@ func CreateUser(c *gin.Context) {
 		Email    string `json:"email" binding:"required"`
 		Password string `json:"password" binding:"required"`
 		Active   bool   `json:"active"`
-		RolId    string `json:"rolId" binding:"required"` // Cambiado a string
+		RolId    string `json:"rolId" binding:"required"`
 	}
 
 	// Vincular datos de entrada
@@ -320,15 +320,12 @@ func DeleteUser(c *gin.Context) {
 // @Success 200 {object} map[string]interface{} "users"
 // @Failure 500 {object} map[string]string "error"
 // @Router /users/dropdown [get]
-
 func GetUsersforDropdown(c *gin.Context) {
-
 	users, err := services.GetUsers()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener los usuarios"})
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{
 		"users": users,
 	})

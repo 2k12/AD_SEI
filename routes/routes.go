@@ -12,8 +12,9 @@ import (
 func SetupRoutes(router *gin.Engine) {
 	api := router.Group("/api")
 	{
+		api.POST("/request-reset", controllers.RequestPasswordReset)
+		api.POST("/reset-password", controllers.ResetPassword)
 		api.POST("/login", controllers.Login)
-		api.POST("/generate-report", controllerReport.GenerateReport)
 		api.POST("/logout", middleware.AuthMiddleware(os.Getenv("JWT_SECRET_KEY")), controllers.Logout)
 
 		api.Use(middleware.AuthMiddleware(os.Getenv("JWT_SECRET_KEY")))
@@ -28,6 +29,7 @@ func SetupRoutes(router *gin.Engine) {
 			api.DELETE("/users/:id", controllers.DeleteUser)
 
 			api.GET("/roles", controllers.GetRoles)
+			api.GET("/roles-active", controllers.GetRolesActive)
 			api.GET("/roles-dropdown", controllers.GetRolesforDropdown)
 			api.POST("/roles", controllers.CreateRole)
 			api.PUT("/roles/:id", controllers.UpdateRole)
@@ -50,6 +52,7 @@ func SetupRoutes(router *gin.Engine) {
 			api.DELETE("/roles/:role_id/permissions", controllers.RemovePermission)
 			api.GET("/roles/:role_id/permissions", controllers.GetRolePermissions)
 			api.GET("/permissions/all", controllers.GetAllPermissions)
+			api.GET("/modules/:id/permissions", controllers.GetPermissionsByModule)
 
 			api.POST("/users/:id/roles", controllers.AssignRoleToUser)
 			api.DELETE("/users/:id/roles/:role_id", controllers.RemoveRoleFromUser)
@@ -64,6 +67,8 @@ func SetupRoutes(router *gin.Engine) {
 			api.DELETE("/modules/:id", controllers.DeleteModule)
 
 			// api.PATCH("/modules/:id/toggle-active", controllers.ToggleModuleActive) // Esta ruta cambia estado activo/inactivo
+
+			api.POST("/generate-report", controllerReport.GenerateReport)
 
 		}
 	}

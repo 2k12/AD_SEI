@@ -185,3 +185,19 @@ func GetRolePermissions(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"permissions": permissions})
 }
+
+func GetPermissionsByModule(c *gin.Context) {
+	moduleID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de módulo inválido"})
+		return
+	}
+
+	var permissions []models.Permission
+	if err := config.DB.Where("module_id = ? AND active = ?", uint(moduleID), true).Preload("Module").Find(&permissions).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener permisos"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"permissions": permissions})
+}

@@ -7,8 +7,8 @@ import (
 )
 
 // Crear un rol
-func CreateRole(name, description string) (models.Role, error) {
-	role := models.Role{Name: name, Description: description}
+func CreateRole(name, description string, module uint) (models.Role, error) {
+	role := models.Role{Name: name, Description: description, IDModule: module}
 	result := config.DB.Create(&role)
 	return role, result.Error
 }
@@ -17,6 +17,13 @@ func CreateRole(name, description string) (models.Role, error) {
 func GetRoles() ([]models.Role, error) {
 	var roles []models.Role
 	result := config.DB.Find(&roles)
+	return roles, result.Error
+}
+
+// Obtener solo los roles activos
+func GetRolesActive() ([]models.Role, error) {
+	var roles []models.Role
+	result := config.DB.Where("active = ?", 1).Find(&roles)
 	return roles, result.Error
 }
 
@@ -49,7 +56,7 @@ func GetPaginatedRoles(page, pageSize int, filters map[string]interface{}) ([]mo
 
 	// Aplicar filtros
 	if name, ok := filters["name"]; ok {
-		query = query.Where("name LIKE ? COLLATE utf8_general_ci", "%"+name.(string)+"%")
+		query = query.Where("name LIKE ?", "%"+name.(string)+"%")
 	}
 	if active, ok := filters["active"]; ok {
 		query = query.Where("active = ?", active)

@@ -1411,6 +1411,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/dropdown": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Devuelve una lista de usuarios que pueden ser utilizados en un dropdown o lista de selección.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Usuarios"
+                ],
+                "summary": "Obtener usuarios para dropdown",
+                "responses": {
+                    "200": {
+                        "description": "users",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/users/fast": {
             "post": {
                 "security": [
@@ -1850,6 +1885,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "event",
+                "id_module",
                 "name"
             ],
             "properties": {
@@ -1864,6 +1900,10 @@ const docTemplate = `{
                 "event": {
                     "type": "string",
                     "example": "INSERT"
+                },
+                "id_module": {
+                    "type": "integer",
+                    "example": 1
                 },
                 "name": {
                     "type": "string",
@@ -2258,6 +2298,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "created_at": {
+                    "description": "CreatedAt   time.Time ` + "`" + `gorm:\"default:CURRENT_TIMESTAMP\" json:\"created_at\"` + "`" + `\nUpdatedAt   time.Time ` + "`" + `gorm:\"default:CURRENT_TIMESTAMP;autoUpdateTime\" json:\"updated_at\"` + "`" + `",
                     "type": "string"
                 },
                 "description": {
@@ -2265,6 +2306,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "module_key": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -2288,6 +2332,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "created_at": {
+                    "description": "CreatedAt   time.Time ` + "`" + `gorm:\"default:CURRENT_TIMESTAMP\" json:\"created_at\"` + "`" + `\nUpdatedAt   time.Time ` + "`" + `gorm:\"default:CURRENT_TIMESTAMP;autoUpdateTime\" json:\"updated_at\"` + "`" + `",
                     "type": "string"
                 },
                 "description": {
@@ -2322,12 +2367,12 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.8",
+	Version:          "1.9",
 	Host:             "localhost:8080",
 	BasePath:         "/api",
 	Schemes:          []string{},
 	Title:            "API SEGURIDAD",
-	Description:      "Esta es la documentación de LA API DE SEGURIDAD hecha con Go.",
+	Description:      "Documentación de LA API DE SEGURIDAD hecha con Go.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

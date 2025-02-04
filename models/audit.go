@@ -21,10 +21,41 @@ type AuditResponse struct {
 	OriginService string    `json:"origin_service"`
 	Date          time.Time `json:"date"`
 }
+
+// type AuditStatisticsResponse struct {
+// 	Event string `json:"event"`
+// 	// OriginService string `json:"origin_service"`
+
+// 	Total int `json:"total"`
+// }
+
+//	type AuditStatisticsResponse struct {
+//		Event    string    `json:"event"`
+//		Total    int       `json:"total"`
+//		LastDate time.Time `json:"last_date"` // Este podría ser el campo que necesitas
+//	}
+//type AuditStatisticsResponse struct {
+//	Event string `json:"event"`
+//
+//	Total int `json:"total"`
+
+//	LastDate time.Time `json:"last_date"`
+
+//		LastDateFormatted string `json:"last_date_formatted"`
+//	}
 type AuditStatisticsResponse struct {
-	Event         string `json:"event"`
-	OriginService string `json:"origin_service"`
-	Total         int    `json:"total"`
+	Event             string    `json:"event"`
+	OriginService     string    `json:"origin_service"` // 🔥 Ahora se incluye en la respuesta
+	Total             int       `json:"total"`
+	LastDate          time.Time `json:"last_date"`
+	LastDateFormatted string    `json:"last_date_formatted"`
+}
+
+type AuditRecord struct {
+	ID    uint      `json:"id"`
+	Event string    `json:"event"`
+	Date  time.Time `json:"date"`
+	// Otros campos según tu tabla Audit
 }
 
 func (Audit) TableName() string {

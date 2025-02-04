@@ -1,16 +1,71 @@
-// package config
+// // package config
 
-// import (
-// 	"fmt"
-// 	"log"
-// 	"os"
-// 	"seguridad-api/models"
+// // import (
+// // 	"fmt"
+// // 	"log"
+// // 	"os"
+// // 	"seguridad-api/models"
 
-// 	"gorm.io/driver/mysql"
-// 	"gorm.io/gorm"
-// )
+// // 	"gorm.io/driver/mysql"
+// // 	"gorm.io/gorm"
+// // )
 
-// var DB *gorm.DB
+// // var DB *gorm.DB
+
+// // func ConnectDB() {
+// // 	dbUser := os.Getenv("DB_USER")
+// // 	dbPassword := os.Getenv("DB_PASSWORD")
+// // 	dbHost := os.Getenv("DB_HOST")
+// // 	dbPort := os.Getenv("DB_PORT")
+// // 	dbName := os.Getenv("DB_NAME")
+
+// // 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+// // 		dbUser, dbPassword, dbHost, dbPort, dbName)
+
+// // 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+// // 	if err != nil {
+// // 		log.Fatalf("Error conectando a la base de datos: %v", err)
+// // 	}
+
+// // 	db.AutoMigrate(&models.User{}, &models.Role{}, &models.Permission{}, &models.Module{}, &models.Audit{})
+// // 	DB = db
+// // }
+// // package config
+
+// // import (
+// // 	"log"
+// // 	"seguridad-api/models"
+
+// // 	"gorm.io/driver/mysql"
+// // 	"gorm.io/gorm"
+// // )
+
+// // var DB *gorm.DB
+
+// // func ConnectDB() {
+// // 	dsn := "root:admin@tcp(127.0.0.1:3306)/bdd_ads?charset=utf8mb4&parseTime=True&loc=Local"
+// // 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+// // 	if err != nil {
+// // 		log.Fatalf("Error conectando a la base de datos: %v", err)
+// // 	}
+
+// //		db.AutoMigrate(&models.User{}, &models.Role{}, &models.Permission{}, &models.Audit{})
+// //		DB = db
+// //	}
+package config
+
+import (
+	"fmt"
+	"log"
+	"os"
+	"seguridad-api/models"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+)
+
+var DB *gorm.DB
 
 // func ConnectDB() {
 // 	dbUser := os.Getenv("DB_USER")
@@ -27,44 +82,40 @@
 // 		log.Fatalf("Error conectando a la base de datos: %v", err)
 // 	}
 
-// 	db.AutoMigrate(&models.User{}, &models.Role{}, &models.Permission{}, &models.Module{}, &models.Audit{})
-// 	DB = db
-// }
-// package config
-
-// import (
-// 	"log"
-// 	"seguridad-api/models"
-
-// 	"gorm.io/driver/mysql"
-// 	"gorm.io/gorm"
-// )
-
-// var DB *gorm.DB
-
+//		db.AutoMigrate(&models.User{}, &models.Role{}, &models.Permission{}, &models.Module{}, &models.Audit{}, models.RolePermission{})
+//		// db.AutoMigrate(&models.User{}, &models.Role{}, &models.Permission{}, &models.Module{}, &models.Audit{})
+//		DB = db
+//	}
 // func ConnectDB() {
-// 	dsn := "root:admin@tcp(127.0.0.1:3306)/bdd_ads?charset=utf8mb4&parseTime=True&loc=Local"
-// 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+// 	dbUser := os.Getenv("DB_USER")
+// 	dbPassword := os.Getenv("DB_PASSWORD")
+// 	dbHost := os.Getenv("DB_HOST")
+// 	dbPort := os.Getenv("DB_PORT")
+// 	dbName := os.Getenv("DB_NAME")
+
+// 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+// 		dbUser, dbPassword, dbHost, dbPort, dbName)
+
+// 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+// 		Logger: logger.Default.LogMode(logger.Info),
+// 	})
 // 	if err != nil {
 // 		log.Fatalf("Error conectando a la base de datos: %v", err)
 // 	}
 
-//		db.AutoMigrate(&models.User{}, &models.Role{}, &models.Permission{}, &models.Audit{})
-//		DB = db
-//	}
-package config
+// 	// Migración
+// 	// db.AutoMigrate(&models.Module{})
+// 	db.AutoMigrate(&models.User{}, &models.Role{}, &models.Permission{}, &models.Module{}, &models.Audit{}, models.RolePermission{})
 
-import (
-	"fmt"
-	"log"
-	"os"
-	"seguridad-api/models"
+// 	// Añade la columna si no existe
+// 	if err := db.Migrator().AddColumn(&models.Module{}, "ModuleKey"); err != nil {
+// 		log.Printf("Error al agregar la columna ModuleKey: %v", err)
+// 	} else {
+// 		log.Println("Columna ModuleKey agregada exitosamente")
+// 	}
 
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
-)
-
-var DB *gorm.DB
+// 	DB = db
+// }
 
 func ConnectDB() {
 	dbUser := os.Getenv("DB_USER")
@@ -76,12 +127,38 @@ func ConnectDB() {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		dbUser, dbPassword, dbHost, dbPort, dbName)
 
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		log.Fatalf("Error conectando a la base de datos: %v", err)
 	}
 
-	db.AutoMigrate(&models.User{}, &models.Role{}, &models.Permission{}, &models.Module{}, &models.Audit{}, models.RolePermission{})
-	// db.AutoMigrate(&models.User{}, &models.Role{}, &models.Permission{}, &models.Module{}, &models.Audit{})
+	// Migración
+	migrations := []interface{}{
+		&models.User{}, &models.Role{}, &models.Permission{},
+		&models.Module{}, &models.Audit{}, models.RolePermission{},
+	}
+
+	for _, model := range migrations {
+		if err := db.AutoMigrate(model); err != nil {
+			log.Printf("Error al ejecutar migración para el modelo %T: %v", model, err)
+		} else {
+			log.Printf("Migración exitosa para el modelo %T", model)
+		}
+	}
+
+	// // Añade la columna si no existe
+	// if err := db.Migrator().AddColumn(&models.Module{}, "ModuleKey"); err != nil {
+	// 	log.Printf("Error al agregar la columna ModuleKey: %v", err)
+	// } else {
+	// 	log.Println("Columna ModuleKey agregada exitosamente")
+	// }
+
+	// // Validación final de la base de datos
+	// if err := db.Exec("SELECT 1").Error; err != nil {
+	// 	log.Fatalf("Error de conexión después de migraciones: %v", err)
+	// }
+
 	DB = db
 }
