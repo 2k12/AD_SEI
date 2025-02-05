@@ -64,6 +64,8 @@ func SetupRoutes(router *gin.Engine) {
 			api.POST("/modules", controllers.CreateModule)
 			api.GET("/modules", controllers.GetModules)
 			api.GET(moduleRoute, controllers.GetModule)
+			api.GET("/modules/active", controllers.GetModuleActive)
+
 			api.PUT(moduleRoute, controllers.UpdateModule)
 			api.DELETE(moduleRoute, controllers.DeleteModule)
 

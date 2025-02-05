@@ -240,3 +240,21 @@ func DeleteModule(c *gin.Context) {
 
 // 	c.JSON(http.StatusOK, gin.H{"message": "Module state changed successfully"})
 // }
+
+func GetModuleActive(c *gin.Context) {
+	// Llamar al servicio para obtener los módulos activos
+	modules, err := services.GetActiveModules()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener los módulos"})
+		return
+	}
+
+	// Validar si no hay módulos activos
+	if len(modules) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"message": "No se encontraron módulos activos"})
+		return
+	}
+
+	// Responder con los módulos activos
+	c.JSON(http.StatusOK, modules)
+}
