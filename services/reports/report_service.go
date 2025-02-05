@@ -96,7 +96,7 @@ func GenerateReport(modelName string, filters map[string]interface{}, userName s
 			}
 			query = users
 		} else {
-			headers = []string{"Nombre", "Correo Electrónico", "Estado", "Clave del Módulo", "F. Creación", "F. Actualización"}
+			headers = []string{"Nombre", "Correo Electrónico", "Estado", "F. Creación", "F. Actualización"}
 			query = &[]models.User{}
 			dbQuery := config.DB.Model(query)
 			for key, value := range filters {
@@ -217,7 +217,7 @@ func GenerateReport(modelName string, filters map[string]interface{}, userName s
 					user.Name,
 					user.Email,
 					state,
-					user.ModuleKey,
+					// user.ModuleKey,
 					user.CreatedAt.Format("2006-01-02 15:04:05"),
 					user.UpdatedAt.Format("2006-01-02 15:04:05"),
 				)

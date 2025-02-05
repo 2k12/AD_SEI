@@ -1,6 +1,6 @@
 // @title API SEGURIDAD
-// @version 1.8
-// @description Esta es la documentación de LA API DE SEGURIDAD hecha con Go.
+// @version 1.9
+// @description Documentación de LA API DE SEGURIDAD hecha con Go.
 // @termsOfService http://swagger.io/terms/
 
 // @contact.name Pastillo D Joan
@@ -10,7 +10,7 @@
 // @license.name MIT
 // @license.url https://opensource.org/licenses/MIT
 
-// @host seri-api-utn-2024.fly.dev
+// @host localhost:8080
 // @BasePath /api
 
 // @securityDefinitions.apikey BearerAuth
@@ -24,6 +24,8 @@ import (
 	"os"
 	"seguridad-api/config"
 	"seguridad-api/routes"
+
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/cors"
@@ -53,12 +55,10 @@ func main() {
 
 	routes.SetupRoutes(router)
 
-	swaggerURL := "http://localhost:8080/docs/swagger.json"
-	if os.Getenv("SWAGGER_HOST") != "" {
-		swaggerURL = "https://" + os.Getenv("SWAGGER_HOST") + "/docs/swagger.json"
-	}
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(files.Handler, ginSwagger.URL("http://localhost:8080/docs/swagger.json")))
 
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(files.Handler, ginSwagger.URL(swaggerURL)))
+	log.Println("Servidor corriendo en el puerto 8080")
+	log.Println(`http://localhost:8080/swagger/index.html`)
 
 	port := getPort()
 	log.Println("Servidor corriendo en el puerto " + port)
@@ -68,10 +68,10 @@ func main() {
 	}
 }
 
-func getPort() string {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-	return port
-}
+// func getPort() string {
+// 	port := os.Getenv("PORT")
+// 	if port == "" {
+// 		port = "8080"
+// 	}
+// 	return port
+// }

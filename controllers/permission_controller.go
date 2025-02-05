@@ -12,6 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const ErrUserIDContext2 = "No se pudo obtener el ID del usuario desde el contexto"
+
 // CreatePermission crea un nuevo permiso
 // @Summary Crear permiso
 // @Description Crea un nuevo permiso con nombre, descripción, ID del módulo y estado activo. Requiere un Bearer Token.
@@ -38,6 +40,18 @@ func CreatePermission(c *gin.Context) {
 		return
 	}
 
+	// Verificar si el módulo existe y está activo
+	var module models.Module
+	if err := config.DB.First(&module, "id = ?", input.ModuleID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "El módulo no existe"})
+		return
+	}
+
+	if !module.Active {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No se puede asignar un permiso a un módulo inactivo"})
+		return
+	}
+
 	permission, err := services.CreatePermission(models.Permission{
 		Name:        input.Name,
 		Description: input.Description,
@@ -52,7 +66,7 @@ func CreatePermission(c *gin.Context) {
 	// Obtener el userID del contexto
 	userID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener el ID del usuario desde el contexto"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUserIDContext2})
 		return
 	}
 
@@ -151,6 +165,18 @@ func UpdatePermission(c *gin.Context) {
 		return
 	}
 
+	// Verificar si el módulo existe y está activo
+	var module models.Module
+	if err := config.DB.First(&module, "id = ?", input.ModuleID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "El módulo no existe"})
+		return
+	}
+
+	if !module.Active {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No se puede reasignar un permiso a un módulo inactivo"})
+		return
+	}
+
 	permission, err := services.UpdatePermission(id, models.Permission{
 		Name:        input.Name,
 		Description: input.Description,
@@ -165,7 +191,7 @@ func UpdatePermission(c *gin.Context) {
 	// Obtener el userID del contexto
 	userID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener el ID del usuario desde el contexto"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUserIDContext2})
 		return
 	}
 
@@ -197,7 +223,7 @@ func DeletePermission(c *gin.Context) {
 	// Obtener el userID del contexto
 	userID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener el ID del usuario desde el contexto"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUserIDContext2})
 		return
 	}
 

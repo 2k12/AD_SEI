@@ -16,11 +16,15 @@ definitions:
       event:
         example: INSERT
         type: string
+      id_module:
+        example: 1
+        type: integer
       name:
         example: Administrador
         type: string
     required:
     - event
+    - id_module
     - name
     type: object
   controllers.CreateRoleResponse:
@@ -292,11 +296,16 @@ definitions:
       active:
         type: boolean
       created_at:
+        description: |-
+          CreatedAt   time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+          UpdatedAt   time.Time `gorm:"default:CURRENT_TIMESTAMP;autoUpdateTime" json:"updated_at"`
         type: string
       description:
         type: string
       id:
         type: integer
+      module_key:
+        type: string
       name:
         type: string
       permissions:
@@ -312,6 +321,9 @@ definitions:
       active:
         type: boolean
       created_at:
+        description: |-
+          CreatedAt   time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+          UpdatedAt   time.Time `gorm:"default:CURRENT_TIMESTAMP;autoUpdateTime" json:"updated_at"`
         type: string
       description:
         type: string
@@ -332,13 +344,13 @@ info:
     email: jfpastillod@utn.edu.ec
     name: Pastillo D Joan
     url: https://www.utn.edu.ec
-  description: Esta es la documentación de LA API DE SEGURIDAD hecha con Go.
+  description: Documentación de LA API DE SEGURIDAD hecha con Go.
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
   termsOfService: http://swagger.io/terms/
   title: API SEGURIDAD
-  version: "1.8"
+  version: "1.9"
 paths:
   /audit:
     get:

@@ -34,14 +34,21 @@ type AuditResponse struct {
 //		Total    int       `json:"total"`
 //		LastDate time.Time `json:"last_date"` // Este podría ser el campo que necesitas
 //	}
+//type AuditStatisticsResponse struct {
+//	Event string `json:"event"`
+//
+//	Total int `json:"total"`
+
+//	LastDate time.Time `json:"last_date"`
+
+//		LastDateFormatted string `json:"last_date_formatted"`
+//	}
 type AuditStatisticsResponse struct {
-	Event string `json:"event"`
-
-	Total int `json:"total"`
-
-	LastDate time.Time `json:"last_date"`
-
-	LastDateFormatted string `json:"last_date_formatted"`
+	Event             string    `json:"event"`
+	OriginService     string    `json:"origin_service"` // 🔥 Ahora se incluye en la respuesta
+	Total             int       `json:"total"`
+	LastDate          time.Time `json:"last_date"`
+	LastDateFormatted string    `json:"last_date_formatted"`
 }
 
 type AuditRecord struct {

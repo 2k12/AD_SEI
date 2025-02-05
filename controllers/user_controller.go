@@ -46,7 +46,7 @@ func CreateUser(c *gin.Context) {
 		Email    string `json:"email" binding:"required"`
 		Password string `json:"password" binding:"required"`
 		Active   bool   `json:"active"`
-		RolId    string `json:"rolId" binding:"required"` // Cambiado a string
+		RolId    string `json:"rolId" binding:"required"`
 	}
 
 	// Vincular datos de entrada

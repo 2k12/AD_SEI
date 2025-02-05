@@ -25,6 +25,15 @@ func GetModuleByID(id uint) (*models.Module, error) {
 	return &module, nil
 }
 
+func GetActiveModules() ([]models.Module, error) {
+	var modules []models.Module
+	// Filtrar módulos activos
+	if err := config.DB.Where("active = ?", 1).Find(&modules).Error; err != nil {
+		return nil, err
+	}
+	return modules, nil
+}
+
 func GetAllModules() ([]models.Module, error) {
 	var modules []models.Module
 	if err := config.DB.Find(&modules).Error; err != nil {

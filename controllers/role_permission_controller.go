@@ -12,6 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const ErrInvalidRoleID = "ID de rol inválido"
+
 // PermissionDataRequest representa la estructura del cuerpo para asignar o eliminar permisos
 type PermissionDataRequest struct {
 	PermissionID uint `json:"permission_id" example:"1"`
@@ -49,7 +51,7 @@ func AssignPermission(c *gin.Context) {
 
 	roleID, err := strconv.ParseUint(c.Param("role_id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de rol inválido"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": ErrInvalidRoleID})
 		return
 	}
 
@@ -104,7 +106,7 @@ func RemovePermission(c *gin.Context) {
 
 	roleID, err := strconv.ParseUint(c.Param("role_id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de rol inválido"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": ErrInvalidRoleID})
 		return
 	}
 
@@ -173,13 +175,29 @@ func GetAllPermissions(c *gin.Context) {
 func GetRolePermissions(c *gin.Context) {
 	roleID, err := strconv.ParseUint(c.Param("role_id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de rol inválido"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": ErrInvalidRoleID})
 		return
 	}
 
 	permissions, err := services.GetPermissionsByRole(uint(roleID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener los permisos"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"permissions": permissions})
+}
+
+func GetPermissionsByModule(c *gin.Context) {
+	moduleID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de módulo inválido"})
+		return
+	}
+
+	var permissions []models.Permission
+	if err := config.DB.Where("module_id = ? AND active = ?", uint(moduleID), true).Preload("Module").Find(&permissions).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener permisos"})
 		return
 	}
 

@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Esta es la documentación de LA API DE SEGURIDAD hecha con Go.",
+        "description": "Documentación de LA API DE SEGURIDAD hecha con Go.",
         "title": "API SEGURIDAD",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
@@ -13,7 +13,7 @@
             "name": "MIT",
             "url": "https://opensource.org/licenses/MIT"
         },
-        "version": "1.8"
+        "version": "1.9"
     },
     "host": "seri-api-utn-2024.fly.dev",
     "basePath": "/api",
@@ -1879,6 +1879,7 @@
             "type": "object",
             "required": [
                 "event",
+                "id_module",
                 "name"
             ],
             "properties": {
@@ -1893,6 +1894,10 @@
                 "event": {
                     "type": "string",
                     "example": "INSERT"
+                },
+                "id_module": {
+                    "type": "integer",
+                    "example": 1
                 },
                 "name": {
                     "type": "string",
@@ -2287,6 +2292,7 @@
                     "type": "boolean"
                 },
                 "created_at": {
+                    "description": "CreatedAt   time.Time `gorm:\"default:CURRENT_TIMESTAMP\" json:\"created_at\"`\nUpdatedAt   time.Time `gorm:\"default:CURRENT_TIMESTAMP;autoUpdateTime\" json:\"updated_at\"`",
                     "type": "string"
                 },
                 "description": {
@@ -2294,6 +2300,9 @@
                 },
                 "id": {
                     "type": "integer"
+                },
+                "module_key": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -2317,6 +2326,7 @@
                     "type": "boolean"
                 },
                 "created_at": {
+                    "description": "CreatedAt   time.Time `gorm:\"default:CURRENT_TIMESTAMP\" json:\"created_at\"`\nUpdatedAt   time.Time `gorm:\"default:CURRENT_TIMESTAMP;autoUpdateTime\" json:\"updated_at\"`",
                     "type": "string"
                 },
                 "description": {

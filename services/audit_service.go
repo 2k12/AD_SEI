@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"seguridad-api/config"
 	"seguridad-api/models"
+	"strings"
 	"time"
 )
 
@@ -238,19 +239,26 @@ func GetPaginatedAudit(page, pageSize int, filters map[string]interface{}) ([]mo
 // 		fmt.Printf("Estadísticas obtenidas: %+v\n", stats)
 // 	}
 
-// 	// Devuelvo ambas respuestas juntas
-// 	return stats, records, nil
-// }
-func GetAuditStatistics(event, startDate, endDate string) ([]models.AuditStatisticsResponse, []models.Audit, error) {
+//		// Devuelvo ambas respuestas juntas
+//		return stats, records, nil
+//	}
+func GetAuditStatistics(event, module, startDate, endDate string) ([]models.AuditStatisticsResponse, []models.Audit, error) {
 	var stats []models.AuditStatisticsResponse
 	var records []models.Audit
 
 	// Crear la consulta base
-	query := config.DB.Model(&models.Audit{}).Select("event, COUNT(*) as total, MAX(date) as last_date")
+	query := config.DB.Model(&models.Audit{}).
+		Select("event, UPPER(origin_service) AS origin_service, COUNT(*) as total, MAX(date) as last_date").
+		Group("event, origin_service") // 🔥 Agrupar por evento y módulo
 
 	// Aplicar filtro por evento si se proporciona
 	if event != "" {
 		query = query.Where("event = ?", event)
+	}
+
+	// Aplicar filtro por módulo si se proporciona
+	if module != "" {
+		query = query.Where("UPPER(origin_service) = ?", strings.ToUpper(module)) //  Filtrar por módulo en mayúsculas
 	}
 
 	// Aplicar filtro por fechas si se proporcionan
@@ -279,8 +287,8 @@ func GetAuditStatistics(event, startDate, endDate string) ([]models.AuditStatist
 	// Registrar el SQL generado para depuración
 	fmt.Println("SQL Generado:", query.Statement.SQL.String())
 
-	// Agrupar resultados por evento
-	err := query.Group("event").Scan(&stats).Error
+	// Obtener los datos de estadísticas
+	err := query.Scan(&stats).Error
 	if err != nil {
 		fmt.Println("Error al ejecutar consulta:", err)
 		return nil, nil, err
@@ -303,13 +311,9 @@ func GetAuditStatistics(event, startDate, endDate string) ([]models.AuditStatist
 	// Formatear las fechas de la respuesta antes de devolverlas al frontend (sin zona horaria)
 	loc, _ := time.LoadLocation("America/Guayaquil")
 	for i := range stats {
-		// Convierte la fecha `LastDate` a un formato estándar sin zona horaria.
-		// Esto asegura que la fecha esté en el formato 'YYYY-MM-DD HH:MM:SS' y sea consistente.
 		stats[i].LastDateFormatted = stats[i].LastDate.In(loc).Format("2006-01-02 15:04:05")
 	}
 
 	// Devuelvo ambas respuestas juntas
 	return stats, records, nil
 }
-
-

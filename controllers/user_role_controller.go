@@ -13,6 +13,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const ErrInvalidUserID = "ID de usuario inválido"
+const QueryByID = "id = ?"
+
 type AssignRolePayload struct {
 	RoleID uint `json:"role_id"`
 }
@@ -54,12 +57,12 @@ type RoleResponse struct {
 func AssignRoleToUser(c *gin.Context) {
 	userID, err := strconv.Atoi(c.Param("id"))
 	if err != nil || userID <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de usuario inválido"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": ErrInvalidUserID})
 		return
 	}
 
 	var user models.User
-	if err := config.DB.First(&user, "id = ?", userID).Error; err != nil {
+	if err := config.DB.First(&user, QueryByID, userID).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "El usuario no existe"})
 		return
 	}
@@ -71,16 +74,16 @@ func AssignRoleToUser(c *gin.Context) {
 	}
 
 	var role models.Role
-	if err := config.DB.First(&role, "id = ?", payload.RoleID).Error; err != nil {
+	if err := config.DB.First(&role, QueryByID, payload.RoleID).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "El rol no existe"})
 		return
 	}
 
-	var existingUserRole models.UserRole
-	if err := config.DB.First(&existingUserRole, "user_id = ? AND role_id = ?", userID, payload.RoleID).Error; err == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "El usuario ya tiene asignado este rol"})
-		return
-	}
+	// var existingUserRole models.UserRole
+	// if err := config.DB.First(&existingUserRole, "user_id = ? AND role_id = ?", userID, payload.RoleID).Error; err == nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "El usuario ya tiene asignado este rol"})
+	// 	return
+	// }
 
 	userRole, err := services.AssignRoleToUser(uint(userID), payload.RoleID)
 	if err != nil {
@@ -127,7 +130,7 @@ func AssignRoleToUser(c *gin.Context) {
 func RemoveRoleFromUser(c *gin.Context) {
 	userID, err := strconv.Atoi(c.Param("id"))
 	if err != nil || userID <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de usuario inválido"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": ErrInvalidUserID})
 		return
 	}
 
@@ -138,13 +141,13 @@ func RemoveRoleFromUser(c *gin.Context) {
 	}
 
 	var user models.User
-	if err := config.DB.First(&user, "id = ?", userID).Error; err != nil {
+	if err := config.DB.First(&user, QueryByID, userID).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "El usuario no existe"})
 		return
 	}
 
 	var role models.Role
-	if err := config.DB.First(&role, "id = ?", roleID).Error; err != nil {
+	if err := config.DB.First(&role, QueryByID, roleID).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "El rol no existe"})
 		return
 	}
@@ -192,7 +195,7 @@ func RemoveRoleFromUser(c *gin.Context) {
 func GetUserRoles(c *gin.Context) {
 	userID, err := strconv.Atoi(c.Param("id"))
 	if err != nil || userID <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de usuario inválido"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": ErrInvalidUserID})
 		return
 	}
 
