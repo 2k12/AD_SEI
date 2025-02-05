@@ -49,18 +49,24 @@ func RegisterAudit(c *gin.Context) {
 		return
 	}
 
+	// Parse del ID del usuario
 	userID, err := strconv.ParseUint(input.UserID, 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "El ID del usuario debe ser un número válido"})
 		return
 	}
 
+	// Parse de la fecha recibida y conversión a UTC
 	date, err := time.Parse(time.RFC3339, input.Date)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "El formato de la fecha es inválido"})
 		return
 	}
 
+	// Convertir la fecha a UTC
+	date = date.UTC()
+
+	// Registrar la auditoría con la fecha en UTC
 	if err := services.RegisterAudit(input.Event, input.Description, uint(userID), input.OriginService, date); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al registrar la auditoría"})
 		return
@@ -68,6 +74,7 @@ func RegisterAudit(c *gin.Context) {
 
 	c.JSON(http.StatusOK, RegisterAuditResponse{Message: "Auditoría registrada exitosamente"})
 }
+
 func GetAuditStatistics(event, module, startDate, endDate string) ([]models.AuditStatisticsResponse, error) {
 	var stats []models.AuditStatisticsResponse
 
@@ -204,3 +211,31 @@ func GetAuditoriaEstadisticas(c *gin.Context) {
 	// Devolver resultados
 	c.JSON(http.StatusOK, response)
 }
+
+// func RegisterAudit(c *gin.Context) {
+// 	var input RegisterAuditInput
+
+// 	if err := c.ShouldBindJSON(&input); err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 		return
+// 	}
+
+// 	userID, err := strconv.ParseUint(input.UserID, 10, 32)
+// 	if err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": "El ID del usuario debe ser un número válido"})
+// 		return
+// 	}
+
+// 	date, err := time.Parse(time.RFC3339, input.Date)
+// 	if err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": "El formato de la fecha es inválido"})
+// 		return
+// 	}
+
+// 	if err := services.RegisterAudit(input.Event, input.Description, uint(userID), input.OriginService, date); err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al registrar la auditoría"})
+// 		return
+// 	}
+
+//		c.JSON(http.StatusOK, RegisterAuditResponse{Message: "Auditoría registrada exitosamente"})
+//	}
