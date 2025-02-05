@@ -40,6 +40,18 @@ func CreatePermission(c *gin.Context) {
 		return
 	}
 
+	// Verificar si el módulo existe y está activo
+	var module models.Module
+	if err := config.DB.First(&module, "id = ?", input.ModuleID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "El módulo no existe"})
+		return
+	}
+
+	if !module.Active {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No se puede asignar un permiso a un módulo inactivo"})
+		return
+	}
+
 	permission, err := services.CreatePermission(models.Permission{
 		Name:        input.Name,
 		Description: input.Description,
@@ -150,6 +162,18 @@ func UpdatePermission(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Verificar si el módulo existe y está activo
+	var module models.Module
+	if err := config.DB.First(&module, "id = ?", input.ModuleID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "El módulo no existe"})
+		return
+	}
+
+	if !module.Active {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No se puede reasignar un permiso a un módulo inactivo"})
 		return
 	}
 
