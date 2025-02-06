@@ -15,5 +15,4 @@ type Role struct {
 	UpdatedAt   time.Time    `gorm:"autoUpdateTime" json:"updated_at"`
 	Permissions []Permission `gorm:"many2many:role_permissions" json:"permissions"`
 	// IDModule    uint         `gorm:"type:int;unique;not null" json:"id_module"`
-	IDModule uint `gorm:"not null" json:"id_module"`
 }

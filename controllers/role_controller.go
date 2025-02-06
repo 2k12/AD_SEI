@@ -48,7 +48,6 @@ func CreateRole(c *gin.Context) {
 	var input struct {
 		Name        string `json:"name" binding:"required"`
 		Description string `json:"description"`
-		IDModule    uint   `json:"id_module" binding:"required"`
 		Active      bool   `json:"active"`
 	}
 
@@ -57,7 +56,7 @@ func CreateRole(c *gin.Context) {
 		return
 	}
 
-	role, err := services.CreateRole(input.Name, input.Description, input.IDModule)
+	role, err := services.CreateRole(input.Name, input.Description)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al crear el rol"})
 		return

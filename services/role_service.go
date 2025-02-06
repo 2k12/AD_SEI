@@ -7,8 +7,8 @@ import (
 )
 
 // Crear un rol
-func CreateRole(name, description string, module uint) (models.Role, error) {
-	role := models.Role{Name: name, Description: description, IDModule: module}
+func CreateRole(name, description string) (models.Role, error) {
+	role := models.Role{Name: name, Description: description}
 	result := config.DB.Create(&role)
 	return role, result.Error
 }
