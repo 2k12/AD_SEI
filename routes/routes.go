@@ -39,9 +39,10 @@ func SetupRoutes(router *gin.Engine) {
 			api.GET("/permissions", controllers.GetPermissions)
 			api.POST("/permissions", controllers.CreatePermission)
 			api.POST("/permissions/fastCharge", controllers.ChargeFastOfData)
-			api.PUT(PermissionRoute, controllers.UpdatePermission)
-			api.DELETE(PermissionRoute, controllers.DeletePermission)
-			api.GET(PermissionRoute, controllers.GetPermissionByID)
+			api.PUT("/permissions/:id", controllers.UpdatePermission)
+			api.DELETE("/permissions/:id", controllers.DeletePermission)
+			api.GET("/permissions/:id", controllers.GetPermissionByID)
+			api.GET("/permissions/active", controllers.GetPermissionsForModal)
 
 			//api.GET("/modules", controllers.GetModules)
 
