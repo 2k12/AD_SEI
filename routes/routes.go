@@ -39,6 +39,7 @@ func SetupRoutes(router *gin.Engine) {
 			api.PUT("/permissions/:id", controllers.UpdatePermission)
 			api.DELETE("/permissions/:id", controllers.DeletePermission)
 			api.GET("/permissions/:id", controllers.GetPermissionByID)
+			api.GET("/permissions/active", controllers.GetPermissionsForModal)
 
 			//api.GET("/modules", controllers.GetModules)
 

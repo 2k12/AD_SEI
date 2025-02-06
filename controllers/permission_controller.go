@@ -123,6 +123,25 @@ func GetPermissions(c *gin.Context) {
 	})
 }
 
+// GetPermissionsForModal obtiene todos los permisos activos
+// @Summary Obtener permisos activos para el modal
+// @Description Devuelve una lista de permisos activos, incluyendo los módulos a los que pertenecen.
+// @Tags Permisos
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} map[string]interface{} "permissions"
+// @Failure 401 {object} map[string]string "error"
+// @Failure 500 {object} map[string]string "error"
+// @Router /permissions/active [get]
+func GetPermissionsForModal(c *gin.Context) {
+	permissions, err := services.GetActivePermissions()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener los permisos activos"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"permissions": permissions})
+}
+
 // UpdatePermission actualiza un permiso existente
 // @Summary Actualizar permiso
 // @Description Actualiza los datos de un permiso existente. Requiere un Bearer Token.

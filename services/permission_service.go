@@ -20,6 +20,15 @@ func GetPermissions() ([]models.Permission, error) {
 	return permissions, nil
 }
 
+// GetActivePermissions devuelve los permisos que están activos.
+func GetActivePermissions() ([]models.Permission, error) {
+	var permissions []models.Permission
+	if err := config.DB.Where("active = ?", true).Preload("Module").Find(&permissions).Error; err != nil {
+		return nil, err
+	}
+	return permissions, nil
+}
+
 func GetPaginatedPermissions(page, pageSize int, filters map[string]interface{}) ([]models.Permission, int64, error) {
 	var permissions []models.Permission
 	var total int64
